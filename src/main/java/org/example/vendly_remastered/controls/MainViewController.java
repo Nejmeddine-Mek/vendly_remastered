@@ -1,0 +1,121 @@
+package org.example.vendly_remastered.controls;
+
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import org.example.vendly_remastered.cache.PagesCache;
+import org.example.vendly_remastered.constants.Constants;
+import org.example.vendly_remastered.constants.PagesPriorities;
+
+import java.io.IOException;
+import java.net.URL;
+import java.util.ResourceBundle;
+
+public class MainViewController implements Initializable {
+
+    @FXML private VBox contentContainer;
+    @FXML private Button salesButton;
+    @FXML private Button productsButton;
+    @FXML private Button clientsButton;
+    @FXML private Button suppliersButton;
+    @FXML private Button historyButton;
+    @FXML private Button purchasesButton;
+    @FXML private Button dashboardButton;
+    @FXML private Button settingsButton;
+    @FXML private Button usersButton;
+    @FXML private Button logoutButton;
+    @FXML private Label dateLabel;
+    @FXML private Label usernameLabel;
+
+    // Here we have our Logic control variables
+    PagesCache pagesCache = new PagesCache();
+
+
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // first you must check the language
+        // now we set default behaviour of each field and button
+
+        usernameLabel.setText("Nejem Eddine");
+        //now we must inject the default page which should be the sales
+        setupNavigationButtons();
+        togglePage(Constants.SALES_VIEW);
+        //injectView(Constants.getViewPath(Constants.CLIENTS_VIEW));
+
+    }
+
+    private void setupNavigationButtons() {
+        // Map each FXML button directly to its corresponding view constant
+        salesButton.setOnAction(_ -> togglePage(Constants.SALES_VIEW));
+        productsButton.setOnAction(_ -> togglePage(Constants.PRODUCTS_VIEW));
+        clientsButton.setOnAction(_ -> togglePage(Constants.CLIENTS_VIEW));
+        suppliersButton.setOnAction(_ -> togglePage(Constants.SUPPLIERS_VIEW));
+        historyButton.setOnAction(_ -> togglePage(Constants.HISTORY_VIEW));
+        purchasesButton.setOnAction(_ -> togglePage(Constants.PURCHASES_VIEW));
+        dashboardButton.setOnAction(_ -> togglePage(Constants.DASHBOARD_VIEW));
+        settingsButton.setOnAction(_ -> togglePage(Constants.SETTINGS_VIEW));
+        usersButton.setOnAction(_ -> togglePage(Constants.USERS_VIEW));
+    }
+
+    private void togglePage(Constants pageName) {
+        // 1. Look for the page in your 4-slot cache
+        Parent page = pagesCache.getPage(pageName);
+
+        if (page == null) {
+            // CACHE MISS: Get the FXML path
+            String fxmlPath = Constants.getViewPath(pageName);
+
+            // Load the page and apply your custom layout fixes
+            page = injectView(fxmlPath);
+
+            // Grab its priority and store it in the cache engine
+            int priority = PagesPriorities.getPriority(pageName);
+            pagesCache.addPage(page, pageName, priority);
+            System.out.println("[Router] Cache MISS. Loaded and cached: " + pageName);
+        } else {
+            System.out.println("[Router] Cache HIT! Reusing layout for: " + pageName);
+        }
+
+        // 2. Clear old screen elements and drop the hot page into view
+        contentContainer.getChildren().clear();
+        contentContainer.getChildren().add(page);
+    }
+    private Parent injectView(String fxmlPath) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            Parent targetNode = loader.load();
+
+            // 1. Force your custom layout constraints
+            VBox.setVgrow(targetNode, javafx.scene.layout.Priority.ALWAYS);
+
+            // 2. Your Forced Dimension Fix (Keeps UI responsive)
+            if (targetNode instanceof Region region) {
+                region.prefWidthProperty().bind(contentContainer.widthProperty());
+                region.prefHeightProperty().bind(contentContainer.heightProperty());
+            }
+
+            // 3. AnchorPane fallback rules
+            if (targetNode instanceof AnchorPane) {
+                AnchorPane.setTopAnchor(targetNode, 0.0);
+                AnchorPane.setBottomAnchor(targetNode, 0.0);
+                AnchorPane.setLeftAnchor(targetNode, 0.0);
+                AnchorPane.setRightAnchor(targetNode, 0.0);
+            }
+
+            // Return the perfectly scaled layout root so togglePage can cache it
+            return targetNode;
+
+        } catch (IOException e) {
+            System.err.println("Failed to load layout view component: " + fxmlPath);
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
+    }
+}

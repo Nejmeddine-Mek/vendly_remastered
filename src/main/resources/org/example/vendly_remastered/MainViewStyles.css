@@ -1,0 +1,358 @@
+/* ==========================================================================
+   Global Variables & Root Configurations
+   ========================================================================== */
+.root {
+    /* Your Core Theme Palette */
+    -fx-sidebar-bg: #1E293B;       /* Deep Navy Sidebar */
+    -fx-workspace-bg: #F8FAFC;     /* Light Grayish Blue Main Canvas */
+    -fx-header-bg: #FFFFFF;        /* Crisp White Top Navbar Header */
+
+    /* Branding Accents */
+    -fx-accent-blue: #3B82F6;      /* Electric Blue Accent for active selections */
+    -fx-nav-hover: #334155;        /* Slate Gray for sidebar hover effects */
+
+    /* Typography Color Variables */
+    -fx-text-light: #FFFFFF;       /* White text for dark surfaces */
+    -fx-text-muted: #94A3B8;       /* Muted Blue-Gray text */
+    -fx-text-dark: #0F172A;        /* Dark Slate text for white surfaces */
+    -fx-text-dark-muted: #64748B;  /* Muted Slate text for secondary details */
+
+    /* Danger Actions (Log Out) */
+    -fx-danger-red: #EF4444;       /* Modern Flat Salmon/Red */
+    -fx-danger-hover: #DC2626;     /* Darker Red on Hover */
+}
+
+/* ==========================================================================
+   Structural Layout Containers
+   ========================================================================== */
+.sidebar {
+    -fx-background-color: #1E293B; /* Deep Navy */
+}
+
+.workspace {
+    -fx-background-color: #F8FAFC; /* Light Grayish Blue */
+}
+
+/* ==========================================================================
+   Navigation Menu Buttons
+   ========================================================================== */
+.navBtn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94A3B8; /* Muted Blue-Gray for idle state */
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 12px 18px;
+    -fx-background-radius: 6px;
+    -fx-pref-width: 200px; /* Aligns all buttons uniformly */
+}
+
+/* Hover State */
+.navBtn:hover {
+    -fx-background-color: #334155; /* Lighter navy breakout */
+    -fx-text-fill: #FFFFFF; /* Crisp White text */
+}
+
+/* Active / Focused Module State */
+.navBtn:focused, .navBtn.active {
+    -fx-background-color: #3B82F6; /* Electric Blue Accent */
+    -fx-text-fill: #FFFFFF; /* Crisp White text */
+    -fx-font-weight: bold;
+}
+
+/* Header Container Bar Styling */
+.header-bar {
+    -fx-background-color: -fx-secondary-dark; /* ⭐ REMOVED var() */
+    -fx-border-color: -fx-primary-dark;     /* ⭐ REMOVED var() */
+    -fx-border-width: 0 0 1 0; /* Creates a clean bottom divider line */
+    -fx-padding: 0 25 0 25;
+}
+
+/* Username Label Styling */
+.header-username {
+    -fx-text-fill: -fx-text-primary; /* ⭐ REMOVED var() */
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+/* Date Label Styling */
+.header-date {
+    -fx-text-fill: -fx-text-muted; /* ⭐ REMOVED var() */
+    -fx-font-size: 13px;
+    -fx-font-style: italic;
+}
+
+/* Beautiful Action Button Custom Styling */
+.logout-button {
+    -fx-background-color: -fx-danger-red; /* ⭐ REMOVED var() */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 8px 16px;
+    -fx-background-radius: 4px;
+}
+
+/* Interactive hover state for the button */
+.logout-button:hover {
+    -fx-background-color: -fx-danger-hover; /* ⭐ REMOVED var() */
+}
+
+/* Main Content Working Pane Styling */
+.main-content-pane {
+    -fx-background-color: #3c3f41;
+}
+/*SALES STYLING STARTS HERE*/
+
+/* ==========================================================================
+   Point-of-Sale / Input Form Layout Styling
+   ========================================================================== */
+
+/* The outer container box creating a clean elevated card element */
+.form-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;     /* Ultra subtle boundary outline */
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    /* This adds spacing inside the container card border */
+    -fx-padding: 10px;
+    -fx-pref-height: 100%;
+    -fx-pref-width: 100%;
+}
+
+/* Subtle separator line between left entry and right parameters */
+.form-divider {
+
+    -fx-background-color: #E2E8F0;
+    -fx-margin: 0 5 0 5;
+    -fx-padding: 3 5 3 5;
+}
+
+/* Base formatting for individual label tags */
+.form-label {
+    -fx-text-fill: #334155;        /* Deep slate text for accessibility */
+    -fx-font-weight: 600;         /* Bold typography weight */
+    -fx-font-size: 13px;
+}
+
+/* Grayed out italic descriptive hints */
+.form-label-helper {
+    -fx-text-fill: #64748B;
+    -fx-font-style: italic;
+    -fx-font-size: 12px;
+}
+
+/* Clean UI Text Input Fields */
+.form-field {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CBD5E1;     /* Soft border */
+    -fx-border-width: 1px;
+    -fx-border-radius: 6px;
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 12px;
+    -fx-text-fill: #0F172A;
+    -fx-font-size: 13px;
+}
+
+/* Transition ring when a user activates an input field */
+.form-field:focused {
+    -fx-border-color: #3B82F6;     /* Uses your active Electric Blue Accent */
+    -fx-border-width: 1.5px;
+    -fx-background-color: #FFFFFF;
+}
+
+/* Custom design formatting for input placeholder text strings */
+.form-field *.text {
+    -fx-text-fill: #0F172A;
+}
+.form-field:disabled {
+    -fx-background-color: #F1F5F9;
+    -fx-border-color: #E2E8F0;
+    -fx-text-fill: #94A3B8;
+}
+
+/* Modern Checkbox Configuration Rules */
+.form-checkbox {
+    -fx-text-fill: #334155;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.form-checkbox .box {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #CBD5E1;
+    -fx-border-radius: 4px;
+    -fx-background-radius: 4px;
+    -fx-padding: 3px;
+}
+
+.form-checkbox:hover .box {
+    -fx-border-color: #94A3B8;
+}
+
+.form-checkbox:selected .box {
+    -fx-background-color: #3B82F6;
+    -fx-border-color: #3B82F6;
+}
+
+.form-checkbox .mark {
+    -fx-background-color: transparent;
+    -fx-shape: "M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"; /* Crisp SVG checkmark shape */
+}
+
+.form-checkbox:selected .mark {
+    -fx-background-color: #FFFFFF;
+}
+
+/*TABLE STYLES ARE HERE*/
+
+/* ==========================================================================
+   SaaS TableView & Checkout Layout Styling
+   ========================================================================== */
+
+/* Core Data Table Styling */
+.pos-table {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 0;
+}
+
+/* Header row of the table */
+.pos-table .column-header-background {
+    -fx-background-color: #F8FAFC; /* Match your light grayish blue */
+    -fx-background-radius: 8px 8px 0 0;
+}
+
+.pos-table .column-header {
+    -fx-background-color: transparent;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 0 1 1 0; /* Clear bottom cell lines */
+    -fx-size: 40px;
+}
+
+.pos-table .column-header .label {
+    -fx-text-fill: #475569;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+/* Individual cell customization */
+.pos-table .table-cell {
+    -fx-text-fill: #0F172A;
+    -fx-font-size: 13px;
+    -fx-padding: 12px;
+    -fx-border-color: #F1F5F9;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Highlights the currently selected row in electric blue */
+.pos-table .table-row-cell:selected {
+    -fx-background-color: #EFF6FF;
+    -fx-text-fill: #3B82F6;
+}
+
+/* Right Section Total Wrapper Card */
+.total-card {
+    -fx-background-color: #FFFFFF;
+    -fx-border-color: #E2E8F0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-padding: 20px;
+}
+
+.total-card-title {
+    -fx-text-fill: #64748B;
+    -fx-font-weight: 800;
+    -fx-font-size: 11px;
+}
+
+/* Dark, sleek indicator frame for the running total */
+.total-display-box {
+    -fx-background-color: #0F172A; /* Slate 900 dark display */
+    -fx-background-radius: 6px;
+    -fx-padding: 20px;
+}
+
+.total-display-label {
+    -fx-text-fill: #94A3B8;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.total-display-value {
+    -fx-text-fill: #3B82F6; /* Accent Electric Blue */
+    -fx-font-size: 32px;
+    -fx-font-weight: 900;
+}
+
+/* Big Green Primary Checkout Button */
+.action-btn-primary {
+    -fx-background-color: #10B981; /* Premium Emerald Green */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 12px;
+    -fx-background-radius: 6px;
+}
+
+.action-btn-primary:hover {
+    -fx-background-color: #059669;
+}
+
+/*client management*/
+/* ==========================================================================
+   Client View Specific Accent Overrides
+   ========================================================================== */
+
+/* View & Modify Button: Clean dark slate look to fit dashboard configuration */
+.btn-action-manage {
+    -fx-background-color: -fx-accent-blue;
+    -fx-text-fill: -fx-text-light;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-padding: 12px;
+    -fx-background-radius: 6px;
+}
+
+.btn-action-manage:hover {
+    -fx-background-color: -fx-nav-hover;
+}
+
+/* Pay/Clear Debt Button: Warning amber tone to call out financial operations */
+.btn-action-finance {
+    -fx-background-color: #F59E0B; /* Tailwind Amber-500 */
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 12px;
+    -fx-background-radius: 6px;
+}
+
+.btn-action-finance:hover {
+    -fx-background-color: #D97706; /* Tailwind Amber-600 */
+}
+
+/*products*/
+/* ==========================================================================
+   Product View Specific Accent Overrides
+   ========================================================================== */
+
+/* Low Stock Indicator Tag */
+.text-stock-warning {
+    -fx-text-fill: -fx-danger-red;
+    -fx-font-weight: bold;
+}
+
+/* Healthy Stock Indicator Tag */
+.text-stock-healthy {
+    -fx-text-fill: #10B981; /* Match your premium emerald green */
+    -fx-font-weight: bold;
+}
+
+/*suppliers*/
+

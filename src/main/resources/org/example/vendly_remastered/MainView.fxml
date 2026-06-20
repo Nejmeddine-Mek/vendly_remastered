@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane minHeight="576.0" minWidth="1024.0" styleClass="root" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.MainViewController">
+   <children>
+      <HBox minHeight="576.0" minWidth="1024.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <VBox minHeight="576.0" minWidth="230.0">
+               <children>
+                  <VBox minHeight="141.0" minWidth="230.0" />
+                  <VBox alignment="CENTER" prefHeight="436.0" prefWidth="230.0">
+                     <children>
+                        <Button fx:id="salesButton" mnemonicParsing="false" styleClass="navBtn" text="Sales">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="productsButton" mnemonicParsing="false" styleClass="navBtn" text="Products">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="clientsButton" mnemonicParsing="false" styleClass="navBtn" text="Clients">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="suppliersButton" mnemonicParsing="false" styleClass="navBtn" text="Suppliers">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="historyButton" mnemonicParsing="false" styleClass="navBtn" text="HIstory">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="purchasesButton" mnemonicParsing="false" styleClass="navBtn" text="Purchases">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="dashboardButton" mnemonicParsing="false" styleClass="navBtn" text="Dashboard">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="settingsButton" mnemonicParsing="false" styleClass="navBtn" text="Settings">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                        <Button fx:id="usersButton" mnemonicParsing="false" styleClass="navBtn" text="Users">
+                           <cursor>
+                              <Cursor fx:constant="HAND" />
+                           </cursor></Button>
+                     </children>
+                  </VBox>
+               </children>
+            </VBox>
+            <VBox minHeight="576.0" styleClass="workspace" HBox.hgrow="ALWAYS">
+               <children>
+                  <!-- Top Dynamic Header Bar Area -->
+                  <HBox alignment="CENTER_RIGHT" prefHeight="70.0" styleClass="header-bar" HBox.hgrow="ALWAYS">
+                     <children>
+                        <Label fx:id="usernameLabel" prefHeight="70.0" prefWidth="206.0" styleClass="header-username" text="Username" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="dateLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="70.0" prefWidth="346.0" styleClass="header-date" text="Date" HBox.hgrow="ALWAYS" />
+
+                        <!-- This spacer will automatically expand to push the logout button to the far right edge 
+                        <Region HBox.hgrow="ALWAYS" />-->
+
+                        <Button fx:id="logoutButton" mnemonicParsing="false" styleClass="logout-button" text="Log Out" HBox.hgrow="ALWAYS">
+                           <HBox.margin>
+                              <Insets left="50.0" />
+                           </HBox.margin></Button>
+                     </children>
+                  </HBox>
+
+                  <!-- Sub-page injection panel now expands to 100% of available screen size -->
+                  <VBox fx:id="contentContainer" styleClass="main-content-pane" VBox.vgrow="ALWAYS" />
+               </children>
+            </VBox>
+         </children>
+      </HBox>
+   </children>
+</AnchorPane>

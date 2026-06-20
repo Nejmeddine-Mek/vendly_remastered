@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane minHeight="506.0" minWidth="794.0" styleClass="form-divider" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.SalesViewController">
+   <children>
+      <VBox minHeight="506.0" minWidth="794.0" styleClass="form-card" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">         <children>
+            <HBox spacing="30.0" xmlns="http://javafx.com" xmlns:fx="http://javafx.com">
+               <children>
+
+                  <!-- LEFT SECTION: Item Entry Form Elements -->
+                  <VBox spacing="10.0" HBox.hgrow="ALWAYS">
+                     <children>
+                        <!-- Line 1: Quantity and Price Inputs -->
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Label fx:id="quantityLabel" minWidth="-Infinity" styleClass="form-label" text="Quantity" />
+                              <TextField fx:id="quantityField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+
+                              <Label fx:id="priceLabel" minWidth="-Infinity" styleClass="form-label" text="Price">
+                                 <HBox.margin>
+                                    <Insets left="15.0" />
+                                 </HBox.margin>
+                              </Label>
+                              <TextField fx:id="priceField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </HBox>
+
+                        <!-- Line 2: Product Barcode or Search Hook -->
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Label fx:id="barcodeLabel" minWidth="-Infinity" styleClass="form-label" text="Barcode/Name" />
+                              <!-- This primary entry field expands aggressively to occupy layout slack -->
+                              <TextField fx:id="barcodeField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="noteLabel" minWidth="-Infinity" style="-fx-text-fill: #64748B; -fx-font-style: italic;" styleClass="form-label-helper" text="search by name @..." />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </HBox>
+                     </children>
+                  </VBox>
+
+                  <!-- RIGHT SECTION: Client Profile & Payment Meta Data -->
+                  <VBox minWidth="300.0" spacing="10.0" HBox.hgrow="SOMETIMES">
+                     <children>
+                        <!-- Line 1: Client Selection Flag -->
+                        <HBox alignment="CENTER_LEFT" minHeight="30.0">
+                           <children>
+                              <CheckBox fx:id="clientCheckBox" mnemonicParsing="false" styleClass="form-checkbox" text="Client" />
+                           </children>
+                        </HBox>
+
+                        <!-- Line 2: Client Profile Identification Query -->
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Label fx:id="clientName" minWidth="100.0" styleClass="form-label" text="Client Name" />
+                              <TextField fx:id="clientNameField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+
+                        <!-- Line 3: Credit Tracking & Debt Handling Parameters -->
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Label fx:id="paidAmountLabel" minWidth="100.0" styleClass="form-label" text="Not fully paid" />
+                              <TextField fx:id="paidAmountField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+
+               </children>
+            </HBox>
+            <HBox spacing="20.0" VBox.vgrow="ALWAYS" xmlns="http://javafx.com" xmlns:fx="http://javafx.com">
+               <children>
+
+                  <!-- Live Checkout Receipt Data Table -->
+                  <TableView fx:id="saleItemsTable" styleClass="pos-table" HBox.hgrow="ALWAYS">
+                     <columns>
+                        <TableColumn fx:id="colBarcode" text="Barcode" />
+                        <TableColumn fx:id="colProduct" text="Product" />
+                        <TableColumn fx:id="colQuantity" text="Quantity" />
+                        <TableColumn fx:id="colUnitPrice" text="Unit Price" />
+                        <TableColumn fx:id="colSubTotal" text="Sub-Total" />
+                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
+                  </TableView>
+
+                  <!-- Right Pane: Checkout Actions & Grand Total Summary Panel -->
+                  <VBox minWidth="280.0" prefWidth="280.0" styleClass="total-card" HBox.hgrow="SOMETIMES">
+                     <children>
+                        <Label fx:id="transactionSummaryLabel" styleClass="total-card-title" text="TRANSACTION SUMMARY" />
+                        <Region VBox.vgrow="ALWAYS" />
+
+                        <!-- Big Bold Total Readout Display -->
+                        <VBox alignment="CENTER" styleClass="total-display-box">
+                           <children>
+                              <Label fx:id="totalAmountLabel" styleClass="total-display-label" text="Total Amount" />
+                              <Label fx:id="totalLabel" styleClass="total-display-value" text="0.00 DA" />
+                           </children>
+                        </VBox>
+
+                        <Region VBox.vgrow="ALWAYS" />
+                        <!-- Action buttons for checkout -->
+                        <Button fx:id="confirmButton" maxWidth="Infinity" styleClass="action-btn-primary" text="Confirm &amp; Print" />
+                     </children>
+                  </VBox>
+
+               </children>
+               <padding>
+                  <Insets top="10.0" />
+               </padding>
+            </HBox>
+
+         </children>
+      </VBox>
+
+   </children>
+</AnchorPane>
