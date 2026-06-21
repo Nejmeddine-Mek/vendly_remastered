@@ -16,7 +16,7 @@ public enum Constants {
             case MAIN_VIEW      -> "MainView.fxml";
             case LOGIN_VIEW     -> "LoginView.fxml";
             case SETTINGS_VIEW  -> "settingsView.fxml";
-            case USERS_VIEW     -> "usersView.fxml";
+            case USERS_VIEW     -> "UsersView.fxml";
             case DASHBOARD_VIEW -> "dashboardView.fxml";
             case PURCHASES_VIEW -> "purchasesView.fxml";
         };

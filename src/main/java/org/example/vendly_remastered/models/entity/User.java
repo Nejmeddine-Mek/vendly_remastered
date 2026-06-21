@@ -4,18 +4,22 @@ import java.time.LocalDateTime;
 
 public class User {
 
-    private final int userId;
-    private final String username;
-    private final String passwordHash;
-    private final String fullName;
-    private final boolean isActive;
-    private final LocalDateTime createdAt;
-    private final LocalDateTime lastLogin;
-    private final short roleId;
+    private int userId;
+    private String username;
+    private String passwordHash;
+    private String fullName;
+    private boolean isActive;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLogin;
+    private short roleId;
+    private String roleName;
 
-    // Primary constructor for mapping straight out of your ResultSet
+    // No-arg constructor for dynamic ResultSet mapping
+    public User() {}
+
+    // Primary constructor
     public User(int userId, String username, String passwordHash, String fullName,
-                boolean isActive, LocalDateTime createdAt, LocalDateTime lastLogin, short roleId) {
+                boolean isActive, LocalDateTime createdAt, LocalDateTime lastLogin, short roleId, String roleName) {
         this.userId = userId;
         this.username = username;
         this.passwordHash = passwordHash;
@@ -24,22 +28,43 @@ public class User {
         this.createdAt = createdAt;
         this.lastLogin = lastLogin;
         this.roleId = roleId;
+        this.roleName = roleName;
     }
 
-    // Secondary convenience constructor (useful for inserts when database handles defaults)
+    // Secondary convenience constructor for manual insertions
     public User(String username, String passwordHash, String fullName, short roleId) {
-        this(0, username, passwordHash, fullName, true, LocalDateTime.now(), null, roleId);
+        this(0, username, passwordHash, fullName, true, LocalDateTime.now(), null, roleId, null);
     }
 
-    // Getters
+    // --- Strict JavaBean Standard Getters and Setters ---
+
     public int getUserId() { return userId; }
+    public void setUserId(int userId) { this.userId = userId; }
+
     public String getUsername() { return username; }
+    public void setUsername(String username) { this.username = username; }
+
     public String getPasswordHash() { return passwordHash; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
+
     public String getFullName() { return fullName; }
-    public boolean isActive() { return isActive; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
+
+    // Standard boolean naming convention (is... / set...)
+    public boolean isIsActive() { return isActive; }
+    public void setIsActive(boolean isActive) { this.isActive = isActive; }
+
     public LocalDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
     public LocalDateTime getLastLogin() { return lastLogin; }
+    public void setLastLogin(LocalDateTime lastLogin) { this.lastLogin = lastLogin; }
+
     public short getRoleId() { return roleId; }
+    public void setRoleId(short roleId) { this.roleId = roleId; }
+
+    public String getRoleName() { return roleName; }
+    public void setRoleName(String roleName) { this.roleName = roleName; }
 
     @Override
     public String toString() {
@@ -47,8 +72,8 @@ public class User {
                 "userId=" + userId +
                 ", username='" + username + '\'' +
                 ", fullName='" + fullName + '\'' +
+                ", roleName='" + roleName + '\'' +
                 ", isActive=" + isActive +
-                ", roleId=" + roleId +
                 '}';
     }
 }
