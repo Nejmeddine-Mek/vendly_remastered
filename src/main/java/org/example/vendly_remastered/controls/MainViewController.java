@@ -13,9 +13,12 @@ import javafx.scene.layout.VBox;
 import org.example.vendly_remastered.cache.PagesCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
+import org.example.vendly_remastered.security.UserSession;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
@@ -42,8 +45,8 @@ public class MainViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // first you must check the language
         // now we set default behaviour of each field and button
-
-        usernameLabel.setText("Nejem Eddine");
+        dateLabel.setText(LocalDate.now().toString());
+        usernameLabel.setText(UserSession.getInstance().getFullName());
         //now we must inject the default page which should be the sales
         setupNavigationButtons();
         togglePage(Constants.SALES_VIEW);

@@ -22,8 +22,8 @@ public class UserSQLiteImpl implements IUserRepository {
     @Override
     public boolean authenticate(String username, String password) {
 
-        String sql = "SELECT * FROM users U" +
-                "JOIN roles R ON U.role = R.role_id" +
+        String sql = "SELECT * FROM users U " +
+                "JOIN roles R ON U.role = R.role_id " +
                 "WHERE U.username = ?;";
 
         try(PreparedStatement pstmt = connection.prepareStatement(sql)){
@@ -51,7 +51,7 @@ public class UserSQLiteImpl implements IUserRepository {
                         UserSession.startSession(
                                 rs.getInt("userId"),
                                 rs.getString("username"),
-                                rs.getString("fullName"),
+                                rs.getString("full_name"),
                                 rs.getString("role_name"),
                                 privileges
                         );
