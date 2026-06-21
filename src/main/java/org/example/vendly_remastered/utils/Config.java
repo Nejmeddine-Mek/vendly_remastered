@@ -1,4 +1,4 @@
-package org.example.vendly_remastered.models;
+package org.example.vendly_remastered.utils;
 
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;

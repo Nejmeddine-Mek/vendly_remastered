@@ -1,4 +1,4 @@
-package org.example.vendly_remastered.models;
+package org.example.vendly_remastered.security;
 
 public class PrivilegeState {
     private Boolean canSell;

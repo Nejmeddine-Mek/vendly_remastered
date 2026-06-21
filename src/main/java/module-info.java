@@ -10,6 +10,7 @@ module org.example.vendly_remastered {
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
     requires java.sql;
+    requires jbcrypt;
 
     opens org.example.vendly_remastered to javafx.fxml;
     opens org.example.vendly_remastered.controls to javafx.fxml;
