@@ -1,10 +1,16 @@
 package org.example.vendly_remastered.controls;
 
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IUserRepository;
 
@@ -35,6 +41,9 @@ public class UsersViewController implements Initializable {
 
     private IUserRepository userRepository;
     private ObservableList<User> usersList;
+    private FilteredList<User> filteredUsers;
+
+    private FormMode currentMode = FormMode.VIEW_EDIT;
 
     public void setUserRepository(IUserRepository userRepository){
         this.userRepository = userRepository;
@@ -46,20 +55,19 @@ public class UsersViewController implements Initializable {
         // set buttons behaviour
         setTableColumnsBehaviour();
         setAddUserButtonBehaviour();
-
+        setUserTableViewBehaviour();
+        setSearchBarBehaviour();
         // load users data
     }
+
     public void initializeTable(){
         if (userRepository == null) return;
         // Make sure to instantiate the observable list wrapper
         this.usersList = javafx.collections.FXCollections.observableArrayList();
         List<User> ul = userRepository.findAll();
-        if(ul.isEmpty())
-            System.out.println("empty list");
-        ul.forEach(e -> System.out.println(e.getFullName()));
         this.usersList.addAll(ul);
-
-        userTableView.setItems(this.usersList);
+        this.filteredUsers = new FilteredList<>(this.usersList);
+        userTableView.setItems(this.filteredUsers);
         userTableView.refresh();
     }
 
@@ -74,10 +82,6 @@ public class UsersViewController implements Initializable {
     }
 
     private void setAddUserButtonBehaviour(){
-        System.out.println("sadsad");
-        addUserButton.setOnAction( _ -> {
-            initializeTable();
-        });
     }
 
     private void setUserTableViewBehaviour(){
@@ -105,7 +109,8 @@ public class UsersViewController implements Initializable {
     private void setUserModifyButtonBehaviour(){
 
     }
-    private void setToggleStatusButtonBehviour(){
+
+    private void setToggleStatusButtonBehaviour(){
         toggleStatusButton.setOnAction(event -> {
             User selectedUser = userTableView.getSelectionModel().getSelectedItem();
             if (selectedUser == null || userRepository == null) return;
@@ -123,4 +128,74 @@ public class UsersViewController implements Initializable {
             }
         });
     }
+
+    private void setSearchBarBehaviour() {
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (filteredUsers == null) return;
+
+            filteredUsers.setPredicate(user -> {
+                // If search box is empty, show everything
+                if (newValue == null || newValue.trim().isEmpty()) {
+                    return true;
+                }
+
+                String query = newValue.toLowerCase().trim();
+
+                // 🎯 CONCATENATION STRATEGY: Combine all search target parameters into one unified text block
+                String searchHaystack = String.join(" | ",
+                        String.valueOf(user.getUserId()),
+                        user.getUsername() != null ? user.getUsername() : "",
+                        user.getFullName() != null ? user.getFullName() : "",
+                        user.getRoleName() != null ? user.getRoleName() : "",
+                        user.isIsActive() ? "active" : "inactive",
+                        user.getCreatedAt() != null ? user.getCreatedAt().toString() : "",
+                        user.getLastLogin() != null ? user.getLastLogin().toString() : "never"
+                ).toLowerCase();
+
+                // Return true if any part of the concatenated string hits the search phrase
+                return searchHaystack.contains(query);
+            });
+        });
+    }
+
+    private void openUserModal(User user) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/views/UserDetailsModal.fxml"));
+            Parent root = loader.load();
+
+            UserDetailsModalController modalController = loader.getController();
+            // 🎯 Note: We no longer even need to pass the repository to the modal!
+            modalController.setMode(user);
+
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setScene(new Scene(root));
+
+            // Execution pauses here while the user interacts with the popup
+            modalStage.showAndWait();
+
+            // 🌟 THE HANDOFF: Execution resumes here once the window closes
+            if (modalController.isSaveClicked()) {
+                // Fetch the updated user entity instance directly from the modal's state
+                User updatedUser = modalController.getUserChanges();
+
+                // Parent controller securely executes the database write operation
+                userRepository.save(updatedUser);
+
+                // Re-fetch from DB and reload the TableView columns instantly
+                initializeTable();
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+
+
+
+
+    private enum FormMode { VIEW_EDIT, CREATION }
+
 }
+

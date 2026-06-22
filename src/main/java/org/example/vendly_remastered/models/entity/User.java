@@ -1,5 +1,7 @@
 package org.example.vendly_remastered.models.entity;
 
+import org.example.vendly_remastered.security.PasswordHasher;
+
 import java.time.LocalDateTime;
 
 public class User {
@@ -75,5 +77,9 @@ public class User {
                 ", roleName='" + roleName + '\'' +
                 ", isActive=" + isActive +
                 '}';
+    }
+
+    public void setPassword(String text) {
+        this.passwordHash = PasswordHasher.hashPassword(text);
     }
 }
