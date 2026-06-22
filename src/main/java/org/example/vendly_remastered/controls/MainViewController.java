@@ -14,9 +14,11 @@ import org.example.vendly_remastered.cache.PagesCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
 import org.example.vendly_remastered.security.UserSession;
+import org.example.vendly_remastered.utils.RoutingMacros;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ResourceBundle;
@@ -94,7 +96,11 @@ public class MainViewController implements Initializable {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent targetNode = loader.load();
+            Object controller = loader.getController();
+            if(controller != null)
+                RoutingMacros.execute(controller);
 
+            // inject around here maybe
             // 1. Force your custom layout constraints
             VBox.setVgrow(targetNode, javafx.scene.layout.Priority.ALWAYS);
 
@@ -118,6 +124,8 @@ public class MainViewController implements Initializable {
         } catch (IOException e) {
             System.err.println("Failed to load layout view component: " + fxmlPath);
             e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }

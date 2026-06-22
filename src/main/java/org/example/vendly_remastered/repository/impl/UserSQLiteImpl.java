@@ -5,10 +5,7 @@ import org.example.vendly_remastered.repository.IUserRepository;
 import org.example.vendly_remastered.security.PasswordHasher;
 import org.example.vendly_remastered.security.UserSession;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -23,7 +20,7 @@ public class UserSQLiteImpl implements IUserRepository {
         String sql = "SELECT * FROM users U " +
                 "JOIN roles R ON U.role = R.role_id " +
                 "WHERE U.username = ?;";
-
+        String updateSql = "UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE username = ?;";
         try(PreparedStatement pstmt = connection.prepareStatement(sql)){
             pstmt.setString(1,username);
             try(ResultSet rs = pstmt.executeQuery()){
@@ -53,6 +50,15 @@ public class UserSQLiteImpl implements IUserRepository {
                                 rs.getString("role_name"),
                                 privileges
                         );
+                        try (PreparedStatement updatePstmt = connection.prepareStatement(updateSql)) {
+                            updatePstmt.setString(1, username);
+                            updatePstmt.executeUpdate();
+                        } catch (SQLException e) {
+                            System.err.println("Failed to update last_login timestamp for user: " + username);
+                            e.printStackTrace();
+                            // We don't return false here because the user authenticated successfully
+                            // and their session started; a logging slip shouldn't lock them out.
+                        }
                         return true;
                     }
                 }
@@ -123,7 +129,8 @@ public class UserSQLiteImpl implements IUserRepository {
                 user.setRoleName(rs.getString("role_name"));
                 user.setIsActive(rs.getBoolean("is_active"));
                 user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-                user.setLastLogin(rs.getTimestamp("last_login").toLocalDateTime());
+                Timestamp timestamp = rs.getTimestamp("last_login");
+                user.setLastLogin(timestamp != null ? timestamp.toLocalDateTime() : null);
 
                 // Map the joined role name directly into your new model attribute!
                 user.setRoleName(rs.getString("role_name"));

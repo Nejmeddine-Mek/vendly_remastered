@@ -17,4 +17,7 @@ module org.example.vendly_remastered {
     exports org.example.vendly_remastered;
     exports org.example.vendly_remastered.constants;
     opens org.example.vendly_remastered.constants to javafx.fxml;
+    exports org.example.vendly_remastered.utils;
+    opens org.example.vendly_remastered.utils to javafx.fxml;
+    opens org.example.vendly_remastered.models.entity to javafx.base;
 }
