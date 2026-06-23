@@ -123,6 +123,7 @@ public class UserSQLiteImpl implements IUserRepository {
 
             while (rs.next()) {
                 User user = new User();
+                user.setPasswordHash(rs.getString("password_hash"));
                 user.setUserId(rs.getInt("userId"));
                 user.setUsername(rs.getString("username"));
                 user.setFullName(rs.getString("full_name"));
@@ -131,7 +132,7 @@ public class UserSQLiteImpl implements IUserRepository {
                 user.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                 Timestamp timestamp = rs.getTimestamp("last_login");
                 user.setLastLogin(timestamp != null ? timestamp.toLocalDateTime() : null);
-
+                user.setRoleId(rs.getShort("role"));
                 // Map the joined role name directly into your new model attribute!
                 user.setRoleName(rs.getString("role_name"));
 

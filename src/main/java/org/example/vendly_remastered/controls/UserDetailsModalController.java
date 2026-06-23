@@ -40,7 +40,8 @@ public class UserDetailsModalController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        handleSaveAction();
+        setUserModifyButtonBehaviour();
+        setToggleStatusButton();
 
     }
     public void setComboRoleValues(){
@@ -74,10 +75,20 @@ public class UserDetailsModalController implements Initializable {
         selectedUser.setUsername(txtUsername.getText().trim());
         selectedUser.setFullName(txtFullName.getText().trim());
         selectedUser.setRoleName(comboRole.getValue());
+        Short assignedRoleId = roleNameToIdMap.get(comboRole.getValue());
+        if (assignedRoleId != null) {
+            selectedUser.setRoleId(assignedRoleId); // Connect the true foreign key!
+        }
 
-        // Only update password fields if the operator typed a new value
-        if (txtPassword.getText() != null && !txtPassword.getText().isEmpty()) {
-            selectedUser.setPassword(txtPassword.getText()); // Hash this before passing if needed!
+        String plainPassword = txtPassword.getText();
+
+        if (plainPassword != null && !plainPassword.trim().isEmpty()) {
+            // Case 1: They typed a password (works for BOTH new users and password updates)
+            selectedUser.setPassword(plainPassword.trim());
+        } else if (txtUserId.getText().equals("Auto-Generated")) {
+            // Case 2: It's a new user creation, but plainPassword somehow bypassed validation blank
+            // (This acts as a secondary defensive guardrail to prevent empty creations)
+            return;
         }
 
         this.saveClicked = true;
@@ -155,5 +166,16 @@ public class UserDetailsModalController implements Initializable {
             txtPassword.clear();
             txtConfirmPassword.clear();
         }
+    }
+
+    private void setUserModifyButtonBehaviour(){
+        this.userModifyButton.setOnAction(_ -> {
+            handleSaveAction();
+        });
+    }
+    private void setToggleStatusButton(){
+        this.toggleStatusButton.setOnAction(_->{
+            closeWindow();
+        });
     }
 }
