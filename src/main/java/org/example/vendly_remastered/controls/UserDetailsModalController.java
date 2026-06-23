@@ -7,10 +7,15 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.vendly_remastered.models.entity.Role;
 import org.example.vendly_remastered.models.entity.User;
+import org.example.vendly_remastered.repository.IRoleRepository;
 
 
 import java.net.URL;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class UserDetailsModalController implements Initializable {
@@ -26,11 +31,36 @@ public class UserDetailsModalController implements Initializable {
 
     private User selectedUser;
     private boolean saveClicked;
+    private Map<String, Short> roleNameToIdMap = new HashMap<>();
+    private IRoleRepository roleRepository;
+
+    public void setRoleRepository(IRoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        handleSaveAction();
 
     }
+    public void setComboRoleValues(){
+        List<Role> roles = roleRepository.findAll();
+
+        // Clear the map and combo box to prevent duplicates if recalled
+        roleNameToIdMap.clear();
+        this.comboRole.getItems().clear();
+        for (Role role : roles) {
+            // 🔑 Map the visible Name to its hidden Database ID
+            roleNameToIdMap.put(role.getRoleName(), role.getRoleId());
+            this.comboRole.getItems().add(role.getRoleName());
+        }
+        if (selectedUser == null || selectedUser.getRoleName() == null) {
+            this.comboRole.setValue("Choose a role for the user");
+        } else {
+            this.comboRole.setValue(selectedUser.getRoleName());
+        }
+    }
+
     private void handleSaveAction() {
         if (!isValidInput()) return;
 

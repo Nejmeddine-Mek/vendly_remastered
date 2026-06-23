@@ -7,20 +7,18 @@ import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.example.vendly_remastered.cache.PagesCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
 import org.example.vendly_remastered.security.UserSession;
-import org.example.vendly_remastered.utils.RoutingMacros;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
@@ -98,7 +96,7 @@ public class MainViewController implements Initializable {
             Parent targetNode = loader.load();
             Object controller = loader.getController();
             if(controller != null)
-                RoutingMacros.execute(controller);
+                ControllerDispatcher.execute(controller);
 
             // inject around here maybe
             // 1. Force your custom layout constraints

@@ -13,6 +13,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IUserRepository;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;
 
@@ -40,7 +41,6 @@ public class UsersViewController implements Initializable {
     @FXML private Button toggleStatusButton;
 
     private IUserRepository userRepository;
-    private ObservableList<User> usersList;
     private FilteredList<User> filteredUsers;
 
     private FormMode currentMode = FormMode.VIEW_EDIT;
@@ -57,16 +57,19 @@ public class UsersViewController implements Initializable {
         setAddUserButtonBehaviour();
         setUserTableViewBehaviour();
         setSearchBarBehaviour();
+        setUserModifyButtonBehaviour();
+        setToggleStatusButtonBehaviour();
+
         // load users data
     }
 
     public void initializeTable(){
         if (userRepository == null) return;
         // Make sure to instantiate the observable list wrapper
-        this.usersList = javafx.collections.FXCollections.observableArrayList();
+        ObservableList<User> usersList = javafx.collections.FXCollections.observableArrayList();
         List<User> ul = userRepository.findAll();
-        this.usersList.addAll(ul);
-        this.filteredUsers = new FilteredList<>(this.usersList);
+        usersList.addAll(ul);
+        this.filteredUsers = new FilteredList<>(usersList);
         userTableView.setItems(this.filteredUsers);
         userTableView.refresh();
     }
@@ -82,6 +85,10 @@ public class UsersViewController implements Initializable {
     }
 
     private void setAddUserButtonBehaviour(){
+        this.addUserButton.setOnAction(_ -> {
+            setCurrentMode(FormMode.CREATION);
+            openUserModal(null);
+        });
     }
 
     private void setUserTableViewBehaviour(){
@@ -107,6 +114,14 @@ public class UsersViewController implements Initializable {
     }
 
     private void setUserModifyButtonBehaviour(){
+        this.userModifyButton.setOnAction(_ ->{
+            User selectedUser = this.userTableView.getSelectionModel().getSelectedItem();
+            if(selectedUser != null){
+                System.out.println(selectedUser.getFullName());
+                this.setCurrentMode(FormMode.VIEW_EDIT);
+                openUserModal(selectedUser);
+            }
+        });
 
     }
 
@@ -160,9 +175,10 @@ public class UsersViewController implements Initializable {
 
     private void openUserModal(User user) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/views/UserDetailsModal.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/UserDetailsModal.fxml"));
             Parent root = loader.load();
-
+            Object controller = loader.getController();
+            ControllerDispatcher.execute(controller);
             UserDetailsModalController modalController = loader.getController();
             // 🎯 Note: We no longer even need to pass the repository to the modal!
             modalController.setMode(user);
@@ -176,6 +192,7 @@ public class UsersViewController implements Initializable {
 
             // 🌟 THE HANDOFF: Execution resumes here once the window closes
             if (modalController.isSaveClicked()) {
+
                 // Fetch the updated user entity instance directly from the modal's state
                 User updatedUser = modalController.getUserChanges();
 
@@ -196,6 +213,6 @@ public class UsersViewController implements Initializable {
 
 
     private enum FormMode { VIEW_EDIT, CREATION }
-
+    private void setCurrentMode(FormMode mode){ this.currentMode = mode; }
 }
 
