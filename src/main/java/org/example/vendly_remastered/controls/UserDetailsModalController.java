@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Role;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IRoleRepository;
+import org.example.vendly_remastered.security.UserSession;
 
 
 import java.net.URL;
@@ -68,6 +69,8 @@ public class UserDetailsModalController implements Initializable {
         // If it's a new user, instantiate a fresh entity container
         if (selectedUser == null) {
             selectedUser = new User();
+            selectedUser.setCreatedBy(UserSession.getInstance().getUserId());
+            selectedUser.setCreatedByUsername(UserSession.getInstance().getUsername());
             selectedUser.setIsActive(true); // Default status for new profiles
         }
 

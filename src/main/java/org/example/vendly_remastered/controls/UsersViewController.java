@@ -33,6 +33,7 @@ public class UsersViewController implements Initializable {
     @FXML private TableColumn<User, String> colFullName;
     @FXML private TableColumn<User, String> colRole;
     @FXML private TableColumn<User, String> colStatus;
+    @FXML private TableColumn<User, String> colCreatedBy;
     @FXML private TableColumn<User, LocalDateTime> colCreatedAt;
     @FXML private TableColumn<User, LocalDateTime> colLastLogin;
 
@@ -80,6 +81,7 @@ public class UsersViewController implements Initializable {
         colFullName.setCellValueFactory(new PropertyValueFactory<>("fullName"));
         colRole.setCellValueFactory(new PropertyValueFactory<>("roleName"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("isActive"));
+        colCreatedBy.setCellValueFactory(new PropertyValueFactory<>("createdByUsername"));
         colCreatedAt.setCellValueFactory(new PropertyValueFactory<>("createdAt"));
         colLastLogin.setCellValueFactory(new PropertyValueFactory<>("lastLogin"));
     }

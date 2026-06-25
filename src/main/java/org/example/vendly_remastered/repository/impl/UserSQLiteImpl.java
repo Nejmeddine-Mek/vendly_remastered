@@ -71,11 +71,20 @@ public class UserSQLiteImpl implements IUserRepository {
         return false;
     }
 
-    @Override
+    // I haven't used this one at all yet
+    /**
+     * Searches for a user by their username.
+     * * @param username The username to look up.
+     * @return An Optional containing the User if found, or empty otherwise.
+     * @deprecated This method is being phased out in favor of lookups that explicitly
+     * leverage unified cache maps or ID-based indexing. Use {@link #findById(int)} if applicable.
+     */
+    @Deprecated(since = "1.1", forRemoval = false)
     public Optional<User> searchByUsername(String username) {
-        // 1. Updated query to JOIN roles and fetch the literal role_name
-        String sql = "SELECT U.*, R.role_name FROM users U " +
+        // 1. Updated query with the exact LEFT JOIN audit structure we built
+        String sql = "SELECT U.*, R.role_name, U2.userId AS creator_id, U2.username AS creator_username FROM users U " +
                 "JOIN roles R ON R.role_id = U.role " +
+                "LEFT JOIN users U2 ON U.created_by = U2.userId " +
                 "WHERE U.username = ?;";
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -90,18 +99,27 @@ public class UserSQLiteImpl implements IUserRepository {
                     java.sql.Timestamp lastLoginTimestamp = rs.getTimestamp("last_login");
                     LocalDateTime lastLogin = (lastLoginTimestamp != null) ? lastLoginTimestamp.toLocalDateTime() : null;
 
-                    // 2. Pass all 9 mapped parameters into your updated primary constructor layout!
-                    User user = new User(
-                            rs.getInt("userId"),
-                            rs.getString("username"),
-                            rs.getString("password_hash"), // Ensure this matches your DB column (e.g., password vs password_hash)
-                            rs.getString("full_name"),
-                            rs.getBoolean("is_active"),
-                            createdAt,
-                            lastLogin,
-                            rs.getShort("role"),
-                            rs.getString("role_name") // Passed right into the final slot 🎯
-                    );
+                    // 2. Instantiate using your standard setters or matching constructor
+                    User user = new User();
+                    user.setUserId(rs.getInt("userId"));
+                    user.setUsername(rs.getString("username"));
+                    user.setPasswordHash(rs.getString("password_hash"));
+                    user.setFullName(rs.getString("full_name"));
+                    user.setIsActive(rs.getBoolean("is_active"));
+                    user.setCreatedAt(createdAt);
+                    user.setLastLogin(lastLogin);
+                    user.setRoleId(rs.getShort("role"));
+                    user.setRoleName(rs.getString("role_name"));
+
+                    // 🎯 Track Creator mapping (Using our 0-sentinel logic)
+                    int creatorId = rs.getInt("creator_id");
+                    user.setCreatedBy(creatorId);
+                    if (creatorId == 0) {
+                        user.setCreatedByUsername("System Root");
+                    } else {
+                        user.setCreatedByUsername(rs.getString("creator_username"));
+                    }
+
                     return Optional.of(user);
                 }
             }
@@ -110,12 +128,12 @@ public class UserSQLiteImpl implements IUserRepository {
         }
         return Optional.empty();
     }
-
     @Override
     public List<User> findAll() {
         List<User> usersList = new ArrayList<>();
-        String sql = "SELECT U.*, R.role_name FROM users U" +
-                " JOIN roles R ON R.role_id = U.role";
+        String sql = "SELECT U.*, R.role_name, U2.userId as creator_id, U2.username as creator_username FROM users U" +
+                " JOIN roles R ON R.role_id = U.role " +
+                "LEFT JOIN users U2 ON U.created_by = U2.userId";
 
         // Using try-with-resources to automatically close BOTH pstmt and rs
         try (PreparedStatement pstmt = connection.prepareStatement(sql);
@@ -136,6 +154,14 @@ public class UserSQLiteImpl implements IUserRepository {
                 // Map the joined role name directly into your new model attribute!
                 user.setRoleName(rs.getString("role_name"));
 
+                int creatorId = rs.getInt("creator_id"); // Returns 0 natively if SQL column is NULL
+                user.setCreatedBy(creatorId);
+
+                if (creatorId == 0) {
+                    user.setCreatedByUsername("System Root");
+                } else {
+                    user.setCreatedByUsername(rs.getString("creator_username"));
+                }
                 usersList.add(user);
             }
 
@@ -148,11 +174,11 @@ public class UserSQLiteImpl implements IUserRepository {
 
     @Override
     public boolean save(User user) {
-        // SQLite upsert handles both creation and updates on primary key collisions
+        // 🎯 Added 'created_by' to the schema list
         String sql = """
-        INSERT OR REPLACE INTO users (userId, username, password_hash, full_name, role, is_active, created_at, last_login)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?);
-        """;
+    INSERT OR REPLACE INTO users (userId, username, password_hash, full_name, role, is_active, created_by, created_at, last_login)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+    """;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             // 1. Handle Primary Key Assignment (If 0, pass null so SQLite auto-increments)
@@ -164,27 +190,34 @@ public class UserSQLiteImpl implements IUserRepository {
 
             // 2. Set Standard String & Integer Properties
             pstmt.setString(2, user.getUsername());
-            pstmt.setString(3, user.getPasswordHash());
+            pstmt.setString(3, user.getPasswordHash()); // Safe because hash is loaded in memory!
             pstmt.setString(4, user.getFullName());
             pstmt.setShort(5, user.getRoleId());
 
-            // 3. Map Booleans (SQLite converts true/false to 1/0 behind the scenes)
+            // 3. Map Booleans
             pstmt.setBoolean(6, user.isIsActive());
 
-            // 4. Safely Convert Modern LocalDateTime Fields to SQL Timestamps
-            if (user.getCreatedAt() != null) {
-                pstmt.setTimestamp(7, java.sql.Timestamp.valueOf(user.getCreatedAt()));
+            // 4. 🎯 Bind the Creator ID (If 0, pass NULL for the Root Admin node)
+            if (user.getCreatedBy() == 0) {
+                pstmt.setNull(7, java.sql.Types.INTEGER);
             } else {
-                pstmt.setTimestamp(7, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
+                pstmt.setInt(7, user.getCreatedBy());
+            }
+
+            // 5. Safely Convert Modern LocalDateTime Fields to SQL Timestamps
+            if (user.getCreatedAt() != null) {
+                pstmt.setTimestamp(8, java.sql.Timestamp.valueOf(user.getCreatedAt()));
+            } else {
+                pstmt.setTimestamp(8, java.sql.Timestamp.valueOf(java.time.LocalDateTime.now()));
             }
 
             if (user.getLastLogin() != null) {
-                pstmt.setTimestamp(8, java.sql.Timestamp.valueOf(user.getLastLogin()));
+                pstmt.setTimestamp(9, java.sql.Timestamp.valueOf(user.getLastLogin()));
             } else {
-                pstmt.setNull(8, java.sql.Types.TIMESTAMP);
+                pstmt.setNull(9, java.sql.Types.TIMESTAMP);
             }
 
-            // 5. Execute and confirm rows were affected
+            // 6. Execute and confirm rows were affected
             return pstmt.executeUpdate() > 0;
 
         } catch (SQLException sqle) {

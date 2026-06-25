@@ -61,6 +61,7 @@
                                 <TableColumn fx:id="colFullName" prefWidth="180.0" text="Full Name" />
                                 <TableColumn fx:id="colRole" prefWidth="120.0" text="System Role" />
                                 <TableColumn fx:id="colStatus" prefWidth="90.0" text="Account Status" />
+                                <TableColumn fx:id="colCreatedBy" prefWidth="120.0" text="Created By" />
                                 <TableColumn fx:id="colCreatedAt" prefWidth="140.0" text="Created At" />
                                 <TableColumn fx:id="colLastLogin" prefWidth="140.0" text="Last Login Audit" />
                             </columns>

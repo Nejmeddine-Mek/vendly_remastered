@@ -15,7 +15,8 @@ public class User {
     private LocalDateTime lastLogin;
     private short roleId;
     private String roleName;
-
+    private int createdBy;
+    private String createdByUsername;
     // No-arg constructor for dynamic ResultSet mapping
     public User() {}
 
@@ -81,5 +82,21 @@ public class User {
 
     public void setPassword(String text) {
         this.passwordHash = PasswordHasher.hashPassword(text);
+    }
+
+    public String getCreatedByUsername() {
+        return createdByUsername;
+    }
+
+    public void setCreatedByUsername(String createdByUsername) {
+        this.createdByUsername = createdByUsername;
+    }
+
+    public int getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(int createdBy) {
+        this.createdBy = createdBy;
     }
 }
