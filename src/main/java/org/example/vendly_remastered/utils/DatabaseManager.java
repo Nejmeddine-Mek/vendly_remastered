@@ -62,12 +62,31 @@ public class DatabaseManager {
                     FOREIGN KEY (created_by) REFERENCES users(userId) ON DELETE SET NULL
                 );
                 """;
+        String createSaleHeaderTable = """
+                CREATE TABLE IF NOT EXISTS sale_header (
+                    sale_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    sale_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    sale_total NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
+                    paid_amount NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
+                    sale_profit NUMERIC(12, 2) NOT NULL DEFAULT 0.00,
+                    sale_user INT NOT NULL,
+                    sale_client INT, 
+                    sale_note VARCHAR(32) NOT NULL DEFAULT 'sale',
+                    FOREIGN KEY (sale_user) REFERENCES users(userId),
+                    FOREIGN KEY (sale_client) REFERENCES clients(client_id) ON DELETE SET NULL,
+                    
+                    -- 🛡️ The fixed CHECK constraint for status types
+                    CONSTRAINT chk_sale_type CHECK (sale_note IN ('sale', 'return', 'expired'))
+                );
+                """;
+
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
 
             stmt.execute(createRolesTable);
             stmt.execute(createUsersTable);
             stmt.execute(createClientsTable);
+            stmt.execute(createSaleHeaderTable);
             System.out.println("Database tables initialized successfully.");
 
         } catch (SQLException e) {

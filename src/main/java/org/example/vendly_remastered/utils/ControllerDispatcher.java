@@ -1,8 +1,10 @@
 package org.example.vendly_remastered.utils;
 
+import org.example.vendly_remastered.controls.HistoryViewController;
 import org.example.vendly_remastered.controls.UserDetailsModalController;
 import org.example.vendly_remastered.controls.UsersViewController;
 import org.example.vendly_remastered.repository.impl.RoleSQLiteImpl;
+import org.example.vendly_remastered.repository.impl.SaleHeaderSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.UserSQLiteImpl;
 
 import java.sql.Connection;
@@ -30,6 +32,13 @@ public class ControllerDispatcher {
             UserDetailsModalController udmc = (UserDetailsModalController) controller;
             udmc.setRoleRepository(new RoleSQLiteImpl(conn));
             udmc.setComboRoleValues();
+        });
+
+        registry.put(HistoryViewController.class, controller -> {
+           Connection conn = DatabaseManager.getConnection();
+            HistoryViewController hvc = (HistoryViewController) controller;
+            hvc.setSalesHeaderRepository(new SaleHeaderSQLiteImpl(conn));
+            hvc.loadInitialSalesTableData();
         });
 
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!

@@ -4,57 +4,89 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class SaleHeader {
-
-    private long saleId;
+    private int saleId;
     private LocalDateTime saleDate;
     private BigDecimal saleTotal;
+    private BigDecimal paidAmount;
     private BigDecimal saleProfit;
-    private int saleUserId;
-    private String saleUserName;
-    private int saleClient;
-    private String saleClientName;
+    private int saleUser;
+    private String saleUsername; // Transient property for easy UI rendering
+    private Integer saleClient;  // Can be null for cash/anonymous system sales
+    private String clientName;   // Transient property for UI TableView mapping
+    private String saleNote;     // Restrained to "sale", "return", "expired"
 
-    public SaleHeader(long id, LocalDateTime saleDate,BigDecimal saleTotal, BigDecimal saleProfit,
-                        int userId, String userName, int saleClient, String clientName){
-        this.saleId = id;
+    // Default Constructor
+    public SaleHeader() {
+        this.saleId = 0;
+        this.saleDate = LocalDateTime.now();
+        this.saleTotal = BigDecimal.ZERO;
+        this.paidAmount = BigDecimal.ZERO;
+        this.saleProfit = BigDecimal.ZERO;
+        this.saleNote = "sale"; // Default fallback status
+    }
+
+    // Full Primary Constructor
+    public SaleHeader(int saleId, LocalDateTime saleDate, BigDecimal saleTotal, BigDecimal paidAmount,
+                      BigDecimal saleProfit, int saleUser, String saleUsername, Integer saleClient,
+                      String clientName, String saleNote) {
+        this.saleId = saleId;
         this.saleDate = saleDate;
-        this.saleTotal = saleTotal;
-        this.saleProfit = saleProfit;
-        this.saleUserId = userId;
-        this.saleUserName = userName;
+        this.saleTotal = saleTotal != null ? saleTotal : BigDecimal.ZERO;
+        this.paidAmount = paidAmount != null ? paidAmount : BigDecimal.ZERO;
+        this.saleProfit = saleProfit != null ? saleProfit : BigDecimal.ZERO;
+        this.saleUser = saleUser;
+        this.saleUsername = saleUsername;
         this.saleClient = saleClient;
-        this.saleClientName = clientName;
+        this.clientName = clientName;
+        this.saleNote = saleNote;
     }
 
-    public long getSaleId() {
-        return saleId;
+    // High-Utility Business Logic Helper Methods
+
+    /**
+     * Calculates the remaining debt on this transaction instantly.
+     * Uses subtract() to maintain exact scale precision.
+     */
+    public BigDecimal getRemainingDebt() {
+        return this.saleTotal.subtract(this.paidAmount);
     }
 
-    public LocalDateTime getSaleDate() {
-        return saleDate;
+    /**
+     * Quick check to see if this transaction was completely paid off.
+     * compareTo() == 0 checks value equality regardless of scale (e.g., 0.0 vs 0.00).
+     */
+    public boolean isFullyPaid() {
+        return getRemainingDebt().compareTo(BigDecimal.ZERO) <= 0;
     }
 
-    public BigDecimal getSaleTotal() {
-        return saleTotal;
-    }
+    // Getters and Setters
+    public int getSaleId() { return saleId; }
+    public void setSaleId(int saleId) { this.saleId = saleId; }
 
-    public BigDecimal getSaleProfit() {
-        return saleProfit;
-    }
+    public LocalDateTime getSaleDate() { return saleDate; }
+    public void setSaleDate(LocalDateTime saleDate) { this.saleDate = saleDate; }
 
-    public int getSaleUserId() {
-        return saleUserId;
-    }
+    public BigDecimal getSaleTotal() { return saleTotal; }
+    public void setSaleTotal(BigDecimal saleTotal) { this.saleTotal = saleTotal; }
 
-    public String getSaleUserName() {
-        return saleUserName;
-    }
+    public BigDecimal getPaidAmount() { return paidAmount; }
+    public void setPaidAmount(BigDecimal paidAmount) { this.paidAmount = paidAmount; }
 
-    public int getSaleClient() {
-        return saleClient;
-    }
+    public BigDecimal getSaleProfit() { return saleProfit; }
+    public void setSaleProfit(BigDecimal saleProfit) { this.saleProfit = saleProfit; }
 
-    public String getSaleClientName() {
-        return saleClientName;
-    }
+    public int getSaleUser() { return saleUser; }
+    public void setSaleUser(int saleUser) { this.saleUser = saleUser; }
+
+    public String getSaleUsername() { return saleUsername; }
+    public void setSaleUsername(String saleUsername) { this.saleUsername = saleUsername; }
+
+    public Integer getSaleClient() { return saleClient; }
+    public void setSaleClient(Integer saleClient) { this.saleClient = saleClient; }
+
+    public String getClientName() { return clientName; }
+    public void setClientName(String clientName) { this.clientName = clientName; }
+
+    public String getSaleNote() { return saleNote; }
+    public void setSaleNote(String saleNote) { this.saleNote = saleNote; }
 }
