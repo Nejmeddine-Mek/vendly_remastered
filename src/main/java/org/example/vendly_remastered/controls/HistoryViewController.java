@@ -44,8 +44,14 @@ public class HistoryViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableViewBehaviour();
         setSearchBarBehaviour();
+        setTableColumnsBehaviour();
     }
-
+    public void setTableColumnsBehaviour(){
+        colSaleId.setCellValueFactory(new PropertyValueFactory<>("saleId"));
+        colClient.setCellValueFactory(new PropertyValueFactory<>("clientName"));
+        colDate.setCellValueFactory(new PropertyValueFactory<>("saleDate"));
+        colTotal.setCellValueFactory(new PropertyValueFactory<>("saleTotal"));
+    }
     public void setTableViewBehaviour() {
         // 🎯 Listen for row changes in your JavaFX TableView
         salesTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
@@ -72,6 +78,14 @@ public class HistoryViewController implements Initializable {
 
         // 3. Profit Analytics Mapping (Formatted to 2 decimal places manually for accuracy)
         profitLabel.setText("Net Profit:");
+        String status = sale.getSaleNote();
+        if(status.equals("sale")){
+            transactionSummary.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold;");
+            txtProfit.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold;");
+        } else {
+            transactionSummary.setStyle("-fx-text-fill: #d32f2f; -fx-font-weight: bold;");
+            txtProfit.setStyle("-fx-text-fill: #d32f2f; -fx-font-weight: bold;");
+        }
         txtProfit.setText(String.format("%.2f DA", sale.getSaleProfit()));
 
         // Optional extension: You can display total summary contextual data here too

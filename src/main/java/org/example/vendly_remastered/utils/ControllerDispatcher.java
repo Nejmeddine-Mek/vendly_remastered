@@ -1,11 +1,10 @@
 package org.example.vendly_remastered.utils;
 
 import org.example.vendly_remastered.controls.HistoryViewController;
+import org.example.vendly_remastered.controls.ProductsViewController;
 import org.example.vendly_remastered.controls.UserDetailsModalController;
 import org.example.vendly_remastered.controls.UsersViewController;
-import org.example.vendly_remastered.repository.impl.RoleSQLiteImpl;
-import org.example.vendly_remastered.repository.impl.SaleHeaderSQLiteImpl;
-import org.example.vendly_remastered.repository.impl.UserSQLiteImpl;
+import org.example.vendly_remastered.repository.impl.*;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -40,7 +39,14 @@ public class ControllerDispatcher {
             hvc.setSalesHeaderRepository(new SaleHeaderSQLiteImpl(conn));
             hvc.loadInitialSalesTableData();
         });
-
+        registry.put(ProductsViewController.class, controller -> {
+            Connection conn = DatabaseManager.getConnection();
+            ProductsViewController pvc = (ProductsViewController) controller;
+            pvc.setProductRepository(new ProductSQLiteImpl(conn));
+            pvc.setCategoryRepository(new CategorySQLiteImpl(conn));
+            pvc.loadCategories();
+            pvc.initializeTable();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 
