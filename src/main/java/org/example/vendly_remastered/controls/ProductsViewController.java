@@ -6,14 +6,20 @@ import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
 import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 import org.example.vendly_remastered.repository.IProductRepository;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -54,6 +60,7 @@ public class ProductsViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableColumnsBehaviour();
+        setButtonsBehaviour();
     }
 
     private void setTableColumnsBehaviour(){
@@ -196,5 +203,94 @@ public class ProductsViewController implements Initializable {
 
             return product.getCategoryId() == selectedCategory.getCategoryId();
         });
+    }
+
+    private void openProductModal(Product product) {
+        try {
+            // 1. Point to your wide layout FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ProductDetailsModal.fxml"));
+            Parent root = loader.load();
+
+            // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
+            Object controller = loader.getController();
+            ControllerDispatcher.execute(controller);
+
+            ProductModalController modalController = loader.getController();
+
+            // 4. Check if we are editing an existing product or adding a completely fresh item
+            boolean isEditMode = (product != null);
+            if (isEditMode) {
+                modalController.setMode(product);
+            }
+
+            // 5. Build and present the window scene configuration
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setTitle(isEditMode ? "Edit Product Specifications" : "Register New Product Asset");
+            modalStage.setScene(new Scene(root));
+
+            // Execution pauses right here until the user clicks Save or Cancel
+            modalStage.showAndWait();
+
+            // 🌟 THE HANDOFF: Execution safely resumes here once the window closes
+            if (modalController.isSaveClicked()) {
+                Product processedProduct = modalController.getProduct();
+
+                if (isEditMode) {
+                    // Update operation
+                    productRepository.update(processedProduct);
+                } else {
+                    // Insert operation
+                    productRepository.save(processedProduct);
+                }
+
+                // 6. Reload table arrays completely to cleanly display your mutated records
+                loadProductData();
+            }
+
+        } catch (Exception ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
+            alert.showAndWait();
+            ex.printStackTrace();
+        }
+    }
+
+    private void setButtonsBehaviour() {
+        // 🔍 1. View Product Details Action
+        this.productDetailsButton.setOnAction(_ -> {
+            Product selected = productTableView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                // Open modal in edit/view mode using your established pattern
+                openProductModal(selected);
+            } else {
+                showSelectionWarning("Product Details");
+            }
+        });
+
+        // ➕ 2. Add Product Button (Assuming it's addProductBottun from your fields)
+        this.addProductButton.setOnAction(_ -> {
+            // Passing null opens the modal in fresh creation mode
+            openProductModal(null);
+        });
+
+        // 📉 3. Adjust Stock Action
+        this.adjustStockButton.setOnAction(_ -> {
+            Product selected = productTableView.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                // Placeholder: Call your upcoming stock/inventory control window here
+                System.out.println("Adjusting stock levels for: " + selected.getProductName());
+            } else {
+                showSelectionWarning("Adjust Stock");
+            }
+        });
+    }
+
+    // 🛑 Quick UI Helper to keep code clean and prevent alert code repetition
+    private void showSelectionWarning(String actionName) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("No Selection Found");
+        alert.setHeaderText(actionName + " Action Require Choice");
+        alert.setContentText("Please highlight an active product row from the table list first.");
+        alert.showAndWait();
     }
 }

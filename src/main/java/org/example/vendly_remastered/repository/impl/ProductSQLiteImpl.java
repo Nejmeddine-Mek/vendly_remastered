@@ -88,4 +88,14 @@ public class ProductSQLiteImpl implements IProductRepository {
         // Return the unique list of products ready for the ObservableList wrapper
         return new ArrayList<>(productMap.values());
     }
+
+    @Override
+    public void update(Product processedProduct) {
+
+    }
+
+    @Override
+    public void save(Product processedProduct) {
+
+    }
 }
