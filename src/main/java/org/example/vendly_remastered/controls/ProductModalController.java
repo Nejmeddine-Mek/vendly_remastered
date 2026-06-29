@@ -14,7 +14,10 @@ import java.util.*;
 public class ProductModalController implements Initializable {
     @FXML private Label modalTitleLabel;
     @FXML private TextField txtName;
-    @FXML private TextField txtBarcode;
+    @FXML private TextField txtBarcodeEntry;
+    @FXML private Button btnAddBarcode;
+    @FXML private Button btnRemoveBarcode;
+    @FXML private ListView<String> lstBarcodes;
     @FXML private TextField txtCostPrice;
     @FXML private TextField txtRetailPrice;
     @FXML private TextField txtStockQty;
@@ -78,7 +81,7 @@ public class ProductModalController implements Initializable {
             btnSave.setText("Register New Product");
             chkActive.setSelected(true);
             txtName.clear();
-            txtBarcode.clear();
+            txtBarcodeEntry.clear();
             txtCostPrice.setText("0.00");
             txtRetailPrice.setText("0.00");
             txtStockQty.setText("0");
@@ -90,7 +93,8 @@ public class ProductModalController implements Initializable {
 
             // Populate form values from entity data
             txtName.setText(product.getProductName());
-            txtBarcode.setText(product.getBarcode());
+            lstBarcodes.getItems().addAll(product.getBarcodes());
+            //txtBarcode.setText(product.getBarcode());
             txtCostPrice.setText(product.getCostPrice().toString());
             txtRetailPrice.setText(product.getRetailPrice().toString());
             //txtStockQty.setText(product.getCurrentQuantity().toString());
@@ -99,6 +103,7 @@ public class ProductModalController implements Initializable {
             cbCategory.setValue(product.getCategoryName());
         }
     }
+
     public boolean isSaveClicked() {
         return true;
     }

@@ -7,10 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ProductSQLiteImpl implements IProductRepository {
     private Connection connection;
@@ -74,7 +71,9 @@ public class ProductSQLiteImpl implements IProductRepository {
                 String barcodeStr = rs.getString("barcode");
                 if (barcodeStr != null) {
                     product.getBarcodes().add(barcodeStr);
+
                     // Set the primary string field to the first barcode found for easy display
+                    // this one might be removed at this point
                     if (product.getBarcode() == null) {
                         product.setBarcode(barcodeStr);
                     }
@@ -97,5 +96,20 @@ public class ProductSQLiteImpl implements IProductRepository {
     @Override
     public void save(Product processedProduct) {
 
+    }
+
+    @Override
+    public Optional<Product> findProduct(int productId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Product> findByName(String productName) {
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<Product> findByBarCode(String barcode) {
+        return Optional.empty();
     }
 }
