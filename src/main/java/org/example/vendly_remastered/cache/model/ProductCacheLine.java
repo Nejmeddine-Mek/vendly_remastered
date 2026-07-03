@@ -33,12 +33,14 @@ public class ProductCacheLine {
         return false;
     }
     public void setDirtyBit(boolean dirtyBit,int index) {
-        this.dirtyBits[index] = dirtyBit;
-    }
-
-    public void setDirtyBit(int index, boolean dirtyBit) {
         if (index >= 0 && index < this.dirtyBits.length) {
             this.dirtyBits[index] = dirtyBit;
+        }
+    }
+
+    public void setDirtyBits(boolean val) {
+        for(boolean bit: dirtyBits){
+            bit = val;
         }
     }
 
@@ -56,5 +58,9 @@ public class ProductCacheLine {
 
     public void setProduct(Product product) {
         this.product = product;
+    }
+
+    public boolean getDirtyBitStatus(int productBit) {
+        return dirtyBits[productBit];
     }
 }

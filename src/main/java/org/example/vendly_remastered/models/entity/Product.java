@@ -19,11 +19,13 @@ public class Product {
     private String categoryName;
     private String barcode;
     private List<String> barcodes = new ArrayList<>();
+    private final Stock currentStock;
 
-    private BigDecimal currentQuantity;
-    private BigDecimal minStockLevel;
 
-    public Product() {}
+    public Product() {
+        this.currentStock = new Stock();
+        this.barcodes = new ArrayList<>();
+    }
 
     // Getters and Setters
     public int getProductId() { return productId; }
@@ -60,17 +62,20 @@ public class Product {
     public void setBarcodes(List<String> barcodes) { this.barcodes = barcodes; }
 
     public BigDecimal getCurrentQuantity() {
-        return currentQuantity;
+        return currentStock.getCurrentStock();
     }
     public void setCurrentQuantity(BigDecimal currentQuantity) {
-        this.currentQuantity = currentQuantity;
+        this.currentStock.setCurrentStock(currentQuantity != null ? currentQuantity : BigDecimal.ZERO);
     }
 
     public BigDecimal getMinStockLevel() {
-        return minStockLevel;
+        return currentStock.getMinThreshold();
     }
     public void setMinStockLevel(BigDecimal minStockLevel) {
-        this.minStockLevel = minStockLevel;
+        this.currentStock.setMinThreshold(minStockLevel != null ? minStockLevel : BigDecimal.ZERO);
     }
 
+    public Stock getCurrentStock() {
+        return currentStock;
+    }
 }

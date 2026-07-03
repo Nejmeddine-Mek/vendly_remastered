@@ -3,6 +3,7 @@ package org.example.vendly_remastered.cache;
 import org.example.vendly_remastered.cache.model.ProductCacheLine;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IProductRepository;
+import org.example.vendly_remastered.repository.IStockRepository;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -17,8 +18,8 @@ public class ProductsCache {
     private final int maxCacheSize;
 
     // Core database gateway to handle cache misses and dirty line flushes
-    private final IProductRepository repository;
-
+    private final IProductRepository productRepository;
+    private final IStockRepository stockRepository;
     // High-performance mapping grid configured specifically for Access-Order (LRU tracking)
     private final LinkedHashMap<Integer, ProductCacheLine> cacheMap;
     private final HashMap<String, Integer> barcodeToIdIndex = new HashMap<>();
@@ -30,9 +31,10 @@ public class ProductsCache {
      * @param capacity The strict maximum number of lines allowed resident in memory (e.g., 1500).
      * @param repo The persistent repository subsystem connection.
      */
-    public ProductsCache(int capacity, IProductRepository repo) {
+    public ProductsCache(int capacity, IProductRepository repo, IStockRepository stockRepository) {
         this.maxCacheSize = capacity;
-        this.repository = repo;
+        this.productRepository = repo;
+        this.stockRepository = stockRepository;
         this.cacheVersionCounter = 0;
 
         // Instantiate LinkedHashMap configured for LRU tracking
@@ -83,7 +85,7 @@ public class ProductsCache {
 
         // 2. Cache MISS: Safely drop down to your repository layer
         System.out.println("Cache MISS for Product ID: " + productId + " -> Querying DB.");
-        Product product = repository.findProduct(productId).orElse(null);
+        Product product = productRepository.findProduct(productId).orElse(null);
 
         // 3. Absolute Miss: If it's not even in the database, return null
         if (product == null) {
@@ -106,7 +108,7 @@ public class ProductsCache {
         }
 
         // Cache Miss! Drop to DB using your explicit repo method
-        Optional<Product> productOpt = repository.findByBarCode(barcode);
+        Optional<Product> productOpt = productRepository.findByBarCode(barcode);
         if (productOpt.isPresent()) {
             Product p = productOpt.get();
             put(p); // Injects into master cache and wires up the secondary maps
@@ -175,8 +177,24 @@ public class ProductsCache {
      * * @param line The specific memory cache line to synchronize.
      */
     private void flushToDisk(ProductCacheLine line) {
+        if (line == null || line.getProduct() == null) return;
+        Product prod = line.getProduct();
+        int id = prod.getProductId();
+
+        // 1. Is the core Product data dirty? (e.g., Name changed)
+        if (line.getDirtyBitStatus(ProductCacheLine.PRODUCT_BIT)) {
+            productRepository.save(line.getProduct());
+        }
+        if (line.getDirtyBitStatus(ProductCacheLine.STOCK_BIT)) {
+            // Utilizing your saveStock upsert operation
+            stockRepository.saveStock(id, prod.getCurrentStock());
+        }
+        if (line.getDirtyBitStatus(ProductCacheLine.BARCODE_BIT)) {
+           // repository.updateProductBarcodes(id, prod.getBarcodes());
+        }
+        line.setDirtyBits(false);
         // TODO: Pass line payload to repository.update() or save(), toggle dirtyBit to false
-        repository.save(line.getProduct());
+        productRepository.save(line.getProduct());
         //line.setDirtyBits(false);
     }
 
