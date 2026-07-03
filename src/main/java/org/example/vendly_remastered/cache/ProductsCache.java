@@ -124,28 +124,49 @@ public class ProductsCache {
      * Increments the cacheVersionCounter, updates the target slot, and flags the dirty bit.
      * * @param product The updated or newly constructed product data instance.
      */
-    public synchronized void put(Product product) {
+    /**
+     * Master put method with explicit control over which tables are dirty.
+     */
+    public synchronized void put(Product product, boolean productDirty, boolean stockDirty, boolean barcodeDirty) {
         // 1. Defend against null pointer references
         if (product == null) return;
 
         // 2. Increment our global sequence counter (our volatile LSN equivalent)
         this.cacheVersionCounter++;
 
-        // 3. Instantiate the line wrapper and explicitly set dirtyBit = true (since it's a write/update)
-        ProductCacheLine line = new ProductCacheLine(product, true, this.cacheVersionCounter);
+        // 3. Instantiate the line wrapper with explicit fine-grained dirty states
+        ProductCacheLine line = new ProductCacheLine(
+                product,
+                productDirty,
+                stockDirty,
+                barcodeDirty,
+                this.cacheVersionCounter
+        );
 
         // 4. Update the Master Cache Map Registry
         this.cacheMap.put(product.getProductId(), line);
 
         // 5. Update the primary indexing lookup routes
-        this.nameToIdIndex.put(product.getProductName(), product.getProductId());
+        if (product.getProductName() != null) {
+            this.nameToIdIndex.put(product.getProductName(), product.getProductId());
+        }
 
         // Handle the multi-barcode collection safely
         if (product.getBarcodes() != null) {
             for (String barcode : product.getBarcodes()) {
-                this.barcodeToIdIndex.put(barcode, product.getProductId());
+                if (barcode != null) {
+                    this.barcodeToIdIndex.put(barcode, product.getProductId());
+                }
             }
         }
+    }
+
+    /**
+     * Overloaded convenience method.
+     * Treats a standard put as a full write/update (all tables marked dirty).
+     */
+    public synchronized void put(Product product) {
+        this.put(product, true, true, true);
     }
 
     /**
@@ -156,7 +177,7 @@ public class ProductsCache {
     private void flushToDisk(ProductCacheLine line) {
         // TODO: Pass line payload to repository.update() or save(), toggle dirtyBit to false
         repository.save(line.getProduct());
-        line.setDirtyBit(false);
+        //line.setDirtyBits(false);
     }
 
     /**

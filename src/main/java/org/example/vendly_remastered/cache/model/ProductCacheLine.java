@@ -2,29 +2,44 @@ package org.example.vendly_remastered.cache.model;
 
 import org.example.vendly_remastered.models.entity.Product;
 
+import java.util.Arrays;
+
 public class ProductCacheLine {
-    private boolean dirtyBit;
+    public static final int PRODUCT_BIT = 0;
+    public static final int STOCK_BIT = 1;
+    public static final int BARCODE_BIT = 2;
+
+    private boolean dirtyBits[];
+    // product table, stock table, barcode table, we should have at least 3 dirty bits
     private long cacheVersion; // Our sequential modification tracker (like an LSN)
     private Product product;
 
-    public ProductCacheLine(Product prod, long currentVersion) {
+    // 1. Explicit Control: Pass exact states for all tracking targets
+    public ProductCacheLine(Product prod, boolean productDirty, boolean stockDirty, boolean barcodeDirty, long currentVersion) {
         this.product = prod;
-        this.dirtyBit = false;
         this.cacheVersion = currentVersion;
+        this.dirtyBits = new boolean[]{productDirty, stockDirty, barcodeDirty};
     }
 
-    public ProductCacheLine(Product prod, boolean changeBit, long currentVersion) {
-        this.product = prod;
-        this.dirtyBit = changeBit;
-        this.cacheVersion = currentVersion;
+    // 2. Clean Read Overload: Pure DB fetches start completely clean (all false)
+    public ProductCacheLine(Product prod, long currentVersion) {
+        this(prod, false, false, false, currentVersion);
     }
 
     public boolean isDirtyBit() {
-        return dirtyBit;
+        for(boolean bit:  dirtyBits){
+            if (bit) return true;
+        }
+        return false;
+    }
+    public void setDirtyBit(boolean dirtyBit,int index) {
+        this.dirtyBits[index] = dirtyBit;
     }
 
-    public void setDirtyBit(boolean dirtyBit) {
-        this.dirtyBit = dirtyBit;
+    public void setDirtyBit(int index, boolean dirtyBit) {
+        if (index >= 0 && index < this.dirtyBits.length) {
+            this.dirtyBits[index] = dirtyBit;
+        }
     }
 
     public long getCacheVersion() {
