@@ -1,5 +1,7 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -9,6 +11,7 @@ import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.security.Key;
 import java.util.ResourceBundle;
 
 public class SalesViewController implements Initializable {
@@ -39,10 +42,12 @@ public class SalesViewController implements Initializable {
     @FXML private Label totalLabel;
     @FXML private Button confirmButton;
 
+    ObservableList<CartItem> saleItems;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // language file first
         //set default behaviour of fields
+        saleItems = FXCollections.observableArrayList();
         setQuantityBehaviour();
         setPriceBehaviour(0.0);
         setDefaultClientFields();
@@ -57,14 +62,63 @@ public class SalesViewController implements Initializable {
         // we must create a formatter for this to accept only numeric values
         quantityField.setText("1.00");
         quantityField.setEditable(false);
+
+        quantityField.setOnKeyPressed(key -> {
+            if (quantityField.isFocused() && key.isAltDown()) {
+                commitQuantityAndReset();
+                quantityField.setEditable(false);
+            }
+        });
+        quantityField.setOnAction(event -> {
+            commitQuantityAndReset();
+            quantityField.setEditable(false);
+        });
         // Basically this works as follows
         // read a product then press enter
         // focus on the quantity field, we add it after all defaults are ready
+    }
+    private void commitQuantityAndReset(){
+        String rawText = quantityField.getText();
+        BigDecimal validatedQty;
+        if (rawText == null || rawText.trim().isEmpty() || rawText.trim().equals(".")) {
+            validatedQty = new BigDecimal("1.00");
+        } else {
+            try {
+                validatedQty = new BigDecimal(rawText.trim());
+                if (validatedQty.compareTo(BigDecimal.ZERO) <= 0) {
+                    validatedQty = new BigDecimal("1.00"); // Don't allow 0 or negative quantities
+                }
+            } catch (NumberFormatException e) {
+                validatedQty = new BigDecimal("1.00");
+            }
+        }
+        quantityField.setText(String.format("%.2f", validatedQty));
+
+        CartItem selectedItem = saleItemsTable.getSelectionModel().getSelectedItem();
+        if (selectedItem != null) {
+            selectedItem.setQuantity(validatedQty);
+            // Explicitly refresh the table viewport to force recalculations if needed
+            saleItemsTable.refresh();
+            updateTransactionTotal(); // Recalculate full order totals
+        }
+
+        // 4. Reset states and return focus back to the workflow's starting gate
+        quantityField.setEditable(false);
+        barcodeField.requestFocus();
+        barcodeField.selectAll();
+    }
+    private void updateTransactionTotal() {
+        BigDecimal total = saleItems.stream()
+                .map(CartItem::getSubtotal) // Assuming getSubtotal() returns a BigDecimal property value
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        totalAmountLabel.setText(String.format("%.2f DA", total));
     }
 
     private void setPriceBehaviour(double price){
         priceField.setEditable(false);
         priceField.setText(String.valueOf(price));
+        setBarcodeFieldBehaviour();
     }
 
     private void setClientCheckBoxBehaviour(){
@@ -113,6 +167,20 @@ public class SalesViewController implements Initializable {
         colQuantity.setCellValueFactory(cellData -> cellData.getValue().quantityProperty());
         colUnitPrice.setCellValueFactory(cellData -> cellData.getValue().unitPriceProperty());
         colSubTotal.setCellValueFactory(cellData -> cellData.getValue().subtotalProperty());
+    }
+    private void setBarcodeFieldBehaviour(){
+        barcodeField.requestFocus();
+        // first of all, we want to allow switching focus through clicking ALT
+        barcodeField.setOnKeyPressed(key -> {
+            if(barcodeField.isFocused())
+                if(key.isAltDown()){
+                    quantityField.setEditable(true);
+                    quantityField.requestFocus();
+                }
+        });
+      /*  barcodeField.textProperty().addListener((value, oldValue, newValue) -> {
+
+        }); */
     }
     // from now on, the rest will involve searching and backend related tasks, we stop here for now
 }
