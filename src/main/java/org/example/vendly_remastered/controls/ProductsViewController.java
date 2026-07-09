@@ -92,6 +92,7 @@ public class ProductsViewController implements Initializable {
     private void setTableBehaviour(){}
     public void initializeTable() {
         loadProductData();
+
         // 1. Setup wrappers using the class-level masterData list
         filteredData = new FilteredList<>(masterData, p -> true);
         sortedData = new SortedList<>(filteredData);
@@ -99,23 +100,10 @@ public class ProductsViewController implements Initializable {
         // 2. Bind the SortedList comparator to the TableView's comparator properties
         sortedData.comparatorProperty().bind(productTableView.comparatorProperty());
         productTableView.setItems(sortedData);
+
+        // 3. Connect live search field mutations to our multi-criteria routing filter
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
             applyCombinedFilter();
-        });
-        // 3. Connect live search field listener mutations to the FilteredList predicate
-        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            filteredData.setPredicate(product -> {
-                if (newValue == null || newValue.isBlank()) {
-                    return true;
-                }
-
-                String filter = newValue.toLowerCase().trim();
-
-                if (product.getProductName() != null && product.getProductName().toLowerCase().contains(filter)) return true;
-                if (product.getCategoryName() != null && product.getCategoryName().toLowerCase().contains(filter)) return true;
-                if (product.getBarcode() != null && product.getBarcode().contains(filter)) return true;
-                return product.getBarcodes() != null && product.getBarcodes().stream().anyMatch(b -> b.contains(filter));
-            });
         });
     }
 

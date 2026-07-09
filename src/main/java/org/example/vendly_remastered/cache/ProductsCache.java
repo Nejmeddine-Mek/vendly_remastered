@@ -5,62 +5,62 @@ import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IProductRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class ProductsCache {
+
+    // The single thread-safe global instance (volatile for safe double-checked locking if needed)
+    private static volatile ProductsCache instance;
+
     // Monotonically increasing counter to stamp mutations (our LSN equivalent)
     private long cacheVersionCounter;
 
     // Strict threshold capacity representing 15% of a 10,000 product inventory
     private final int maxCacheSize;
 
-    // Core database gateway to handle cache misses and dirty line flushes
+    // Core database gateways to handle cache misses and dirty line flushes
     private final IProductRepository productRepository;
     private final IStockRepository stockRepository;
+
     // High-performance mapping grid configured specifically for Access-Order (LRU tracking)
     private final LinkedHashMap<Integer, ProductCacheLine> cacheMap;
     private final HashMap<String, Integer> barcodeToIdIndex = new HashMap<>();
     private final HashMap<String, Integer> nameToIdIndex = new HashMap<>();
 
-
     /**
-     * Initializes the bounded write-back cache instance.
-     * @param capacity The strict maximum number of lines allowed resident in memory (e.g., 1500).
-     * @param repo The persistent repository subsystem connection.
+     * Private Constructor: Prevents direct external instantiation.
      */
-    public ProductsCache(int capacity, IProductRepository repo, IStockRepository stockRepository) {
+    private ProductsCache(int capacity, IProductRepository repo, IStockRepository stockRepository) {
         this.maxCacheSize = capacity;
         this.productRepository = repo;
         this.stockRepository = stockRepository;
         this.cacheVersionCounter = 0;
 
         // Instantiate LinkedHashMap configured for LRU tracking
-        this.cacheMap = new LinkedHashMap<Integer, ProductCacheLine>(capacity, 0.75f, true) {
+        this.cacheMap = new LinkedHashMap<>(capacity, 0.75f, true) {
             @Override
             protected boolean removeEldestEntry(Map.Entry<Integer, ProductCacheLine> eldest) {
-                // Check if the cache footprint has spilled past your maximum constraint line
                 if (size() > maxCacheSize) {
                     ProductCacheLine eldestLine = eldest.getValue();
                     Product product = eldestLine.getProduct();
 
-                    // 1. Transactional Write-Back: Persist if the cache line state is dirty
+                    // 1. Transactional Write-Back: Persist if any bits are dirty
                     if (eldestLine.isDirtyBit()) {
                         flushToDisk(eldestLine);
                     }
 
                     // 2. Index Clean: Scrub pointer references to eliminate stale tracking memory leaks
-                    nameToIdIndex.remove(product.getProductName());
+                    if (product.getProductName() != null) {
+                        nameToIdIndex.remove(product.getProductName());
+                    }
                     if (product.getBarcodes() != null) {
                         for (String barcode : product.getBarcodes()) {
-                            barcodeToIdIndex.remove(barcode);
+                            if (barcode != null) {
+                                barcodeToIdIndex.remove(barcode);
+                            }
                         }
                     }
-
-                    // Return true to authorize the structural removal of this entry from cacheMap
-                    return true;
+                    return true; // Authorize the structural eviction from cacheMap
                 }
                 return false;
             }
@@ -68,75 +68,119 @@ public class ProductsCache {
     }
 
     /**
+     * Initializes the global cache instance. Must be called once during app startup.
+     */
+    public static synchronized ProductsCache initialize(int capacity, IProductRepository repo, IStockRepository stockRepository) {
+        if (instance == null) {
+            instance = new ProductsCache(capacity, repo, stockRepository);
+        }
+        return instance;
+    }
+
+    /**
+     * Retrieves the global active cache registry.
+     */
+    public static ProductsCache getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("ProductsCache has not been initialized! Call initialize() first at startup.");
+        }
+        return instance;
+    }
+
+    /**
      * Retrieves a product from memory (Cache Hit) or falls back to storage (Cache Miss).
-     * Moving the accessed line to the head of the LRU timeline.
-     * * @param productId The lookup primary key.
-     * @return The populated Product entity, or null if it doesn't exist in the system.
      */
     public synchronized Product get(int productId) {
-        // 1. Safe Lookup: Get the cache line wrapper first without unpacking it immediately
-        assert this.cacheMap != null;
         ProductCacheLine line = this.cacheMap.get(productId);
 
         if (line != null) {
             System.out.println("Cache HIT for Product ID: " + productId);
-            return line.getProduct(); // Pure RAM delivery
+            return line.getProduct();
         }
 
-        // 2. Cache MISS: Safely drop down to your repository layer
         System.out.println("Cache MISS for Product ID: " + productId + " -> Querying DB.");
         Product product = productRepository.findProduct(productId).orElse(null);
 
-        // 3. Absolute Miss: If it's not even in the database, return null
         if (product == null) {
             return null;
         }
 
-        // 4. Allocation: Let your unified put() method handle the index wiring seamlessly
-        this.put(product);
-
+        // Pass false flags across all dirty parameters since this is an unmutated read allocation
+        this.put(product, false, false, false);
         return product;
     }
 
+    /**
+     * Secondary index lookups by Barcode string pattern.
+     */
     public synchronized Product getByBarcode(String barcode) {
-        // Step A: Check our secondary pointer index
         Integer productId = barcodeToIdIndex.get(barcode);
 
         if (productId != null) {
-            // Cache Hit! Route straight to the master cache line
-            return get(productId);
+            return get(productId); // Dynamic hit elevation inside core get()
         }
 
-        // Cache Miss! Drop to DB using your explicit repo method
+        System.out.println("Cache MISS for Barcode: " + barcode + " -> Querying DB.");
         Optional<Product> productOpt = productRepository.findByBarCode(barcode);
         if (productOpt.isPresent()) {
             Product p = productOpt.get();
-            put(p); // Injects into master cache and wires up the secondary maps
+            this.put(p, false, false, false);
             return p;
         }
 
-        return null; // Not found anywhere
+        return null;
     }
 
-
-
-
     /**
-     * Writes or modifies a product entry inside the cache grid.
-     * Increments the cacheVersionCounter, updates the target slot, and flags the dirty bit.
-     * * @param product The updated or newly constructed product data instance.
+     * In-memory lookup matching the exact name string.
+     * Bypasses database layers entirely.
      */
+    public synchronized Product getByName(String name) {
+        if (name == null || name.isBlank()) return null;
+
+        // Query our secondary name mapping layer
+        Integer productId = nameToIdIndex.get(name.trim().toLowerCase());
+        if (productId != null) {
+            ProductCacheLine line = cacheMap.get(productId);
+            if (line != null) {
+                return line.getProduct(); // Pure memory delivery
+            }
+        }
+
+        return null; // Leave the case of miss empty
+    }
+
     /**
-     * Master put method with explicit control over which tables are dirty.
+     * Sweeps internal memory structures for partial name query criteria matching.
+     * Optimized specifically for generating fast UI auto-suggestions.
+     */
+    public synchronized List<Product> searchByName(String name) {
+        List<Product> matches = new java.util.ArrayList<>();
+        if (name == null || name.isBlank()) return matches;
+
+        String query = name.trim().toLowerCase();
+
+        // Sweep the active cache mapping pool directly
+        for (ProductCacheLine line : cacheMap.values()) {
+            Product product = line.getProduct();
+            if (product != null && product.getProductName() != null) {
+                // Check for partial or structural match contains
+                if (product.getProductName().toLowerCase().contains(query)) {
+                    matches.add(product);
+                }
+            }
+        }
+
+        return matches; // Return whatever is resident in memory
+    }
+    /**
+     * Master put method with explicit control over fine-grained dirty states.
      */
     public synchronized void put(Product product, boolean productDirty, boolean stockDirty, boolean barcodeDirty) {
-        // 1. Defend against null pointer references
         if (product == null) return;
 
-        // 2. Increment our global sequence counter (our volatile LSN equivalent)
         this.cacheVersionCounter++;
 
-        // 3. Instantiate the line wrapper with explicit fine-grained dirty states
         ProductCacheLine line = new ProductCacheLine(
                 product,
                 productDirty,
@@ -145,15 +189,12 @@ public class ProductsCache {
                 this.cacheVersionCounter
         );
 
-        // 4. Update the Master Cache Map Registry
         this.cacheMap.put(product.getProductId(), line);
 
-        // 5. Update the primary indexing lookup routes
         if (product.getProductName() != null) {
             this.nameToIdIndex.put(product.getProductName(), product.getProductId());
         }
 
-        // Handle the multi-barcode collection safely
         if (product.getBarcodes() != null) {
             for (String barcode : product.getBarcodes()) {
                 if (barcode != null) {
@@ -164,91 +205,78 @@ public class ProductsCache {
     }
 
     /**
-     * Overloaded convenience method.
-     * Treats a standard put as a full write/update (all tables marked dirty).
+     * Overloaded convenience method treating raw puts as full mutations.
      */
     public synchronized void put(Product product) {
         this.put(product, true, true, true);
     }
 
     /**
-     * Forces an immediate, synchronous persistent write-back of a specific entry to disk.
-     * Clears the dirty status indicator flag upon success.
-     * * @param line The specific memory cache line to synchronize.
+     * Flushes dirty data slices contextually out to disk and resets dirty tracks.
      */
     private void flushToDisk(ProductCacheLine line) {
         if (line == null || line.getProduct() == null) return;
         Product prod = line.getProduct();
         int id = prod.getProductId();
 
-        // 1. Is the core Product data dirty? (e.g., Name changed)
+        // 1. Core main product properties mutations
         if (line.getDirtyBitStatus(ProductCacheLine.PRODUCT_BIT)) {
-            productRepository.save(line.getProduct());
+            productRepository.save(prod);
         }
+
+        // 2. Granular inventory metric alterations
         if (line.getDirtyBitStatus(ProductCacheLine.STOCK_BIT)) {
-            // Utilizing your saveStock upsert operation
             stockRepository.saveStock(id, prod.getCurrentStock());
         }
+
+        // 3. Independent index string arrays update tracking
         if (line.getDirtyBitStatus(ProductCacheLine.BARCODE_BIT)) {
-           // repository.updateProductBarcodes(id, prod.getBarcodes());
+            // productRepository.updateProductBarcodes(id, prod.getBarcodes());
         }
+
+        // Structural Fix: Reset dirty bits globally ONLY AFTER selective flushes execute safely
         line.setDirtyBits(false);
-        // TODO: Pass line payload to repository.update() or save(), toggle dirtyBit to false
-        productRepository.save(line.getProduct());
-        //line.setDirtyBits(false);
     }
 
     /**
-     * Sweeps the entire memory map to flush any remaining uncommitted dirty data rows.
-     * Typically executed during a graceful shutdown sequence or standard checkpoint intervals.
+     * Global application checkpoint sweep.
      */
     public synchronized void flushAll() {
         System.out.println("Executing system checkpoint: Sweeping all dirty cache lines...");
-
-        // Sweep the entire active memory map
         for (ProductCacheLine line : cacheMap.values()) {
             if (line.isDirtyBit()) {
-                flushToDisk(line); // Updates DB AND clears the dirty bit status flags
+                flushToDisk(line);
             }
         }
-
         System.out.println("System checkpoint completed successfully.");
     }
 
     /**
-     * Explicitly purges an entry from the tracking index.
-     * If the target row state is dirty, it must flush to storage prior to memory eviction.
-     * * @param productId The target resource index identifier to evict.
+     * Evicts data explicitly out of tracking scope.
      */
     public synchronized void invalidate(int productId) {
-        // 1. Pull the line from the master map immediately
         ProductCacheLine line = cacheMap.remove(productId);
-
-        // If it wasn't in the cache to begin with, we are done
         if (line == null) return;
 
-        // 2. ONLY write to disk if there are uncommitted changes (Dirty)
         if (line.isDirtyBit()) {
             System.out.println("Invalidation Safeguard: Flushing dirty line to disk before removal.");
             flushToDisk(line);
         }
 
-        // 3. Clear out secondary index references to prevent memory leaks
         Product p = line.getProduct();
-        this.nameToIdIndex.remove(p.getProductName());
+        if (p.getProductName() != null) {
+            this.nameToIdIndex.remove(p.getProductName());
+        }
 
         if (p.getBarcodes() != null) {
             for (String barcode : p.getBarcodes()) {
-                this.barcodeToIdIndex.remove(barcode);
+                if (barcode != null) {
+                    this.barcodeToIdIndex.remove(barcode);
+                }
             }
         }
-
         System.out.println("Successfully evicted product ID " + productId + " from all cache layers.");
     }
-
-    // ==========================================================================
-    // GETTERS & SETTERS (Diagnostic and Operational access)
-    // ==========================================================================
 
     public long getCacheVersionCounter() {
         return cacheVersionCounter;
@@ -257,5 +285,4 @@ public class ProductsCache {
     public int getMaxCacheSize() {
         return maxCacheSize;
     }
-
 }

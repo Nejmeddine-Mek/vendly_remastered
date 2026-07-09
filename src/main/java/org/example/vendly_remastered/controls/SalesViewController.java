@@ -6,12 +6,15 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
+import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.models.dto.CartItem;
+import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
 import java.net.URL;
 import java.security.Key;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SalesViewController implements Initializable {
@@ -42,6 +45,7 @@ public class SalesViewController implements Initializable {
     @FXML private Label totalLabel;
     @FXML private Button confirmButton;
 
+    private ContextMenu suggestionPopup = new ContextMenu();
     ObservableList<CartItem> saleItems;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -178,9 +182,67 @@ public class SalesViewController implements Initializable {
                     quantityField.requestFocus();
                 }
         });
-      /*  barcodeField.textProperty().addListener((value, oldValue, newValue) -> {
+// 1. Text Listener to intercept typing for '@' search suggestions
+        barcodeField.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal == null || !newVal.startsWith("@")) {
+                suggestionPopup.hide();
+                return;
+            }
 
-        }); */
+            String query = newVal.substring(1).toLowerCase().trim();
+
+            // Fetch matching items from cache or repository index
+            ProductsCache cache = ProductsCache.getInstance();
+            // Assuming your cache or masterData can give you filtered results:
+            List<Product> matches = cache.searchByName(query);
+
+            if (matches.isEmpty()) {
+                suggestionPopup.hide();
+                return;
+            }
+
+            // Rebuild context menu items dynamically
+            suggestionPopup.getItems().clear();
+            for (Product prod : matches) {
+                MenuItem item = new MenuItem(prod.getProductName() + " (" + prod.getRetailPrice() + " DA)");
+                item.setOnAction(e -> {
+                    // When clicked, clear the text field and simulate an explicit barcode fetch
+                    barcodeField.setText(prod.getBarcode()); // or pass product directly to your cart adder
+                    suggestionPopup.hide();
+                    barcodeField.fireEvent(new javafx.event.ActionEvent()); // Trigger ActionEvent
+                });
+                suggestionPopup.getItems().add(item);
+            }
+
+            // Show the dropdown right under the barcode field
+            if (!suggestionPopup.isShowing()) {
+                suggestionPopup.show(barcodeField, javafx.geometry.Side.BOTTOM, 0, 0);
+            }
+        });
+        barcodeField.setOnAction(event -> {
+            String inputBarcode = barcodeField.getText();
+            if (inputBarcode == null || inputBarcode.trim().isEmpty()) {
+                return;
+            }
+            String targetBarcode = inputBarcode.trim();
+            ProductsCache cache = ProductsCache.getInstance();
+            Product targetProduct;
+            // the case of searching by name
+            if(targetBarcode.charAt(0) == '@'){
+                targetProduct = cache.getByName(targetBarcode.replace("@","").toLowerCase());
+
+            } else {
+                targetProduct = cache.getByBarcode(targetBarcode);
+            }
+            if(targetProduct == null){
+                System.out.println("Product with barcode or Name " + targetBarcode + " was not found");
+                return;
+            }
+            CartItem newItem = new CartItem(targetProduct.getProductId(),targetBarcode,targetProduct.getProductName(),targetProduct.getRetailPrice(),BigDecimal.valueOf(1));
+            saleItems.add(newItem);
+            barcodeField.clear();
+
+        });
     }
     // from now on, the rest will involve searching and backend related tasks, we stop here for now
 }
