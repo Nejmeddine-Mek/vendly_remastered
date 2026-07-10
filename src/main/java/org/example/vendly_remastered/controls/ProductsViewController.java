@@ -17,8 +17,10 @@ import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.models.entity.SaleHeader;
+import org.example.vendly_remastered.models.entity.Stock;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 import org.example.vendly_remastered.repository.IProductRepository;
+import org.example.vendly_remastered.repository.IStockRepository;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
@@ -26,6 +28,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ProductsViewController implements Initializable {
@@ -51,12 +54,13 @@ public class ProductsViewController implements Initializable {
 
     private IProductRepository productRepository;
     private ICategoryRepository categoryRepository;
-
+    private IStockRepository stockRepository;
     private final ObservableList<Product> masterData = FXCollections.observableArrayList();
     private FilteredList<Product> filteredData;
     private SortedList<Product> sortedData;
     public void setCategoryRepository(ICategoryRepository categoryRepository){ this.categoryRepository = categoryRepository; }
     public void setProductRepository(IProductRepository productRepository){ this.productRepository = productRepository; }
+    public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableColumnsBehaviour();
@@ -132,6 +136,14 @@ public class ProductsViewController implements Initializable {
     public void loadProductData() {
         if (productRepository == null) return;
         List<Product> dataList = productRepository.findAll();
+        Map<Integer, Stock> stockMap = stockRepository.findAll();
+        for(Product prod: dataList){
+            Stock stock = stockMap.get(prod.getProductId());
+            if(stock != null){
+                prod.setCurrentQuantity(stock.getCurrentStock());
+                prod.setMinStockLevel(stock.getMinThreshold());
+            }
+        }
         masterData.setAll(dataList);
     }
 

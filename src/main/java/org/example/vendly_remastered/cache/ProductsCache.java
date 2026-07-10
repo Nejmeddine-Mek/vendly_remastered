@@ -226,7 +226,7 @@ public class ProductsCache {
 
         // 2. Granular inventory metric alterations
         if (line.getDirtyBitStatus(ProductCacheLine.STOCK_BIT)) {
-            stockRepository.saveStock(id, prod.getCurrentStock());
+           // stockRepository.upd(id, prod.getCurrentStock());
         }
 
         // 3. Independent index string arrays update tracking

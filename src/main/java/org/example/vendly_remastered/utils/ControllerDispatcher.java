@@ -41,6 +41,7 @@ public class ControllerDispatcher {
             ProductsViewController pvc = (ProductsViewController) controller;
             pvc.setProductRepository(new ProductSQLiteImpl(conn));
             pvc.setCategoryRepository(new CategorySQLiteImpl(conn));
+            pvc.setStockRepository(new StockSQLiteImpl(conn));
             pvc.loadCategories();
             pvc.initializeTable();
         });
