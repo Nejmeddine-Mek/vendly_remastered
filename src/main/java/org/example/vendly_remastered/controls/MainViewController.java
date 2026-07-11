@@ -10,10 +10,14 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import org.example.vendly_remastered.cache.PagesCache;
+import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
+import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
+import org.example.vendly_remastered.repository.impl.StockSQLiteImpl;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
+import org.example.vendly_remastered.utils.DatabaseManager;
 
 import java.io.IOException;
 import java.net.URL;
@@ -45,6 +49,11 @@ public class MainViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // first you must check the language
         // now we set default behaviour of each field and button
+        try {
+            ProductsCache.initialize(20, new ProductSQLiteImpl(DatabaseManager.getConnection()), new StockSQLiteImpl(DatabaseManager.getConnection()));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         dateLabel.setText(LocalDate.now().toString());
         usernameLabel.setText(UserSession.getInstance().getFullName());
         //now we must inject the default page which should be the sales

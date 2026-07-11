@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.security.Key;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class SalesViewController implements Initializable {
@@ -51,13 +52,14 @@ public class SalesViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // language file first
         //set default behaviour of fields
-        saleItems = FXCollections.observableArrayList();
+
         setQuantityBehaviour();
         setPriceBehaviour(0.0);
         setDefaultClientFields();
         setClientCheckBoxBehaviour();
         setTextFormatting();
-
+        setTableBehaviour();
+        setColumnsBehaviour();
     }
 
 
@@ -163,7 +165,8 @@ public class SalesViewController implements Initializable {
     }
 
     private void setTableBehaviour(){
-
+        saleItems = FXCollections.observableArrayList();
+        saleItemsTable.setItems(saleItems);
     }
     private void setColumnsBehaviour(){
         colBarcode.setCellValueFactory(cellData -> cellData.getValue().barCodeProperty());
@@ -204,10 +207,11 @@ public class SalesViewController implements Initializable {
             // Rebuild context menu items dynamically
             suggestionPopup.getItems().clear();
             for (Product prod : matches) {
-                MenuItem item = new MenuItem(prod.getProductName() + " (" + prod.getRetailPrice() + " DA)");
+                MenuItem item = new MenuItem(prod.getProductName());
                 item.setOnAction(e -> {
                     // When clicked, clear the text field and simulate an explicit barcode fetch
-                    barcodeField.setText(prod.getBarcode()); // or pass product directly to your cart adder
+                    //barcodeField.setText(prod.getBarcode()); // or pass product directly to your cart adder
+                    barcodeField.setText("@" + item.getText());
                     suggestionPopup.hide();
                     barcodeField.fireEvent(new javafx.event.ActionEvent()); // Trigger ActionEvent
                 });
@@ -229,6 +233,7 @@ public class SalesViewController implements Initializable {
             Product targetProduct;
             // the case of searching by name
             if(targetBarcode.charAt(0) == '@'){
+                System.out.println("looking for product: " + targetBarcode.replace("@","").toLowerCase());
                 targetProduct = cache.getByName(targetBarcode.replace("@","").toLowerCase());
 
             } else {
@@ -237,10 +242,30 @@ public class SalesViewController implements Initializable {
             if(targetProduct == null){
                 System.out.println("Product with barcode or Name " + targetBarcode + " was not found");
                 return;
+            }// 2. Check if the product is already inside your cart list
+            Optional<CartItem> existingItemOpt = saleItems.stream()
+                    .filter(item -> item.getProductId() == targetProduct.getProductId())
+                    .findFirst();
+
+            if (existingItemOpt.isPresent()) {
+                // Product exists! Grab it and increment its quantity property
+                CartItem existingItem = existingItemOpt.get();
+                BigDecimal currentQty = existingItem.getQuantity(); // Assuming getQuantity() returns BigDecimal
+                existingItem.setQuantity(currentQty.add(BigDecimal.ONE));
+
+                // Note: Ensure your CartItem's subtotalProperty updates automatically
+                // when quantity or unitPrice changes so the UI refreshes instantly!
+            } else {
+                // Product is new! Instantiate a fresh row entry
+                CartItem newItem = new CartItem(
+                        targetProduct.getProductId(),
+                        targetBarcode,
+                        targetProduct.getProductName(),
+                        targetProduct.getRetailPrice(),
+                        BigDecimal.ONE
+                );
+                saleItems.add(newItem);
             }
-            CartItem newItem = new CartItem(targetProduct.getProductId(),targetBarcode,targetProduct.getProductName(),targetProduct.getRetailPrice(),BigDecimal.valueOf(1));
-            saleItems.add(newItem);
-            barcodeField.clear();
 
         });
     }

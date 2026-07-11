@@ -110,6 +110,59 @@ public class ProductSQLiteImpl implements IProductRepository {
 
     @Override
     public Optional<Product> findByBarCode(String barcode) {
+        if (barcode == null || barcode.isBlank()) return Optional.empty();
+
+        String sql = """
+            SELECT *
+            FROM product p
+            JOIN category c on p.category = c.category_id
+            INNER JOIN product_barcode pb ON p.product_id = pb.product_id
+            INNER JOIN stock s ON p.product_id = s.product_id
+            WHERE pb.barcode = ?;
+            """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            pstmt.setString(1, barcode.trim());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    // 1. Build out the base product model properties
+                    Product product = new Product();
+                    product.setProductId(rs.getInt("product_id"));
+                    product.setProductName(rs.getString("product_name"));
+                    product.setCostPrice(rs.getBigDecimal("cost_price"));
+                    product.setRetailPrice(rs.getBigDecimal("retail_price"));
+                    product.setCategoryId(rs.getShort("category"));
+                    product.setCategoryName(rs.getString("category_name"));
+                    product.setActive(rs.getBoolean("is_active"));
+
+                    // Handle optional timestamps safely
+                    if (rs.getTimestamp("created_on") != null) {
+                        product.setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime());
+                    }
+                    if (rs.getTimestamp("updated_on") != null) {
+                        product.setUpdatedOn(rs.getTimestamp("updated_on").toLocalDateTime());
+                    }
+
+                    // 2. Hydrate the composite Stock entity nested inside the product
+
+                    product.setCurrentQuantity(rs.getBigDecimal("current_stock"));
+                    product.setMinStockLevel(rs.getBigDecimal("min_threshold"));
+                 /*   if (rs.getTimestamp("last_update") != null) {
+                        stock.setLastUpdate(rs.getTimestamp("last_update").toLocalDateTime());
+                    }*/
+
+                    // Link them up
+                   /* product.setStock(stock);
+*/
+                    return Optional.of(product);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("CRITICAL: Failed to query barcode index registry for: " + barcode);
+            e.printStackTrace();
+        }
+
         return Optional.empty();
     }
 }

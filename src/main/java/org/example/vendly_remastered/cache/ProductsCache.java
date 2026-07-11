@@ -140,6 +140,7 @@ public class ProductsCache {
 
         // Query our secondary name mapping layer
         Integer productId = nameToIdIndex.get(name.trim().toLowerCase());
+
         if (productId != null) {
             ProductCacheLine line = cacheMap.get(productId);
             if (line != null) {
@@ -192,7 +193,7 @@ public class ProductsCache {
         this.cacheMap.put(product.getProductId(), line);
 
         if (product.getProductName() != null) {
-            this.nameToIdIndex.put(product.getProductName(), product.getProductId());
+            this.nameToIdIndex.put(product.getProductName().trim().toLowerCase(), product.getProductId());
         }
 
         if (product.getBarcodes() != null) {
@@ -202,6 +203,7 @@ public class ProductsCache {
                 }
             }
         }
+
     }
 
     /**
