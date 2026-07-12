@@ -147,7 +147,15 @@ public class ProductsCache {
                 return line.getProduct(); // Pure memory delivery
             }
         }
-
+        List<Product> res = productRepository.findByName(name);
+        if(!res.isEmpty()){
+            for(Product p : res){
+                put(p);
+            }
+            Product p = new Product();
+            p.setProductName("rollbackState");
+            return p;
+        }
         return null; // Leave the case of miss empty
     }
 

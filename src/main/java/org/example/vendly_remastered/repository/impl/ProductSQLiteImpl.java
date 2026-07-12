@@ -104,8 +104,62 @@ public class ProductSQLiteImpl implements IProductRepository {
     }
 
     @Override
-    public Optional<Product> findByName(String productName) {
-        return Optional.empty();
+    public List<Product> findByName(String productName) {
+        if (productName == null || productName.isBlank()) return new ArrayList<>();
+
+        // 🛡️ The wildcards must be stripped out of the SQL layout text entirely
+        String sql = """
+            SELECT *
+            FROM product p
+            INNER JOIN category c ON p.category = c.category_id
+            INNER JOIN product_barcode pb ON p.product_id = pb.product_id
+            INNER JOIN stock s ON p.product_id = s.product_id
+            WHERE lower(p.product_name) LIKE ?;
+            """;
+
+        List<Product> matches = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            // Construct the wildcard string dynamically inside the safety binder
+            String searchPattern = "%" + productName.trim().toLowerCase() + "%";
+            pstmt.setString(1, searchPattern);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    // 1. Map Base Product State
+                    Product product = new Product();
+                    product.setProductId(rs.getInt("product_id"));
+                    product.setProductName(rs.getString("product_name"));
+                    product.setCostPrice(rs.getBigDecimal("cost_price"));
+                    product.setRetailPrice(rs.getBigDecimal("retail_price"));
+                    product.setCategoryId(rs.getShort("category"));
+                    product.setCategoryName(rs.getString("category_name"));
+                    product.setActive(rs.getBoolean("is_active"));
+
+                    if (rs.getTimestamp("created_on") != null) {
+                        product.setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime());
+                    }
+                    if (rs.getTimestamp("updated_on") != null) {
+                        product.setUpdatedOn(rs.getTimestamp("updated_on").toLocalDateTime());
+                    }
+
+                    // 2. Map Stock Tracking Sub-Entity
+
+                    product.setCurrentQuantity(rs.getBigDecimal("current_stock"));
+                    product.setMinStockLevel(rs.getBigDecimal("min_threshold"));
+                    /*if (rs.getTimestamp("last_update") != null) {
+                        stock.setLastUpdate(rs.getTimestamp("last_update").toLocalDateTime());
+                    }*/
+                    // Connect associations
+                    matches.add(product);
+                }
+            }
+        } catch (SQLException sqle) {
+            System.err.println("CRITICAL: Segmented name query failed for query text: " + productName);
+            sqle.printStackTrace();
+        }
+
+        return matches; // Safely returns the populated collection matrix or an empty list
     }
 
     @Override

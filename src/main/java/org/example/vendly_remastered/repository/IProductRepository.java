@@ -13,6 +13,6 @@ public interface IProductRepository {
     public void save(Product processedProduct);
 
     public Optional<Product> findProduct(int productId);
-    public Optional<Product> findByName(String productName);
+    public List<Product> findByName(String productName);
     public Optional<Product> findByBarCode(String barcode);
 }

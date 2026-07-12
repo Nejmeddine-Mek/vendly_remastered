@@ -1,5 +1,6 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -235,7 +236,13 @@ public class SalesViewController implements Initializable {
             if(targetBarcode.charAt(0) == '@'){
                 System.out.println("looking for product: " + targetBarcode.replace("@","").toLowerCase());
                 targetProduct = cache.getByName(targetBarcode.replace("@","").toLowerCase());
+                if (targetProduct != null && targetProduct.getProductName().equals("rollbackState")) {
 
+                    // 1. Force the UI to pop open the suggestions menu again
+                    triggerSuggestionsDropdown();
+
+                    return; // Halt checkout row construction execution
+                }
             } else {
                 targetProduct = cache.getByBarcode(targetBarcode);
             }
@@ -265,8 +272,38 @@ public class SalesViewController implements Initializable {
                         BigDecimal.ONE
                 );
                 saleItems.add(newItem);
+                barcodeField.clear();
             }
 
+        });
+    }
+    private void triggerSuggestionsDropdown() {
+        // Force JavaFX to run this at the end of the current frame cycle
+        Platform.runLater(() -> {
+            // 1. Regain focus immediately to capture user typing
+            barcodeField.requestFocus();
+
+            // 2. Position the carot cursor cleanly at the end of the text string
+            barcodeField.end();
+
+            if (suggestionPopup != null) {
+                // 3. Clear old visual state artifacts if any exist
+                if (suggestionPopup.isShowing()) {
+                    suggestionPopup.hide();
+                }
+            }
+            // 4. Force display layout placement immediately beneath the text field
+            suggestionPopup.show(barcodeField.getScene().getWindow());
+
+            // 5. OPTIONAL: If your suggestion engine does not automatically refresh
+            // when shown, manually fire a pseudo-text event to trigger the filtering logic:
+            String currentText = barcodeField.getText();
+            if (currentText != null && !currentText.isEmpty()) {
+                // This forces your skin/popup selection listeners to run their filtering loops right now
+                barcodeField.setText("");
+                barcodeField.setText(currentText);
+                barcodeField.end(); // Keep carot at the edge
+            }
         });
     }
     // from now on, the rest will involve searching and backend related tasks, we stop here for now
