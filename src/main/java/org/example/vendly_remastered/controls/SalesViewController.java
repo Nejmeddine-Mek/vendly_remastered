@@ -10,14 +10,22 @@ import javafx.scene.control.*;
 import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.models.dto.CartItem;
 import org.example.vendly_remastered.models.entity.Product;
+import org.example.vendly_remastered.models.entity.SaleDetailItem;
+import org.example.vendly_remastered.models.entity.SaleHeader;
+import org.example.vendly_remastered.repository.ISaleDetailsRepository;
+import org.example.vendly_remastered.repository.ISalesHeaderRepository;
+import org.example.vendly_remastered.security.UserSession;
+import org.example.vendly_remastered.service.AuditLogsService;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.security.Key;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class SalesViewController implements Initializable {
     @FXML private Label quantityLabel;
@@ -47,8 +55,22 @@ public class SalesViewController implements Initializable {
     @FXML private Label totalLabel;
     @FXML private Button confirmButton;
 
-    private ContextMenu suggestionPopup = new ContextMenu();
+    private final ContextMenu suggestionPopup = new ContextMenu();
     ObservableList<CartItem> saleItems;
+
+    // A thread pool with 2 dedicated worker threads for background operations
+    private final ExecutorService salesThreadPool = Executors.newFixedThreadPool(2);
+    ISalesHeaderRepository saleHeaderRepository;
+    ISaleDetailsRepository saleDetailsRepository;
+
+    public void setSaleDetailsRepository(ISaleDetailsRepository saleDetailsRepository){
+        this.saleDetailsRepository = saleDetailsRepository;
+    }
+
+    public void setSaleHeaderRepository(ISalesHeaderRepository saleHeaderrepository) {
+        this.saleHeaderRepository = saleHeaderrepository;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // language file first
@@ -61,9 +83,14 @@ public class SalesViewController implements Initializable {
         setTextFormatting();
         setTableBehaviour();
         setColumnsBehaviour();
+        setConfirmButtonBehaviour();
     }
 
-
+    private void setConfirmButtonBehaviour(){
+        confirmButton.setOnAction(_ -> {
+            saveSale();
+        });
+    }
     // let us define the behaviour of each field in a separate private method
     private void setQuantityBehaviour(){
         // we must create a formatter for this to accept only numeric values
@@ -119,15 +146,13 @@ public class SalesViewController implements Initializable {
                 .map(CartItem::getSubtotal) // Assuming getSubtotal() returns a BigDecimal property value
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-        totalAmountLabel.setText(String.format("%.2f DA", total));
+        totalLabel.setText(String.format("%.2f DA", total));
     }
-
     private void setPriceBehaviour(double price){
         priceField.setEditable(false);
         priceField.setText(String.valueOf(price));
         setBarcodeFieldBehaviour();
     }
-
     private void setClientCheckBoxBehaviour(){
         clientCheckBox.selectedProperty().addListener((_, _, newValue) ->{
             if(newValue){
@@ -147,7 +172,6 @@ public class SalesViewController implements Initializable {
             }
         });
     }
-
     private void setDefaultClientFields(){
         clientNameField.setPromptText("Client Name...");
         clientNameField.setVisible(false);
@@ -158,13 +182,11 @@ public class SalesViewController implements Initializable {
         paidAmountField.setManaged(false);
         paidAmountLabel.setVisible(false);
     }
-
     private void setTextFormatting(){
         quantityField.setTextFormatter(TextFormatterUtils.createDecimalFormatter());
         priceField.setTextFormatter(TextFormatterUtils.createDecimalFormatter());
         paidAmountField.setTextFormatter(TextFormatterUtils.createDecimalFormatter());
     }
-
     private void setTableBehaviour(){
         saleItems = FXCollections.observableArrayList();
         saleItemsTable.setItems(saleItems);
@@ -272,9 +294,10 @@ public class SalesViewController implements Initializable {
                         BigDecimal.ONE
                 );
                 saleItems.add(newItem);
-                barcodeField.clear();
-            }
 
+            }
+            updateTransactionTotal();
+            barcodeField.clear();
         });
     }
     private void triggerSuggestionsDropdown() {
@@ -307,4 +330,98 @@ public class SalesViewController implements Initializable {
         });
     }
     // from now on, the rest will involve searching and backend related tasks, we stop here for now
+
+    private void saveSale() {
+        if (saleItems.isEmpty()) {
+            return;
+        }
+
+        SaleHeader header = new SaleHeader();
+        header.setSaleUser(UserSession.getInstance().getUserId());
+        header.setSaleNote("sale");
+
+        // Clean string parsing to extract total amount safely
+        String cleanTotalString = totalLabel.getText().replace("DA", "").trim();
+        BigDecimal saleTotal = new BigDecimal(cleanTotalString);
+        header.setSaleTotal(saleTotal);
+
+        if (clientCheckBox.isSelected()) {
+            // We will configure the paid/debt values for clients when you're ready to implement client billing
+            // e.g., header.setSaleClient(selectedClient.getClientId());
+            // header.setPaidAmount(new BigDecimal(paidAmountField.getText()));
+        } else {
+            // Anonymous cash customer pays the full total upfront
+            header.setPaidAmount(saleTotal);
+        }
+
+        ProductsCache cache = ProductsCache.getInstance();
+        List<SaleDetailItem> soldItems = new ArrayList<>();
+
+        // 🛡️ Tracks total cost of goods sold (COGS) to find true net profit
+        BigDecimal totalCostPrice = BigDecimal.ZERO;
+
+        for (CartItem item : saleItems) {
+            Product cachedProduct = cache.get(item.getProductId());
+
+            if (cachedProduct != null) {
+                BigDecimal itemQuantity = item.getQuantity();
+                BigDecimal unitCost = cachedProduct.getCostPrice();
+
+                // Multiply cost by quantity: (Cost * Qty) and accumulate
+                BigDecimal lineItemTotalCost = unitCost.multiply(itemQuantity);
+                totalCostPrice = totalCostPrice.add(lineItemTotalCost);
+            }
+
+            // Map CartItem state to the database model
+            soldItems.add(
+                    new SaleDetailItem(
+                            0, // Will be replaced by the generated Sale Header ID upon insert
+                            item.getProductId(),
+                            item.getProductName(),
+                            item.getQuantity(),
+                            item.getUnitPrice()
+                    )
+            );
+        }
+
+        // Profit = Total Sale Amount - Total Cost of Goods Sold
+        BigDecimal netProfit = saleTotal.subtract(totalCostPrice);
+        header.setSaleProfit(netProfit);
+
+        // TODO: Set current authenticated user ID on the header
+        // header.setSaleUser(currentUser.getUserId());
+        System.out.println(header.toString());
+        for(SaleDetailItem item : soldItems){
+            System.out.println(item.toString());
+        }
+        //main ui first saves header
+        int saleId = saleHeaderRepository.saveSaleHeader(header);
+        if(saleId == -1){
+            // TODO: fail here, must handle and not save
+            return;
+        }
+        for(SaleDetailItem item : soldItems){
+            item.setSaleId(saleId);
+        }
+        //TODO: now create two threads and save here and there, and we are done
+        salesThreadPool.submit(() ->{
+            try {
+                System.out.println("[Thread A] Starting SQLite write for sale ID: " + saleId);
+                saleDetailsRepository.saveSaleDetails(soldItems);
+                System.out.println("[Thread A] SQLite write completed successfully.");
+            } catch (Exception e) {
+                System.err.println("[Thread A] CRITICAL ERROR: Failed to save details to database!");
+                e.printStackTrace();
+            }
+        });
+        salesThreadPool.submit(() -> {
+            System.out.println("[Thread B] Starting file I/O write for sale ID: " + saleId);
+            //TODO: create a class to handle logs and write everywhere, I have no idea if it needs to be interfaced or not
+
+            AuditLogsService.getInstance().log(header, soldItems);
+            System.out.println("[Thread B] File audit logging completed.");
+        });
+        saleItems.clear();       // Wipe the checkout table
+        barcodeField.clear();
+    }
 }

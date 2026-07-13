@@ -51,6 +51,12 @@ public class ControllerDispatcher {
            pmc.setCategoryRepository(new CategorySQLiteImpl(conn));
            pmc.setComboCategoryValues();
         });
+        registry.put(SalesViewController.class, controller -> {
+            Connection conn = DatabaseManager.getConnection();
+            SalesViewController svc = (SalesViewController) controller;
+            svc.setSaleHeaderRepository(new SaleHeaderSQLiteImpl(conn));
+            svc.setSaleDetailsRepository(new SaleDetailsSQLiteImpl(conn));
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

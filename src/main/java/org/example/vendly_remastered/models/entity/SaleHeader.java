@@ -89,4 +89,21 @@ public class SaleHeader {
 
     public String getSaleNote() { return saleNote; }
     public void setSaleNote(String saleNote) { this.saleNote = saleNote; }
+    @Override
+    public String toString() {
+        String formattedDate = (saleDate != null)
+                ? saleDate.format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+                : "N/A";
+
+        return "SaleHeader{" +
+                "saleId=" + saleId +
+                ", date=" + formattedDate +
+                ", total=" + (saleTotal != null ? saleTotal.toPlainString() + " DA" : "0.00 DA") +
+                ", paid=" + (paidAmount != null ? paidAmount.toPlainString() + " DA" : "0.00 DA") +
+                ", profit=" + (saleProfit != null ? saleProfit.toPlainString() + " DA" : "0.00 DA") +
+                ", user=[" + saleUser + (saleUsername != null ? " - " + saleUsername : "") + "]" +
+                ", client=" + (saleClient != null ? "[" + saleClient + (clientName != null ? " - " + clientName : "") + "]" : "ANONYMOUS") +
+                ", status='" + saleNote + '\'' +
+                '}';
+    }
 }

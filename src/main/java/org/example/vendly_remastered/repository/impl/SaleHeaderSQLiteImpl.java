@@ -13,16 +13,21 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
     public SaleHeaderSQLiteImpl(Connection conn){ this.connection = conn; }
 
     @Override
-    public boolean saveSaleHeader(SaleHeader sale) {
+    public int saveSaleHeader(SaleHeader sale) {
+        // 1. Keep the SQL pure and simple. The JDBC driver handles key retrieval.
         String sql = """
-                INSERT INTO sale_header (sale_total, paid_amount, sale_profit, sale_user, sale_client, sale_note)
-                                VALUES  (?,?,?,?,?,?);
-                """;
-        try(PreparedStatement pstmt = connection.prepareStatement(sql)){
-            pstmt.setBigDecimal(1,sale.getSaleTotal());
+            INSERT INTO sale_header (sale_total, paid_amount, sale_profit, sale_user, sale_client, sale_note)
+            VALUES (?, ?, ?, ?, ?, ?);
+            """;
+
+        // 2. Pass Statement.RETURN_GENERATED_KEYS to instruct the driver to keep the key
+        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setBigDecimal(1, sale.getSaleTotal());
             pstmt.setBigDecimal(2, sale.getPaidAmount());
-            pstmt.setBigDecimal(3,sale.getSaleProfit());
-            pstmt.setInt(4,sale.getSaleUser());
+            pstmt.setBigDecimal(3, sale.getSaleProfit());
+            pstmt.setInt(4, sale.getSaleUser());
+
             if (sale.getSaleClient() == null) {
                 pstmt.setNull(5, java.sql.Types.INTEGER);
             } else {
@@ -33,18 +38,21 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
             int affectedRows = pstmt.executeUpdate();
 
             if (affectedRows > 0) {
-                // 🎯 Extract the generated BIGSERIAL key and update the object state
+                // 3. Safely extract the database-generated auto-increment ID
                 try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
-                        sale.setSaleId(generatedKeys.getInt(1));
+                        int generatedId = generatedKeys.getInt(1);
+                        sale.setSaleId(generatedId); // Update object state
+                        return generatedId;          // Return the actual ID
                     }
                 }
-                return true;
             }
-        } catch(SQLException sqle){
+        } catch (SQLException sqle) {
+            System.err.println("CRITICAL: Failed to insert sale header record.");
             sqle.printStackTrace();
         }
-        return false;
+
+        return -1; // Indicates failure
     }
 
     @Override
