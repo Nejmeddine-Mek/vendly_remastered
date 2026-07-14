@@ -10,7 +10,6 @@ public class Client {
     private String email;
     private String phone;
     private String address;
-    private int totalPurchases;
     private BigDecimal currentDebts;
     private boolean isActive;
     private int createdBy;
