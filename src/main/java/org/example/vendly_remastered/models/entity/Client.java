@@ -38,6 +38,10 @@ public class Client {
         this.createdAt = createdAt;
     }
 
+    public Client() {
+
+    }
+
     // Getters and Setters
     public int getClientId() { return clientId; }
     public void setClientId(int clientId) { this.clientId = clientId; }
@@ -72,5 +76,13 @@ public class Client {
     // 3. The standard setter
     public void setActive(boolean active) {
         this.isActive = active;
+    }
+
+    public BigDecimal getCurrentDebts() {
+        return currentDebts;
+    }
+
+    public void setCurrentDebts(BigDecimal currentDebts) {
+        this.currentDebts = currentDebts;
     }
 }

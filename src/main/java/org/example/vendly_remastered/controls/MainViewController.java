@@ -9,10 +9,12 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.PagesCache;
 import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
+import org.example.vendly_remastered.repository.impl.ClientsSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.StockSQLiteImpl;
 import org.example.vendly_remastered.security.UserSession;
@@ -21,6 +23,7 @@ import org.example.vendly_remastered.utils.DatabaseManager;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ResourceBundle;
@@ -50,7 +53,9 @@ public class MainViewController implements Initializable {
         // first you must check the language
         // now we set default behaviour of each field and button
         try {
-            ProductsCache.initialize(20, new ProductSQLiteImpl(DatabaseManager.getConnection()), new StockSQLiteImpl(DatabaseManager.getConnection()));
+            Connection conn = DatabaseManager.getConnection();
+            ProductsCache.initialize(20, new ProductSQLiteImpl(conn), new StockSQLiteImpl(conn));
+            ClientsCache.initialize(10,new ClientsSQLiteImpl(conn));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

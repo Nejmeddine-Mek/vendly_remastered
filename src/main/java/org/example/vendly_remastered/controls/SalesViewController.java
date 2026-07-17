@@ -7,8 +7,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 
+import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.models.dto.CartItem;
+import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.models.entity.SaleDetailItem;
 import org.example.vendly_remastered.models.entity.SaleHeader;
@@ -84,6 +86,7 @@ public class SalesViewController implements Initializable {
         setTableBehaviour();
         setColumnsBehaviour();
         setConfirmButtonBehaviour();
+        setClientNameFieldBehaviour();
     }
 
     private void setConfirmButtonBehaviour(){
@@ -385,11 +388,12 @@ public class SalesViewController implements Initializable {
         }
 
         // Profit = Total Sale Amount - Total Cost of Goods Sold
+        // CONVERT PROFIT TO PAID AMOUNT - TOTAL COST WHEN THERE IS DEBT
         BigDecimal netProfit = saleTotal.subtract(totalCostPrice);
         header.setSaleProfit(netProfit);
 
-        // TODO: Set current authenticated user ID on the header
-        // header.setSaleUser(currentUser.getUserId());
+        //Set current authenticated user ID on the header
+        header.setSaleUser(UserSession.getInstance().getUserId());
         System.out.println(header.toString());
         for(SaleDetailItem item : soldItems){
             System.out.println(item.toString());
@@ -423,5 +427,88 @@ public class SalesViewController implements Initializable {
         });
         saleItems.clear();       // Wipe the checkout table
         barcodeField.clear();
+    }
+
+    private void setClientNameFieldBehaviour() {
+        // 1. Create a single ContextMenu instance out here so it persists across keystrokes
+        ContextMenu suggestionPopup = new ContextMenu();
+        ClientsCache cache = ClientsCache.getInstance();
+
+        clientNameField.textProperty().addListener((obs, oldVal, newVal) -> {
+            // Hide the popup immediately if the field is cleared or text is too short
+            if (newVal == null || newVal.trim().length() < 2) {
+                suggestionPopup.hide();
+                return;
+            }
+
+            String query = newVal.trim().toLowerCase();
+            suggestionPopup.getItems().clear(); // Wipe the previous keystroke's results
+
+            // 2. Sweep the memory cache structures for matches
+
+            List<Client> matchedClients = new ArrayList<>();
+
+            // Loop through the cache map values to find matching strings
+            for (org.example.vendly_remastered.cache.model.ClientCacheLine line : cache.getCacheMapValues()) {
+                Client client = line.getClient();
+                if (client == null) continue;
+
+                boolean matchesFullName = client.getContactFullName() != null &&
+                        client.getContactFullName().toLowerCase().contains(query);
+                boolean matchesCompany = client.getCompanyName() != null &&
+                        client.getCompanyName().toLowerCase().contains(query);
+
+                if (matchesFullName || matchesCompany) {
+                    matchedClients.add(client);
+                }
+            }
+
+            // 3. Hide if no records are resident in memory
+            if (matchedClients.isEmpty()) {
+                suggestionPopup.hide();
+                return;
+            }
+
+            // 4. Transform matches into selectable UI MenuItems
+            for (Client client : matchedClients) {
+                String displayName = client.getContactFullName();
+                if (client.getCompanyName() != null && !client.getCompanyName().isBlank()) {
+                    displayName += " (" + client.getCompanyName() + ")";
+                }
+
+                MenuItem item = new MenuItem(displayName);
+
+                // Handle item selection action
+                item.setOnAction(e -> {
+                    clientNameField.setText(client.getContactFullName());
+                    suggestionPopup.hide();
+                });
+
+                suggestionPopup.getItems().add(item);
+            }
+
+            // 5. Anchor the suggestion popup right under the text input field box
+            if (!suggestionPopup.isShowing()) {
+                suggestionPopup.show(clientNameField, javafx.geometry.Side.BOTTOM, 0, 0);
+            }
+        });
+
+        // Safeguard: Dismiss popup if the field loses operational focus
+        clientNameField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
+                suggestionPopup.hide();
+            }
+        });
+        clientNameField.setOnAction(_ -> {
+            Client c = cache.getByName(clientNameField.getText().trim().toLowerCase());
+            if(c == null){
+                // todo: client is not present
+            } else if(c.getContactFullName().equals("rollbackOption")){
+                clientNameField.setText(clientNameField.getText());
+                //todo: trigger the suggestions again
+            } else {
+                //found write full name there
+            }
+        });
     }
 }
