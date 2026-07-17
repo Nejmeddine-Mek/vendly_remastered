@@ -108,51 +108,20 @@ public class ClientsCache {
     }
 
     /**
-     * 🔵 GET by Name (Case-insensitive secondary index mapping lookup)
-     */
-    public synchronized Client getByName(String clientName) {
-        if (clientName == null || clientName.isBlank()) return null;
-
-        Integer clientId = clientNameIdIndex.get(clientName.trim().toLowerCase());
-        if (clientId != null) {
-            return get(clientId); // Redirects into get() to elevate cache hit access status
-        }
-
-        // Cache Miss fallback search via SQLite implementation
-        System.out.println("[ClientsCache] MISS for Name: " + clientName + " -> Checking persistent DB layer.");
-
-        // Note: Replace with your repository's actual by-name lookup method if named differently
-        List<Client> clientOpt = clientsRepository.getByName(clientName.trim());
-        // TODO: requires special way to treat it.
-        if(clientOpt.size() == 1){
-            put(clientOpt.getFirst());
-            return clientOpt.getFirst();
-        } else if (clientOpt.size() > 1){
-            for(Client c : clientOpt){
-                put(c);
-            }
-            Client c = new Client();
-            c.setContactFullName("RollbackOption");
-            //TRIGGER THE SUGGESTION AGAIN, MULTIPLE OPTIONS FOUND
-            return c;
-        }
-        // MEANS CLIENT DOES NOT EXIST
-        return null;
-    }
-
-    /**
      * 🟢 PUT (Write-Through Implementation)
      * Persists straight down to the database synchronously, then maps it in memory.
      */
-    public synchronized void put(Client client) {
+    public synchronized void put(Client client, boolean isInsert) {
         if (client == null) return;
 
         try {
             // Write-Through: Immediately attempt database write transaction
-            boolean dbSuccess = clientsRepository.add(client);
-            if (!dbSuccess) {
-                System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
-                return;
+            if(isInsert){
+                boolean dbSuccess = clientsRepository.add(client);
+                if (!dbSuccess) {
+                    System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
+                    return;
+                }
             }
 
             // Sync successfully written record back into cache mapping layers
@@ -162,6 +131,40 @@ public class ClientsCache {
             System.err.println("[ClientsCache] CRITICAL: Unexpected error on Write-Through persistence loop.");
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 🔵 GET by Name (Case-insensitive secondary index mapping lookup)
+     */
+    public synchronized List<Client> getByName(String clientName) {
+        if (clientName == null || clientName.isBlank()) return null;
+        List<Client> matches = new ArrayList<>();
+        for(Map.Entry<String, Integer> entry: clientNameIdIndex.entrySet()){
+            if (entry.getKey().toLowerCase().contains(clientName)) {
+                // 2. Only fetch from cache if it's an actual match
+                Client cachedClient = get(entry.getValue());
+                if (cachedClient != null) { // The protective line
+                    matches.add(cachedClient);
+                }
+            }
+        }
+        // exit if we find any matches
+        if(!matches.isEmpty())
+            return matches;
+
+        // Cache Miss fallback search via SQLite implementation
+        System.out.println("[ClientsCache] MISS for Name: " + clientName + " -> Checking persistent DB layer.");
+
+        // Note: Replace with your repository's actual by-name lookup method if named differently
+        List<Client> clientOpt = clientsRepository.getByName(clientName.trim());
+        // TODO: requires special way to treat it.
+        if(!clientOpt.isEmpty())
+            for(Client c : clientOpt){
+                put(c, false);
+                matches.add(c);
+            }
+        // MEANS CLIENT DOES NOT EXIST
+        return matches;
     }
 
     /**

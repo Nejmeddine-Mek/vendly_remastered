@@ -164,22 +164,31 @@ public class ProductsCache {
      * Optimized specifically for generating fast UI auto-suggestions.
      */
     public synchronized List<Product> searchByName(String name) {
-        List<Product> matches = new java.util.ArrayList<>();
+        List<Product> matches = new ArrayList<>();
         if (name == null || name.isBlank()) return matches;
 
         String query = name.trim().toLowerCase();
-
-        // Sweep the active cache mapping pool directly
-        for (ProductCacheLine line : cacheMap.values()) {
-            Product product = line.getProduct();
-            if (product != null && product.getProductName() != null) {
-                // Check for partial or structural match contains
-                if (product.getProductName().toLowerCase().contains(query)) {
-                    matches.add(product);
+        for(Map.Entry<String, Integer> entry: nameToIdIndex.entrySet()){
+            if(entry.getKey().toLowerCase().contains(query.toLowerCase())){
+                Product p = get(entry.getValue());
+                if(p != null){
+                    matches.add(p);
                 }
             }
         }
+        // if the cache is empty
+        if(!matches.isEmpty())
+            return matches;
 
+        System.out.println("[ClientsCache] MISS for Name: " + name + " -> Checking persistent DB layer.");
+
+        List<Product> prodOpt = productRepository.findByName(name);
+        if(!prodOpt.isEmpty()){
+            for(Product p: prodOpt){
+                put(p);
+                matches.add(p);
+            }
+        }
         return matches; // Return whatever is resident in memory
     }
     /**

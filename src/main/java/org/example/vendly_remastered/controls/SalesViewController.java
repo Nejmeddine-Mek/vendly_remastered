@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.ProductsCache;
+import org.example.vendly_remastered.cache.model.ClientCacheLine;
 import org.example.vendly_remastered.models.dto.CartItem;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Product;
@@ -201,109 +202,98 @@ public class SalesViewController implements Initializable {
         colUnitPrice.setCellValueFactory(cellData -> cellData.getValue().unitPriceProperty());
         colSubTotal.setCellValueFactory(cellData -> cellData.getValue().subtotalProperty());
     }
-    private void setBarcodeFieldBehaviour(){
+    private void setBarcodeFieldBehaviour() {
+        // Ensure you have a single ContextMenu instance accessible in this scope
+        // ContextMenu suggestionPopup = new ContextMenu(); // If not declared at class level
+        ProductsCache cache = ProductsCache.getInstance();
         barcodeField.requestFocus();
-        // first of all, we want to allow switching focus through clicking ALT
+
+        // 1. Switch focus to quantity field using ALT key
         barcodeField.setOnKeyPressed(key -> {
-            if(barcodeField.isFocused())
-                if(key.isAltDown()){
-                    quantityField.setEditable(true);
-                    quantityField.requestFocus();
-                }
+            if (barcodeField.isFocused() && key.isAltDown()) {
+                quantityField.setEditable(true);
+                quantityField.requestFocus();
+            }
         });
-// 1. Text Listener to intercept typing for '@' search suggestions
+
+        // 2. Text Listener to intercept typing for '@' search suggestions
         barcodeField.textProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal == null || !newVal.startsWith("@")) {
+            updateAndShowProductSuggestions(newVal, suggestionPopup, cache);
+        });
+
+        // Safeguard: Dismiss popup if the field loses operational focus
+        barcodeField.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) {
                 suggestionPopup.hide();
-                return;
-            }
-
-            String query = newVal.substring(1).toLowerCase().trim();
-
-            // Fetch matching items from cache or repository index
-            ProductsCache cache = ProductsCache.getInstance();
-            // Assuming your cache or masterData can give you filtered results:
-            List<Product> matches = cache.searchByName(query);
-
-            if (matches.isEmpty()) {
-                suggestionPopup.hide();
-                return;
-            }
-
-            // Rebuild context menu items dynamically
-            suggestionPopup.getItems().clear();
-            for (Product prod : matches) {
-                MenuItem item = new MenuItem(prod.getProductName());
-                item.setOnAction(e -> {
-                    // When clicked, clear the text field and simulate an explicit barcode fetch
-                    //barcodeField.setText(prod.getBarcode()); // or pass product directly to your cart adder
-                    barcodeField.setText("@" + item.getText());
-                    suggestionPopup.hide();
-                    barcodeField.fireEvent(new javafx.event.ActionEvent()); // Trigger ActionEvent
-                });
-                suggestionPopup.getItems().add(item);
-            }
-
-            // Show the dropdown right under the barcode field
-            if (!suggestionPopup.isShowing()) {
-                suggestionPopup.show(barcodeField, javafx.geometry.Side.BOTTOM, 0, 0);
             }
         });
-        barcodeField.setOnAction(event -> {
+
+        // 3. Handle barcode input / Enter key action
+        barcodeField.setOnAction(_ -> {
             String inputBarcode = barcodeField.getText();
             if (inputBarcode == null || inputBarcode.trim().isEmpty()) {
                 return;
             }
+
             String targetBarcode = inputBarcode.trim();
-            ProductsCache cache = ProductsCache.getInstance();
-            Product targetProduct;
-            // the case of searching by name
-            if(targetBarcode.charAt(0) == '@'){
-                System.out.println("looking for product: " + targetBarcode.replace("@","").toLowerCase());
-                targetProduct = cache.getByName(targetBarcode.replace("@","").toLowerCase());
-                if (targetProduct != null && targetProduct.getProductName().equals("rollbackState")) {
+            Product targetProduct = null;
 
-                    // 1. Force the UI to pop open the suggestions menu again
-                    triggerSuggestionsDropdown();
+            // CASE A: Searching by name via '@' prefix
+            if (targetBarcode.startsWith("@")) {
+                String query = targetBarcode.substring(1).trim().toLowerCase();
+                System.out.println("Looking for product: " + query);
 
-                    return; // Halt checkout row construction execution
+                // Expected backend change: searchByName now returns a List<Product> matching the query
+                List<Product> matches = cache.searchByName(query);
+
+                if (matches.isEmpty()) {
+                    System.out.println("Product Name [" + query + "] was not found");
+                    return;
+                } else{
+                    // Multiple options found! Retrigger the popup directly with current input
+                    updateAndShowProductSuggestions(targetBarcode, suggestionPopup, cache);
+                    barcodeField.end(); // Keep cursor text caret at the very end
+                    return; // Halt cart entry execution
                 }
-            } else {
+            }
+            // CASE B: Searching directly by standard barcode
+            else {
                 targetProduct = cache.getByBarcode(targetBarcode);
             }
-            if(targetProduct == null){
+
+            if (targetProduct == null) {
                 System.out.println("Product with barcode or Name " + targetBarcode + " was not found");
                 return;
-            }// 2. Check if the product is already inside your cart list
+            }
+
+            // 4. Check if the product is already inside your cart list
+            final int targetId = targetProduct.getProductId();
             Optional<CartItem> existingItemOpt = saleItems.stream()
-                    .filter(item -> item.getProductId() == targetProduct.getProductId())
+                    .filter(item -> item.getProductId() == targetId)
                     .findFirst();
 
             if (existingItemOpt.isPresent()) {
-                // Product exists! Grab it and increment its quantity property
                 CartItem existingItem = existingItemOpt.get();
-                BigDecimal currentQty = existingItem.getQuantity(); // Assuming getQuantity() returns BigDecimal
+                BigDecimal currentQty = existingItem.getQuantity();
                 existingItem.setQuantity(currentQty.add(BigDecimal.ONE));
-
-                // Note: Ensure your CartItem's subtotalProperty updates automatically
-                // when quantity or unitPrice changes so the UI refreshes instantly!
             } else {
-                // Product is new! Instantiate a fresh row entry
                 CartItem newItem = new CartItem(
                         targetProduct.getProductId(),
-                        targetBarcode,
+                        targetProduct.getBarcode(), // Use actual product's barcode instead of potentially text "@name"
                         targetProduct.getProductName(),
                         targetProduct.getRetailPrice(),
                         BigDecimal.ONE
                 );
                 saleItems.add(newItem);
-
             }
+
             updateTransactionTotal();
             barcodeField.clear();
         });
     }
-    private void triggerSuggestionsDropdown() {
+
+    // 4. Isolated core suggestion logic that can be explicitly invoked anywhere safely
+  /*  private void triggerSuggestionsDropdown() {
         // Force JavaFX to run this at the end of the current frame cycle
         Platform.runLater(() -> {
             // 1. Regain focus immediately to capture user typing
@@ -333,7 +323,7 @@ public class SalesViewController implements Initializable {
         });
     }
     // from now on, the rest will involve searching and backend related tasks, we stop here for now
-
+*/
     private void saveSale() {
         if (saleItems.isEmpty()) {
             return;
@@ -428,69 +418,54 @@ public class SalesViewController implements Initializable {
         saleItems.clear();       // Wipe the checkout table
         barcodeField.clear();
     }
+    private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
+        if (textVal == null || !textVal.startsWith("@")) {
+            suggestionPopup.hide();
+            return;
+        }
+
+        String query = textVal.substring(1).trim().toLowerCase();
+
+        // Safety check for text length after the @ symbol
+        if (query.isEmpty()) {
+            suggestionPopup.hide();
+            return;
+        }
+
+        // Fetch matching items from cache or repository index
+        List<Product> matches = cache.searchByName(query);
+
+        if (matches.isEmpty()) {
+            suggestionPopup.hide();
+            return;
+        }
+
+        // Rebuild context menu items dynamically
+        suggestionPopup.getItems().clear();
+        for (Product prod : matches) {
+            MenuItem item = new MenuItem(prod.getProductName());
+            item.setOnAction(e -> {
+                // Fill with structural name and fire selection
+                barcodeField.setText("@" + prod.getProductName());
+                suggestionPopup.hide();
+                barcodeField.fireEvent(new javafx.event.ActionEvent()); // Re-trigger ActionEvent to add to cart
+            });
+            suggestionPopup.getItems().add(item);
+        }
+
+        // Show or keep anchor right under the barcode field
+        if (!suggestionPopup.isShowing()) {
+            suggestionPopup.show(barcodeField, javafx.geometry.Side.BOTTOM, 0, 0);
+        }
+    }
 
     private void setClientNameFieldBehaviour() {
-        // 1. Create a single ContextMenu instance out here so it persists across keystrokes
         ContextMenu suggestionPopup = new ContextMenu();
         ClientsCache cache = ClientsCache.getInstance();
 
+        // 1. Listen for typing changes
         clientNameField.textProperty().addListener((obs, oldVal, newVal) -> {
-            // Hide the popup immediately if the field is cleared or text is too short
-            if (newVal == null || newVal.trim().length() < 2) {
-                suggestionPopup.hide();
-                return;
-            }
-
-            String query = newVal.trim().toLowerCase();
-            suggestionPopup.getItems().clear(); // Wipe the previous keystroke's results
-
-            // 2. Sweep the memory cache structures for matches
-
-            List<Client> matchedClients = new ArrayList<>();
-
-            // Loop through the cache map values to find matching strings
-            for (org.example.vendly_remastered.cache.model.ClientCacheLine line : cache.getCacheMapValues()) {
-                Client client = line.getClient();
-                if (client == null) continue;
-
-                boolean matchesFullName = client.getContactFullName() != null &&
-                        client.getContactFullName().toLowerCase().contains(query);
-                boolean matchesCompany = client.getCompanyName() != null &&
-                        client.getCompanyName().toLowerCase().contains(query);
-
-                if (matchesFullName || matchesCompany) {
-                    matchedClients.add(client);
-                }
-            }
-
-            // 3. Hide if no records are resident in memory
-            if (matchedClients.isEmpty()) {
-                suggestionPopup.hide();
-                return;
-            }
-
-            // 4. Transform matches into selectable UI MenuItems
-            for (Client client : matchedClients) {
-                String displayName = client.getContactFullName();
-                if (client.getCompanyName() != null && !client.getCompanyName().isBlank()) {
-                    displayName += " (" + client.getCompanyName() + ")";
-                }
-
-                MenuItem item = new MenuItem(displayName);
-
-                // Handle item selection action
-                item.setOnAction(e -> {
-                    clientNameField.setText(client.getContactFullName());
-                    suggestionPopup.hide();
-                });
-
-                suggestionPopup.getItems().add(item);
-            }
-
-            // 5. Anchor the suggestion popup right under the text input field box
-            if (!suggestionPopup.isShowing()) {
-                suggestionPopup.show(clientNameField, javafx.geometry.Side.BOTTOM, 0, 0);
-            }
+            updateAndShowSuggestions(newVal, suggestionPopup, cache);
         });
 
         // Safeguard: Dismiss popup if the field loses operational focus
@@ -499,16 +474,63 @@ public class SalesViewController implements Initializable {
                 suggestionPopup.hide();
             }
         });
+
+        // 2. Handle Enter key press action
         clientNameField.setOnAction(_ -> {
-            Client c = cache.getByName(clientNameField.getText().trim().toLowerCase());
-            if(c == null){
+            String currentText = clientNameField.getText().trim();
+            List<Client> clientMatches = cache.getByName(currentText.toLowerCase());
+
+            if (clientMatches.isEmpty()) {
                 // todo: client is not present
-            } else if(c.getContactFullName().equals("rollbackOption")){
-                clientNameField.setText(clientNameField.getText());
-                //todo: trigger the suggestions again
             } else {
-                //found write full name there
+                // Retrigger the matching pipeline manually using the exact text present
+                updateAndShowSuggestions(currentText, suggestionPopup, cache);
             }
         });
+    }
+
+    // 3. Isolated core suggestion logic that can be explicitly invoked anywhere
+    private void updateAndShowSuggestions(String textVal, ContextMenu suggestionPopup, ClientsCache cache) {
+        // Hide the popup immediately if the field is cleared or text is too short
+        if (textVal == null || textVal.trim().isEmpty()) {
+            suggestionPopup.hide();
+            return;
+        }
+
+        String query = textVal.trim().toLowerCase();
+        suggestionPopup.getItems().clear(); // Wipe the previous results
+
+
+        // Loop through the cache map values to find matching strings
+        List<Client> matchedClients = cache.getByName(textVal);
+
+        // Hide if no records are resident in memory
+        if (matchedClients.isEmpty()) {
+            suggestionPopup.hide();
+            return;
+        }
+
+        // Transform matches into selectable UI MenuItems
+        for (Client client : matchedClients) {
+            String displayName = client.getContactFullName();
+            if (client.getCompanyName() != null && !client.getCompanyName().isBlank()) {
+                displayName += " (" + client.getCompanyName() + ")";
+            }
+
+            MenuItem item = new MenuItem(displayName);
+
+            // Handle item selection action
+            item.setOnAction(e -> {
+                clientNameField.setText(client.getContactFullName());
+                suggestionPopup.hide();
+            });
+
+            suggestionPopup.getItems().add(item);
+        }
+
+        // Anchor the suggestion popup right under the text input field box
+        if (!suggestionPopup.isShowing()) {
+            suggestionPopup.show(clientNameField, javafx.geometry.Side.BOTTOM, 0, 0);
+        }
     }
 }
