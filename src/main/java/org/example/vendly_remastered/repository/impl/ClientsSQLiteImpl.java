@@ -200,6 +200,65 @@ public class ClientsSQLiteImpl implements IClientsRepository {
 
     @Override
     public boolean update(Client client) {
+        if (client == null || client.getClientId() == 0) {
+            return false;
+        }
+
+        String sql = """
+        UPDATE clients 
+        SET company_name = ?, 
+            contact_full_name = ?, 
+            email = ?, 
+            phone = ?, 
+            address = ?, 
+            current_debt = ? 
+        WHERE client_id = ?;
+        """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            // 1. Handle Nullable / Optional Fields consistently with save()
+            if (client.getCompanyName() == null || client.getCompanyName().isBlank()) {
+                pstmt.setNull(1, java.sql.Types.VARCHAR);
+            } else {
+                pstmt.setString(1, client.getCompanyName().trim());
+            }
+
+            pstmt.setString(2, client.getContactFullName().trim());
+
+            if (client.getEmail() == null || client.getEmail().isBlank()) {
+                pstmt.setNull(3, java.sql.Types.VARCHAR);
+            } else {
+                pstmt.setString(3, client.getEmail().trim());
+            }
+
+            pstmt.setString(4, client.getPhone().trim());
+
+            if (client.getAddress() == null || client.getAddress().isBlank()) {
+                pstmt.setNull(5, java.sql.Types.VARCHAR);
+            } else {
+                pstmt.setString(5, client.getAddress().trim());
+            }
+
+            // Set current debt tracking
+            if (client.getCurrentDebts() == null) {
+                pstmt.setBigDecimal(6, java.math.BigDecimal.ZERO);
+            } else {
+                pstmt.setBigDecimal(6, client.getCurrentDebts());
+            }
+
+            // 2. Identify target row via Primary Key ID
+            pstmt.setInt(7, client.getClientId());
+
+            // 3. Execute update statement
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException sqle) {
+            System.err.println("CRITICAL ERROR: Failed to update client record ID [" + client.getClientId() + "]: " + client.getContactFullName());
+            sqle.printStackTrace();
+        }
+
         return false;
     }
 

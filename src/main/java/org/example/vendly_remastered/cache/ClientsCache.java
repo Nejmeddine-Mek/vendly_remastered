@@ -24,7 +24,9 @@ public class ClientsCache {
     // High-performance LinkedHashMap configured for Access-Order tracking (LRU eviction)
     private final LinkedHashMap<Integer, ClientCacheLine> cacheMap;
     private final HashMap<String, Integer> clientNameIdIndex;
-
+    public static final byte ADD_INDEX = 0;
+    public static final byte UPDATE_INDEX = 1;
+    public static final byte NO_ACTION_INDEX = 2;
     /**
      * Private Constructor: Configured to mirror ProductsCache initialization exactly.
      */
@@ -111,13 +113,19 @@ public class ClientsCache {
      * 🟢 PUT (Write-Through Implementation)
      * Persists straight down to the database synchronously, then maps it in memory.
      */
-    public synchronized void put(Client client, boolean isInsert) {
+    public synchronized void put(Client client, byte dbAction) {
         if (client == null) return;
-
         try {
             // Write-Through: Immediately attempt database write transaction
-            if(isInsert){
+            if(dbAction == 0){
                 boolean dbSuccess = clientsRepository.add(client);
+                if (!dbSuccess) {
+                    System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
+                    return;
+                }
+            } else if( dbAction == 1){
+                //TODO : execute update here
+                boolean dbSuccess = clientsRepository.update(client);
                 if (!dbSuccess) {
                     System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
                     return;
@@ -160,13 +168,19 @@ public class ClientsCache {
         // TODO: requires special way to treat it.
         if(!clientOpt.isEmpty())
             for(Client c : clientOpt){
-                put(c, false);
+                put(c, NO_ACTION_INDEX);
                 matches.add(c);
             }
         // MEANS CLIENT DOES NOT EXIST
         return matches;
     }
 
+    public synchronized Client searchByName(String clientName){
+        Integer clientId = clientNameIdIndex.get(clientName.trim().toLowerCase());
+        if(clientId == null)
+            return null;
+        return get(clientId);
+    }
     /**
      * Quietly adds or updates elements in memory during cache-miss queries
      * without creating duplicate database write operations.
@@ -182,10 +196,6 @@ public class ClientsCache {
             this.clientNameIdIndex.put(client.getContactFullName().trim().toLowerCase(), client.getClientId());
         }
 
-        // Map company name index (if exists)
-        if (client.getCompanyName() != null && !client.getCompanyName().isBlank()) {
-            this.clientNameIdIndex.put(client.getCompanyName().trim().toLowerCase(), client.getClientId());
-        }
     }
 
     /**

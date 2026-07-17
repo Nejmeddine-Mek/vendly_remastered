@@ -249,11 +249,13 @@ public class SalesViewController implements Initializable {
                 if (matches.isEmpty()) {
                     System.out.println("Product Name [" + query + "] was not found");
                     return;
-                } else{
+                } else if(matches.size() > 1){
                     // Multiple options found! Retrigger the popup directly with current input
                     updateAndShowProductSuggestions(targetBarcode, suggestionPopup, cache);
                     barcodeField.end(); // Keep cursor text caret at the very end
                     return; // Halt cart entry execution
+                } else {
+                    targetProduct = matches.get(0);
                 }
             }
             // CASE B: Searching directly by standard barcode
@@ -338,10 +340,35 @@ public class SalesViewController implements Initializable {
         BigDecimal saleTotal = new BigDecimal(cleanTotalString);
         header.setSaleTotal(saleTotal);
 
-        if (clientCheckBox.isSelected()) {
-            // We will configure the paid/debt values for clients when you're ready to implement client billing
-            // e.g., header.setSaleClient(selectedClient.getClientId());
-            // header.setPaidAmount(new BigDecimal(paidAmountField.getText()));
+        if(clientCheckBox.isSelected()) {
+            String clientName = clientNameField.getText();
+            Client c = ClientsCache.getInstance().searchByName(clientName);
+            if(c == null){
+                // TODO: Handle impossible case where client text doesn't match anything
+                System.out.println("[Checkout Error] Selected client not found in cache.");
+                return;
+            }
+            header.setSaleClient(c.getClientId());
+            BigDecimal paid = new BigDecimal(paidAmountField.getText().trim());
+            header.setPaidAmount(paid);
+            // 2. Clearer debt calculation: Sale - Paid
+            // If positive -> Client owes you money (New Debt)
+            // If negative -> Client overpaid (Reduces existing Debt)
+            BigDecimal debtDifference = header.getSaleTotal().subtract(header.getPaidAmount());
+            if (debtDifference.compareTo(BigDecimal.ZERO) > 0) {
+                // Case A: Standard partial payment -> increase client's debt balance
+                c.setCurrentDebts(c.getCurrentDebts().add(debtDifference));
+                ClientsCache.getInstance().put(c,ClientsCache.UPDATE_INDEX);
+            } else if (debtDifference.compareTo(BigDecimal.ZERO) < 0) {
+                // Case B: Overpayment -> decrease client's debt balance (using .abs() to subtract cleanly)
+                // this line is redundant, but resets the sale paiment to saleTotal, mitigation comes next
+                header.setPaidAmount(saleTotal);
+                BigDecimal overpayment = debtDifference.abs();
+                c.setCurrentDebts(c.getCurrentDebts().subtract(overpayment));
+                // TODO: we need to add a util to regulate previous sale headers for this client
+                //TODO: whne there is overpayment,
+                ClientsCache.getInstance().put(c,ClientsCache.UPDATE_INDEX);
+            }
         } else {
             // Anonymous cash customer pays the full total upfront
             header.setPaidAmount(saleTotal);
@@ -379,7 +406,7 @@ public class SalesViewController implements Initializable {
 
         // Profit = Total Sale Amount - Total Cost of Goods Sold
         // CONVERT PROFIT TO PAID AMOUNT - TOTAL COST WHEN THERE IS DEBT
-        BigDecimal netProfit = saleTotal.subtract(totalCostPrice);
+        BigDecimal netProfit = header.getPaidAmount().subtract(totalCostPrice);
         header.setSaleProfit(netProfit);
 
         //Set current authenticated user ID on the header
