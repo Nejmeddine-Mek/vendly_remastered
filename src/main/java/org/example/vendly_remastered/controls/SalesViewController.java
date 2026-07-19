@@ -1,6 +1,5 @@
 package org.example.vendly_remastered.controls;
 
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -9,7 +8,6 @@ import javafx.scene.control.*;
 
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.ProductsCache;
-import org.example.vendly_remastered.cache.model.ClientCacheLine;
 import org.example.vendly_remastered.models.dto.CartItem;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Product;
@@ -19,6 +17,8 @@ import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.service.AuditLogsService;
+import org.example.vendly_remastered.service.SalesServices;
+import org.example.vendly_remastered.utils.DatabaseManager;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
@@ -152,6 +152,7 @@ public class SalesViewController implements Initializable {
 
         totalLabel.setText(String.format("%.2f DA", total));
     }
+
     private void setPriceBehaviour(double price){
         priceField.setEditable(false);
         priceField.setText(String.valueOf(price));
@@ -255,7 +256,7 @@ public class SalesViewController implements Initializable {
                     barcodeField.end(); // Keep cursor text caret at the very end
                     return; // Halt cart entry execution
                 } else {
-                    targetProduct = matches.get(0);
+                    targetProduct = matches.getFirst();
                 }
             }
             // CASE B: Searching directly by standard barcode
@@ -360,14 +361,22 @@ public class SalesViewController implements Initializable {
                 c.setCurrentDebts(c.getCurrentDebts().add(debtDifference));
                 ClientsCache.getInstance().put(c,ClientsCache.UPDATE_INDEX);
             } else if (debtDifference.compareTo(BigDecimal.ZERO) < 0) {
-                // Case B: Overpayment -> decrease client's debt balance (using .abs() to subtract cleanly)
-                // this line is redundant, but resets the sale paiment to saleTotal, mitigation comes next
+                // this line is redundant, but resets the sale payment to saleTotal, mitigation comes next
+                // Case B: Overpayment -> Cap this specific invoice at its sale total
                 header.setPaidAmount(saleTotal);
+
+                // The overpayment amount is simply the absolute value of our difference
                 BigDecimal overpayment = debtDifference.abs();
+
+                // Deduct the full overpayment from the client's total debt balance upfront
                 c.setCurrentDebts(c.getCurrentDebts().subtract(overpayment));
-                // TODO: we need to add a util to regulate previous sale headers for this client
-                //TODO: whne there is overpayment,
-                ClientsCache.getInstance().put(c,ClientsCache.UPDATE_INDEX);
+
+                // Distribute the overpayment down into older historical invoices
+                SalesServices saleService = new SalesServices(saleHeaderRepository);
+                saleService.resolveDebts(overpayment, c.getClientId());
+
+                // Sync the cache with the updated client entity
+                ClientsCache.getInstance().put(c, ClientsCache.UPDATE_INDEX);
             }
         } else {
             // Anonymous cash customer pays the full total upfront
@@ -406,15 +415,12 @@ public class SalesViewController implements Initializable {
 
         // Profit = Total Sale Amount - Total Cost of Goods Sold
         // CONVERT PROFIT TO PAID AMOUNT - TOTAL COST WHEN THERE IS DEBT
-        BigDecimal netProfit = header.getPaidAmount().subtract(totalCostPrice);
+        BigDecimal netProfit = header.getSaleTotal().subtract(totalCostPrice);
         header.setSaleProfit(netProfit);
 
         //Set current authenticated user ID on the header
         header.setSaleUser(UserSession.getInstance().getUserId());
-        System.out.println(header.toString());
-        for(SaleDetailItem item : soldItems){
-            System.out.println(item.toString());
-        }
+
         //main ui first saves header
         int saleId = saleHeaderRepository.saveSaleHeader(header);
         if(saleId == -1){

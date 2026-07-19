@@ -9,4 +9,6 @@ public interface ISalesHeaderRepository {
     public int saveSaleHeader(SaleHeader sale);
     public List<SaleHeader> findAll();
     public List<SaleHeader> findByDate(LocalDate date);
+    public List<SaleHeader> getUnpaidSales(int clientId);
+    public void updateHeaders(List<SaleHeader> saleHeaders);
 }

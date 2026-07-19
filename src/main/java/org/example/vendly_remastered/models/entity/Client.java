@@ -84,5 +84,7 @@ public class Client {
 
     public void setCurrentDebts(BigDecimal currentDebts) {
         this.currentDebts = currentDebts;
+        if(currentDebts.compareTo(BigDecimal.ZERO) < 0)
+            this.currentDebts = BigDecimal.ZERO;
     }
 }
