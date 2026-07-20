@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextArea?>
@@ -11,13 +12,13 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefWidth="540.0" spacing="16.0" style="-fx-background-color: #FFFFFF; -fx-padding: 24;" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.ClientDetailsModal">
+<VBox prefWidth="540.0" spacing="16.0" style="-fx-background-color: #FFFFFF; -fx-padding: 24;" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.ClientDetailsModalController">
 
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="12.0">
         <VBox HBox.hgrow="ALWAYS">
             <Label fx:id="lblModalTitle" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Client Details" />
-            <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Manage client profile, contact details, and balance thresholds" />
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Manage client profile, contact details, and account status" />
         </VBox>
         <Button fx:id="btnClose" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14px; -fx-text-fill: #64748B;" text="✕" />
     </HBox>
@@ -31,40 +32,47 @@
             <ColumnConstraints percentWidth="50" />
         </columnConstraints>
 
-        <!-- Full Name -->
+        <!-- Company Name -->
         <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Full Name *" />
-            <TextField fx:id="txtName" promptText="e.g. Karim Benali" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Company Name *" />
+            <TextField fx:id="txtCompanyName" promptText="e.g. SARL Oasis Logistics" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+        </VBox>
+
+        <!-- Contact Full Name -->
+        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Contact Person *" />
+            <TextField fx:id="txtContactFullName" promptText="e.g. Karim Benali" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
         <!-- Phone Number -->
-        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Phone Number" />
             <TextField fx:id="txtPhone" promptText="e.g. 0550123456" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
-        <!-- Outstanding Debt / Credit Balance -->
-        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Current Balance (DZD)" />
-            <TextField fx:id="txtDebtBalance" promptText="0.00" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
-        </VBox>
-
-        <!-- Max Credit Limit -->
+        <!-- Email -->
         <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Credit Limit Threshold (DZD)" />
-            <TextField fx:id="txtCreditLimit" promptText="e.g. 50000.00" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Email Address" />
+            <TextField fx:id="txtEmail" promptText="e.g. contact@oasis.dz" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
-        <!-- Address / Notes (Full Width) -->
+        <!-- Address (Full Width) -->
         <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Address / Notes" />
-            <TextArea fx:id="txtAddress" prefRowCount="2" promptText="Client location or additional comments..." wrapText="true" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Business Address" />
+            <TextArea fx:id="txtAddress" prefRowCount="2" promptText="Street address, city, region..." wrapText="true" />
         </VBox>
-      <rowConstraints>
-         <RowConstraints />
-         <RowConstraints />
-         <RowConstraints />
-      </rowConstraints>
+
+        <!-- Account Active Status Switch -->
+        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+            <CheckBox fx:id="chkIsActive" selected="true" style="-fx-font-size: 13px; -fx-text-fill: #334155;" text="Active Account (Client can perform transactions)" />
+        </HBox>
+
+        <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+        </rowConstraints>
     </GridPane>
 
     <!-- Footer Actions -->

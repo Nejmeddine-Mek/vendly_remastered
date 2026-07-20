@@ -57,7 +57,14 @@ public class ControllerDispatcher {
             svc.setSaleHeaderRepository(new SaleHeaderSQLiteImpl(conn));
             svc.setSaleDetailsRepository(new SaleDetailsSQLiteImpl(conn));
         });
-        registry.put(ClientDetailsModal.class, controller -> {
+        registry.put(ClientsViewController.class, controller -> {
+            Connection conn = DatabaseManager.getConnection();
+            ClientsViewController cvc = (ClientsViewController) controller;
+            cvc.setClientsRepository(new ClientsSQLiteImpl(conn));
+            cvc.initializeTable();
+
+        });
+        registry.put(ClientDetailsModalController.class, controller -> {
 
         });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!

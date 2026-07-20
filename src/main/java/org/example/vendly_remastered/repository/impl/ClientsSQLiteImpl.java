@@ -269,6 +269,43 @@ public class ClientsSQLiteImpl implements IClientsRepository {
 
     @Override
     public List<Client> findAll() {
-        return List.of();
+        String sql = """
+            SELECT C.*,
+                   U.username AS created_by_username, U.userId AS created_by_id
+            FROM clients C
+            JOIN users U ON C.created_by = U.userId
+            """;
+
+        List<Client> clients = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+            while (rs.next()) {
+                Client client = new Client();
+                client.setClientId(rs.getInt("client_id"));
+                client.setCompanyName(rs.getString("company_name"));
+                client.setContactFullName(rs.getString("contact_full_name"));
+                client.setEmail(rs.getString("email"));
+                client.setPhone(rs.getString("phone"));
+                client.setAddress(rs.getString("address"));
+//                client.setActive(rs.getBoolean("is_active"));
+                client.setCreatedBy(rs.getInt("created_by"));
+                client.setCreatedByUsername(rs.getString("created_by_username"));
+                client.setCreatedBy(rs.getInt("created_by_id"));
+                client.setCurrentDebts(rs.getBigDecimal("current_debt"));
+                // Handle timestamp mapping (java.sql.Timestamp to LocalDateTime / Date / String)
+                if (rs.getTimestamp("created_at") != null) {
+                    client.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                }
+
+                clients.add(client);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Log or throw custom repository exception
+        }
+
+        return clients;
     }
 }
