@@ -16,6 +16,8 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
 
+import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
+
 public class ProductModalController implements Initializable {
     @FXML private Label modalTitleLabel;
     @FXML private TextField txtName;
@@ -233,13 +235,6 @@ public class ProductModalController implements Initializable {
         }
     }
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
     public void setCategoryRepository(ICategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }

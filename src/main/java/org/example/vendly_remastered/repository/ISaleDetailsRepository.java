@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ISaleDetailsRepository {
     public void saveSaleDetails(List<SaleDetailItem> soldItems);
+    public List<SaleDetailItem> getSaleDetails(int saleId);
 
 }

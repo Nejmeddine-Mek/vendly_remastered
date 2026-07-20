@@ -10,6 +10,8 @@ import org.example.vendly_remastered.models.entity.Client;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
+
 public class ClientDetailsModalController implements Initializable {
     // Header & Actions
     @FXML private Label lblModalTitle;
@@ -152,11 +154,5 @@ public class ClientDetailsModalController implements Initializable {
         if (s1 == null || s2 == null) return false;
         return s1.equals(s2);
     }
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
-    }
+
 }

@@ -188,6 +188,42 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
         }
     }
 
+    @Override
+    public List<SaleHeader> getByRange(LocalDate beginning, LocalDate end) {
+        String sql = """
+        SELECT 
+            S.*, 
+            U.username AS sale_username,
+            C.company_name, 
+            C.contact_full_name
+        FROM sale_header S
+        JOIN users U ON U.userId = S.sale_user
+        LEFT JOIN clients C ON S.sale_client = C.client_id
+        WHERE date(S.sale_date) BETWEEN ? AND ?
+        ORDER BY S.sale_date DESC;
+            """;
+
+        List<SaleHeader> sales = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            // SQLite 'date()' expects ISO strings formatted as YYYY-MM-DD
+            pstmt.setString(1, beginning.toString());
+            pstmt.setString(2, end.toString());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    sales.add(mapRowToSaleHeader(rs));
+                }
+            }
+        } catch (SQLException e) {
+            // Log or handle appropriately for Vendly
+            e.printStackTrace();
+        }
+
+        return sales;
+    }
+
     private SaleHeader mapRowToSaleHeader(ResultSet rs) throws SQLException {
         SaleHeader sale = new SaleHeader();
 

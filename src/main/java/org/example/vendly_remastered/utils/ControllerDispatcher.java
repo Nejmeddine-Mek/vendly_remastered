@@ -34,7 +34,9 @@ public class ControllerDispatcher {
            Connection conn = DatabaseManager.getConnection();
             HistoryViewController hvc = (HistoryViewController) controller;
             hvc.setSalesHeaderRepository(new SaleHeaderSQLiteImpl(conn));
+            hvc.setSaleDetailsRepository(new SaleDetailsSQLiteImpl(conn));
             hvc.loadInitialSalesTableData();
+
         });
         registry.put(ProductsViewController.class, controller -> {
             Connection conn = DatabaseManager.getConnection();

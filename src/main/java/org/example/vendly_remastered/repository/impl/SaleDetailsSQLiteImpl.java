@@ -5,7 +5,9 @@ import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SaleDetailsSQLiteImpl implements ISaleDetailsRepository {
@@ -42,5 +44,39 @@ public class SaleDetailsSQLiteImpl implements ISaleDetailsRepository {
             System.err.println("CRITICAL ERROR: Failed to execute batch insert for sale detail line items.");
             sqle.printStackTrace();
         }
+    }
+
+    @Override
+    public List<SaleDetailItem> getSaleDetails(int saleId) {
+        String sql = """
+        SELECT *
+        FROM sale_details D WHERE D.sale_id = ?;
+        """;
+
+        List<SaleDetailItem> details = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setInt(1, saleId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    details.add(mapRowToSaleDetailItem(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return details;
+    }
+
+    private SaleDetailItem mapRowToSaleDetailItem(ResultSet rs) throws SQLException {
+        SaleDetailItem item = new SaleDetailItem();
+        item.setProductId(rs.getInt("product_id"));
+        item.setProductName(rs.getString("product_name"));
+        item.setProductQuantity(rs.getBigDecimal("product_quantity"));
+        item.setProductUnitPrice(rs.getBigDecimal("product_unit_price"));
+        return item;
     }
 }
