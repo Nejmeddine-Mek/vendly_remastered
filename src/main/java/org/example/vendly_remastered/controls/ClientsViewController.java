@@ -1,10 +1,18 @@
 package org.example.vendly_remastered.controls;
 
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import org.example.vendly_remastered.models.entity.Client;
+
 import org.example.vendly_remastered.repository.IClientsRepository;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -37,6 +45,7 @@ public class ClientsViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableColumnsBehaviour();
+        addClientButton.setOnAction(_ -> openClientModal(null));
     }
 
     private void setTableColumnsBehaviour(){
@@ -52,4 +61,40 @@ public class ClientsViewController implements Initializable {
     public void initializeTable(){
 
     }
+
+
+    private void openClientModal(Client client) {
+        try {
+            System.out.println("Opening modal");
+            // 1. Point to your wide layout FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ClientDetailsModal.fxml"));
+            Parent root = loader.load();
+
+            // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
+            Object controller = loader.getController();
+            ControllerDispatcher.execute(controller);
+
+            ClientDetailsModal modalController = loader.getController();
+
+            // 4. Check if we are editing an existing product or adding a completely fresh item
+            boolean isEditMode = (client != null);
+            if (isEditMode) {
+                modalController.setMode(client);
+            }
+
+            // 5. Build and present the window scene configuration
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setTitle(isEditMode ? "Edit Client Specifications" : "Register New Client Asset");
+            modalStage.setScene(new Scene(root));
+
+            modalStage.showAndWait();
+
+        } catch (Exception ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
+            alert.showAndWait();
+            ex.printStackTrace();
+        }
+    }
+
 }

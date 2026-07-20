@@ -57,6 +57,9 @@ public class ControllerDispatcher {
             svc.setSaleHeaderRepository(new SaleHeaderSQLiteImpl(conn));
             svc.setSaleDetailsRepository(new SaleDetailsSQLiteImpl(conn));
         });
+        registry.put(ClientDetailsModal.class, controller -> {
+
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

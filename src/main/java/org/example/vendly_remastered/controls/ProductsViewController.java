@@ -58,6 +58,7 @@ public class ProductsViewController implements Initializable {
     private final ObservableList<Product> masterData = FXCollections.observableArrayList();
     private FilteredList<Product> filteredData;
     private SortedList<Product> sortedData;
+
     public void setCategoryRepository(ICategoryRepository categoryRepository){ this.categoryRepository = categoryRepository; }
     public void setProductRepository(IProductRepository productRepository){ this.productRepository = productRepository; }
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
@@ -234,16 +235,6 @@ public class ProductsViewController implements Initializable {
 
             // 🌟 THE HANDOFF: Execution safely resumes here once the window closes
             if (modalController.isSaveClicked()) {
-                Product processedProduct = modalController.getProduct();
-
-                if (isEditMode) {
-                    // Update operation
-                    productRepository.update(processedProduct);
-                } else {
-                    // Insert operation
-                    productRepository.save(processedProduct);
-                }
-
                 // 6. Reload table arrays completely to cleanly display your mutated records
                 loadProductData();
             }
