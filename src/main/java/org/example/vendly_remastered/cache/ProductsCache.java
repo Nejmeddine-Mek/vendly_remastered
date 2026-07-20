@@ -106,10 +106,13 @@ public class ProductsCache {
         }
 
         // Pass false flags across all dirty parameters since this is an unmutated read allocation
-        this.put(product, false, false, false);
+        this.put(product, false, false, false, false);
         return product;
     }
 
+    public synchronized ProductCacheLine getLine(int productId){
+        return cacheMap.get(productId);
+    }
     /**
      * Secondary index lookups by Barcode string pattern.
      */
@@ -124,7 +127,7 @@ public class ProductsCache {
         Optional<Product> productOpt = productRepository.findByBarCode(barcode);
         if (productOpt.isPresent()) {
             Product p = productOpt.get();
-            this.put(p, false, false, false);
+            this.put(p, false, false, false, false);
             return p;
         }
 
@@ -194,7 +197,7 @@ public class ProductsCache {
     /**
      * Master put method with explicit control over fine-grained dirty states.
      */
-    public synchronized void put(Product product, boolean productDirty, boolean stockDirty, boolean barcodeDirty) {
+    public synchronized void put(Product product, boolean productDirty, boolean stockDirty, boolean barcodeDirty, boolean promoDirty) {
         if (product == null) return;
 
         this.cacheVersionCounter++;
@@ -204,6 +207,7 @@ public class ProductsCache {
                 productDirty,
                 stockDirty,
                 barcodeDirty,
+                promoDirty,
                 this.cacheVersionCounter
         );
 
@@ -227,9 +231,15 @@ public class ProductsCache {
      * Overloaded convenience method treating raw puts as full mutations.
      */
     public synchronized void put(Product product) {
-        this.put(product, true, true, true);
+        this.put(product, true, true, true,true);
     }
-
+    public synchronized void put(ProductCacheLine line){
+        this.put(line.getProduct(), line.getDirtyBitStatus(ProductCacheLine.PRODUCT_BIT),
+                line.getDirtyBitStatus(ProductCacheLine.STOCK_BIT),
+                line.getDirtyBitStatus(ProductCacheLine.BARCODE_BIT),
+                line.getDirtyBitStatus(ProductCacheLine.PROMO_BIT)
+                );
+    }
     /**
      * Flushes dirty data slices contextually out to disk and resets dirty tracks.
      */
@@ -254,7 +264,7 @@ public class ProductsCache {
         }
 
         // Structural Fix: Reset dirty bits globally ONLY AFTER selective flushes execute safely
-        line.setDirtyBits(false);
+        line.setAllDirtyBits(false);
     }
 
     /**

@@ -20,10 +20,11 @@ public class Product {
     private String barcode;
     private List<String> barcodes = new ArrayList<>();
     private final Stock currentStock;
-
+    private final Promotion promotion;
 
     public Product() {
         this.currentStock = new Stock();
+        this.promotion = new Promotion();
         this.barcodes = new ArrayList<>();
     }
 
@@ -78,4 +79,10 @@ public class Product {
     public Stock getCurrentStock() {
         return currentStock;
     }
+    public boolean hasPromotion(){ return promotion.getPrice() != null; }
+    public BigDecimal getPromotionPrice(){ return promotion.getPrice(); }
+    public void setPromotionPrice(BigDecimal newP){ promotion.setPrice(newP);}
+
+    public BigDecimal getPromotionQuantity(){ return promotion.getQuantity(); }
+    public void setPromotionQuantity(BigDecimal newQ){ promotion.setQuantity(newQ);}
 }

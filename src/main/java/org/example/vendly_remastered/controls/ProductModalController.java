@@ -4,10 +4,15 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
+import org.example.vendly_remastered.cache.ProductsCache;
+import org.example.vendly_remastered.cache.model.ProductCacheLine;
 import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.*;
 
@@ -29,6 +34,11 @@ public class ProductModalController implements Initializable {
     @FXML private Button btnCancel;
     @FXML private Button btnSave;
 
+    @FXML private CheckBox chkEnablePromotion;
+    @FXML private TextField txtPromoQty;
+    @FXML private TextField txtPromoPrice;
+    @FXML private HBox promoFieldsContainer;
+
     private final Map<String, Short> categoryNameToIdMap = new HashMap<>();
 
     private ICategoryRepository categoryRepository;
@@ -37,6 +47,10 @@ public class ProductModalController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        chkEnablePromotion.setOnAction(_ -> {
+            promoFieldsContainer.setVisible(!promoFieldsContainer.isVisible());
+            promoFieldsContainer.setManaged(!promoFieldsContainer.isManaged());
+        });
         btnSave.setOnAction(e -> handleSaveAction());
         btnCancel.setOnAction(e -> closeWindow());
     }
@@ -45,8 +59,177 @@ public class ProductModalController implements Initializable {
     }
 
     private void handleSaveAction() {
+        // 1. Validate inputs FIRST before touching any objects or parsing
+        if (!validateInputs()) {
+            return;
+        }
+
+        try {
+            // 2. Safely parse UI inputs
+            String name = txtName.getText().trim();
+            BigDecimal costPrice = new BigDecimal(txtCostPrice.getText().trim());
+            BigDecimal retailPrice = new BigDecimal(txtRetailPrice.getText().trim());
+            BigDecimal stockQty = new BigDecimal(txtStockQty.getText().trim());
+            BigDecimal minThreshold = new BigDecimal(txtMinThreshold.getText().trim());
+            List<String> currentBarcodes = new ArrayList<>(lstBarcodes.getItems());
+
+            BigDecimal promoQty = chkEnablePromotion.isSelected() ? new BigDecimal(txtPromoQty.getText().trim()) : null;
+            BigDecimal promoPrice = chkEnablePromotion.isSelected() ? new BigDecimal(txtPromoPrice.getText().trim()) : null;
+
+            // 3. Handle object creation vs update depending on selectedProduct
+            if (selectedProduct == null) {
+                handleCreateNewProduct(name, costPrice, retailPrice, stockQty, minThreshold, currentBarcodes, promoQty, promoPrice);
+            } else {
+                handleUpdateExistingProduct(name, costPrice, retailPrice, stockQty, minThreshold, currentBarcodes, promoQty, promoPrice);
+            }
+
+            closeModal();
+
+        } catch (NumberFormatException e) {
+            showAlert("Input Error", "Please enter valid numbers for prices and stock quantities.");
+        } catch (Exception e) {
+            showAlert("Save Error", "An error occurred while saving: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
+// =========================================================================
+// VALIDATION & WORKER HELPERS
+// =========================================================================
+
+    private boolean validateInputs() {
+        if (txtName.getText().trim().isEmpty()) {
+            showAlert("Validation Error", "Product Name is required.");
+            txtName.requestFocus();
+            return false;
+        }
+
+        if (cbCategory.getValue() == null) {
+            showAlert("Validation Error", "Please select a Category.");
+            cbCategory.requestFocus();
+            return false;
+        }
+
+        // Validate main pricing & stock fields aren't empty
+        if (txtCostPrice.getText().trim().isEmpty() || txtRetailPrice.getText().trim().isEmpty()) {
+            System.out.println(txtCostPrice.getText() + "  " + txtRetailPrice.getText());
+            showAlert("Validation Error", "Cost Price and Retail Price are required.");
+            return false;
+        }
+
+        // Validate promotion fields if promotion toggle is enabled
+        if (chkEnablePromotion.isSelected()) {
+            String qty = txtPromoQty.getText().trim();
+            String price = txtPromoPrice.getText().trim();
+            if (qty.isEmpty() || price.isEmpty()) {
+                showAlert("Validation Error", "Please enter both Quantity and Price for the promotion.");
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void handleCreateNewProduct(String name, BigDecimal costPrice, BigDecimal retailPrice,
+                                        BigDecimal stockQty, BigDecimal minThreshold,
+                                        List<String> barcodes, BigDecimal promoQty, BigDecimal promoPrice) {
+        Product newProduct = new Product();
+        newProduct.setProductName(name);
+        newProduct.setCostPrice(costPrice);
+        newProduct.setRetailPrice(retailPrice);
+        newProduct.setCurrentQuantity(stockQty);
+        newProduct.setMinStockLevel(minThreshold);
+        newProduct.setCategoryName(cbCategory.getValue());
+        newProduct.setCategoryId(Short.parseShort(cbCategory.getId()));
+        newProduct.setActive(chkActive.isSelected());
+        newProduct.setBarcodes(barcodes);
+        newProduct.setPromotionQuantity(promoQty);
+        newProduct.setPromotionPrice(promoPrice);
+
+        // Case A: Fresh product -> All 4 table slices marked dirty for initial DB write
+        ProductCacheLine cacheLine = new ProductCacheLine(newProduct, true, true, true, true, System.currentTimeMillis());
+        ProductsCache.getInstance().put(cacheLine);
+    }
+
+    private void handleUpdateExistingProduct(String name, BigDecimal costPrice, BigDecimal retailPrice,
+                                             BigDecimal stockQty, BigDecimal minThreshold,
+                                             List<String> barcodes, BigDecimal promoQty, BigDecimal promoPrice) {
+        ProductCacheLine cacheLine = ProductsCache.getInstance().getLine(selectedProduct.getProductId());
+        if (cacheLine == null) {
+            cacheLine = new ProductCacheLine(selectedProduct, System.currentTimeMillis());
+        }
+
+        // Slice 1: Base Product Info Table
+        if (!selectedProduct.getProductName().equals(name)
+                || selectedProduct.getCostPrice().compareTo(costPrice) != 0
+                || selectedProduct.getRetailPrice().compareTo(retailPrice) != 0
+                || !selectedProduct.getCategoryName().equals(cbCategory.getValue())
+                || selectedProduct.isActive() != chkActive.isSelected()) {
+
+            selectedProduct.setProductName(name);
+            selectedProduct.setCostPrice(costPrice);
+            selectedProduct.setRetailPrice(retailPrice);
+            selectedProduct.setCategoryName(cbCategory.getValue());
+            selectedProduct.setCategoryId(Short.parseShort(cbCategory.getId()));
+            selectedProduct.setActive(chkActive.isSelected());
+
+            cacheLine.setDirtyBit(true, ProductCacheLine.PRODUCT_BIT);
+        }
+
+        // Slice 2: Stock Table
+        if (selectedProduct.getCurrentQuantity().compareTo(stockQty) != 0
+                || selectedProduct.getMinStockLevel().compareTo(minThreshold) != 0) {
+
+            selectedProduct.setCurrentQuantity(stockQty);
+            selectedProduct.setMinStockLevel(minThreshold);
+
+            cacheLine.setDirtyBit(true, ProductCacheLine.STOCK_BIT);
+        }
+
+        // Slice 3: Barcodes Table
+        if (!selectedProduct.getBarcodes().equals(barcodes)) {
+            selectedProduct.setBarcodes(barcodes);
+            cacheLine.setDirtyBit(true, ProductCacheLine.BARCODE_BIT);
+        }
+
+        // Slice 4: Promotion Table
+        if (hasPromotionChanged(promoQty, promoPrice)) {
+            selectedProduct.setPromotionQuantity(promoQty);
+            selectedProduct.setPromotionPrice(promoPrice);
+            cacheLine.setDirtyBit(true, ProductCacheLine.PROMO_BIT);
+        }
+
+        // Push update if at least one bit changed
+        if (cacheLine.isDirtyBit()) {
+            cacheLine.setCacheVersion(cacheLine.getCacheVersion() + 1);
+            ProductsCache.getInstance().put(cacheLine);
+        }
+    }
+
+    private boolean hasPromotionChanged(BigDecimal newQty, BigDecimal newPrice) {
+        if (newQty == null || newPrice == null) {
+            return selectedProduct.hasPromotion();
+        }
+        if (!selectedProduct.hasPromotion()) {
+            return true;
+        }
+        return selectedProduct.getPromotionQuantity().compareTo(newQty) != 0
+                || selectedProduct.getPromotionPrice().compareTo(newPrice) != 0;
+    }
+    private void closeModal() {
+        Stage stage = (Stage) btnSave.getScene().getWindow();
+        if (stage != null) {
+            stage.close();
+        }
+    }
+
+    private void showAlert(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
     public void setCategoryRepository(ICategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
@@ -97,10 +280,20 @@ public class ProductModalController implements Initializable {
             //txtBarcode.setText(product.getBarcode());
             txtCostPrice.setText(product.getCostPrice().toString());
             txtRetailPrice.setText(product.getRetailPrice().toString());
-            //txtStockQty.setText(product.getCurrentQuantity().toString());
-            //txtMinThreshold.setText(product.getMinStockLevel().toString());
+            txtStockQty.setText(product.getCurrentQuantity().toString());
+            txtMinThreshold.setText(product.getMinStockLevel().toString());
             chkActive.setSelected(product.isActive());
             cbCategory.setValue(product.getCategoryName());
+            if(product.hasPromotion()){
+                promoFieldsContainer.setVisible(true);
+                promoFieldsContainer.setManaged(true);
+                chkEnablePromotion.setSelected(true);
+                txtPromoQty.setText(product.getPromotionQuantity().toString());
+                txtPromoPrice.setText(product.getPromotionPrice().toString());
+            } else {
+                promoFieldsContainer.setVisible(false);
+                promoFieldsContainer.setManaged(false);
+            }
         }
     }
 

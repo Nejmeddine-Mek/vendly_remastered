@@ -8,40 +8,50 @@ public class ProductCacheLine {
     public static final int PRODUCT_BIT = 0;
     public static final int STOCK_BIT = 1;
     public static final int BARCODE_BIT = 2;
+    public static final int PROMO_BIT = 3;
 
-    private boolean dirtyBits[];
-    // product table, stock table, barcode table, we should have at least 3 dirty bits
-    private long cacheVersion; // Our sequential modification tracker (like an LSN)
+    private boolean[] dirtyBits;
+    private long cacheVersion; // Sequential modification tracker (like an LSN)
     private Product product;
 
-    // 1. Explicit Control: Pass exact states for all tracking targets
-    public ProductCacheLine(Product prod, boolean productDirty, boolean stockDirty, boolean barcodeDirty, long currentVersion) {
+    // 1. Explicit Control: Pass exact states for all tracking targets (4 bits now)
+    public ProductCacheLine(Product prod, boolean productDirty, boolean stockDirty, boolean barcodeDirty, boolean promoDirty, long currentVersion) {
         this.product = prod;
         this.cacheVersion = currentVersion;
-        this.dirtyBits = new boolean[]{productDirty, stockDirty, barcodeDirty};
+        // Size 4 array to accommodate PROMO_BIT (index 3)
+        this.dirtyBits = new boolean[]{productDirty, stockDirty, barcodeDirty, promoDirty};
     }
 
     // 2. Clean Read Overload: Pure DB fetches start completely clean (all false)
     public ProductCacheLine(Product prod, long currentVersion) {
-        this(prod, false, false, false, currentVersion);
+        this(prod, false, false, false, false, currentVersion);
     }
 
     public boolean isDirtyBit() {
-        for(boolean bit:  dirtyBits){
+        for (boolean bit : dirtyBits) {
             if (bit) return true;
         }
         return false;
     }
-    public void setDirtyBit(boolean dirtyBit,int index) {
+
+    public void setDirtyBit(boolean dirtyBit, int index) {
         if (index >= 0 && index < this.dirtyBits.length) {
             this.dirtyBits[index] = dirtyBit;
         }
     }
 
-    public void setDirtyBits(boolean val) {
-        for(boolean bit: dirtyBits){
-            bit = val;
+    // Fixed: Mutates actual array indices rather than for-each local copies
+    public void setAllDirtyBits(boolean val) {
+        for (int i = 0; i < dirtyBits.length; i++) {
+            dirtyBits[i] = val;
         }
+    }
+
+    public boolean getDirtyBitStatus(int bitIndex) {
+        if (bitIndex >= 0 && bitIndex < dirtyBits.length) {
+            return dirtyBits[bitIndex];
+        }
+        return false;
     }
 
     public long getCacheVersion() {
@@ -58,9 +68,5 @@ public class ProductCacheLine {
 
     public void setProduct(Product product) {
         this.product = product;
-    }
-
-    public boolean getDirtyBitStatus(int productBit) {
-        return dirtyBits[productBit];
     }
 }

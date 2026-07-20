@@ -6,6 +6,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -13,9 +14,10 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefWidth="750.0" spacing="20.0" styleClass="modal-root" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.ProductModalController">
+<VBox prefWidth="750.0" spacing="15.0" styleClass="modal-root" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.ProductModalController">
     <children>
-        <HBox alignment="CENTER_LEFT" prefHeight="60.0" styleClass="modal-header">
+        <!-- Header -->
+        <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="modal-header">
             <children>
                 <Label fx:id="modalTitleLabel" styleClass="modal-title-text" text="Add New Product" />
             </children>
@@ -24,17 +26,19 @@
             </padding>
         </HBox>
 
-        <GridPane hgap="25.0" vgap="15.0">
+        <!-- Main Product Information Grid -->
+        <GridPane hgap="25.0" vgap="12.0">
             <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
             </columnConstraints>
             <rowConstraints>
-                <RowConstraints minHeight="60.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="60.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="80.0" vgrow="ALWAYS" />
+                <RowConstraints minHeight="55.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="55.0" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="120.0" vgrow="ALWAYS" />
             </rowConstraints>
             <children>
+                <!-- Product Name -->
                 <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                     <children>
                         <Label styleClass="form-label" text="Product Name *" />
@@ -42,6 +46,23 @@
                     </children>
                 </VBox>
 
+                <!-- Cost Price -->
+                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                    <children>
+                        <Label styleClass="form-label" text="Cost Price (DA) *" />
+                        <TextField fx:id="txtCostPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
+                    </children>
+                </VBox>
+
+                <!-- Retail Price -->
+                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                    <children>
+                        <Label styleClass="form-label" text="Retail Price (DA) *" />
+                        <TextField fx:id="txtRetailPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
+                    </children>
+                </VBox>
+
+                <!-- Barcodes Multi-Match List -->
                 <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.rowSpan="2">
                     <children>
                         <Label styleClass="form-label" text="Product Barcodes (Multi-Match)" />
@@ -51,7 +72,7 @@
                                 <Button fx:id="btnAddBarcode" prefHeight="35.0" prefWidth="60.0" styleClass="action-btn-secondary" text="Add" />
                             </children>
                         </HBox>
-                        <ListView fx:id="lstBarcodes" minHeight="100.0" prefHeight="120.0" styleClass="custom-list-view" VBox.vgrow="ALWAYS" />
+                        <ListView fx:id="lstBarcodes" minHeight="80.0" prefHeight="100.0" styleClass="custom-list-view" VBox.vgrow="ALWAYS" />
                         <HBox alignment="TOP_RIGHT">
                             <children>
                                 <Button fx:id="btnRemoveBarcode" styleClass="text-danger-btn" text="Remove Selected" />
@@ -60,21 +81,8 @@
                     </children>
                 </VBox>
 
-                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                    <children>
-                        <Label styleClass="form-label" text="Cost Price (DA) *" />
-                        <TextField fx:id="txtCostPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                    <children>
-                        <Label styleClass="form-label" text="Retail Price (DA) *" />
-                        <TextField fx:id="txtRetailPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
-                    </children>
-                </VBox>
-
-                <VBox spacing="15.0" GridPane.columnIndex="1" GridPane.rowIndex="2" alignment="TOP_LEFT">
+                <!-- Inventory & Category Details -->
+                <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="2" alignment="TOP_LEFT">
                     <children>
                         <HBox spacing="15.0">
                             <children>
@@ -106,18 +114,56 @@
             </padding>
         </GridPane>
 
+        <Separator prefWidth="200.0">
+            <VBox.margin>
+                <Insets left="20.0" right="20.0" />
+            </VBox.margin>
+        </Separator>
+
+        <!-- Promotion / Wholesale Pricing Section -->
+        <VBox spacing="10.0">
+            <padding>
+                <Insets left="20.0" right="20.0" />
+            </padding>
+            <children>
+                <HBox alignment="CENTER_LEFT" spacing="10.0">
+                    <children>
+                        <CheckBox fx:id="chkEnablePromotion" styleClass="form-checkbox" text="Enable Wholesale / Bulk Promotion Price" />
+                    </children>
+                </HBox>
+
+                <HBox fx:id="promoFieldsContainer" spacing="25.0">
+                    <children>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="form-label" text="Promotion Trigger Quantity" />
+                                <TextField fx:id="txtPromoQty" prefHeight="35.0" promptText="e.g., 6.0 (Pack/Box Qty)" styleClass="form-field" />
+                            </children>
+                        </VBox>
+                        <VBox spacing="5.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="form-label" text="Promotion Bulk Price (DA)" />
+                                <TextField fx:id="txtPromoPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <!-- Modal Actions -->
         <HBox alignment="CENTER_RIGHT" spacing="15.0">
             <children>
                 <CheckBox fx:id="chkActive" alignment="CENTER_LEFT" selected="true" styleClass="form-checkbox" text="Product is Active for Sale" HBox.hgrow="ALWAYS">
                     <HBox.margin>
-                        <Insets right="220.0" />
+                        <Insets right="200.0" />
                     </HBox.margin>
                 </CheckBox>
                 <Button fx:id="btnCancel" prefHeight="35.0" prefWidth="100.0" styleClass="logout-button" text="Cancel" />
                 <Button fx:id="btnSave" prefHeight="35.0" prefWidth="120.0" styleClass="action-btn-primary" text="Save Product" />
             </children>
             <padding>
-                <Insets bottom="20.0" right="20.0" top="10.0" />
+                <Insets bottom="25.0" right="20.0" top="10.0" />
             </padding>
         </HBox>
     </children>
