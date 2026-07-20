@@ -28,7 +28,7 @@ public class ProductModalController implements Initializable {
     @FXML private TextField txtStockQty;
     @FXML private TextField txtMinThreshold;
 
-    @FXML private ComboBox<String> cbCategory;
+    @FXML private ComboBox<Category> cbCategory;
     @FXML private CheckBox chkActive;
 
     @FXML private Button btnCancel;
@@ -59,6 +59,7 @@ public class ProductModalController implements Initializable {
     }
 
     private void handleSaveAction() {
+        System.out.println("Saving product");
         // 1. Validate inputs FIRST before touching any objects or parsing
         if (!validateInputs()) {
             return;
@@ -72,9 +73,12 @@ public class ProductModalController implements Initializable {
             BigDecimal stockQty = new BigDecimal(txtStockQty.getText().trim());
             BigDecimal minThreshold = new BigDecimal(txtMinThreshold.getText().trim());
             List<String> currentBarcodes = new ArrayList<>(lstBarcodes.getItems());
-
-            BigDecimal promoQty = chkEnablePromotion.isSelected() ? new BigDecimal(txtPromoQty.getText().trim()) : null;
-            BigDecimal promoPrice = chkEnablePromotion.isSelected() ? new BigDecimal(txtPromoPrice.getText().trim()) : null;
+            BigDecimal promoQty = null;
+            BigDecimal promoPrice = null;
+            if(chkEnablePromotion.isSelected()){
+                 promoQty = chkEnablePromotion.isSelected() ? new BigDecimal(txtPromoQty.getText().trim()) : null;
+                 promoPrice = chkEnablePromotion.isSelected() ? new BigDecimal(txtPromoPrice.getText().trim()) : null;
+            }
 
             // 3. Handle object creation vs update depending on selectedProduct
             if (selectedProduct == null) {
@@ -86,6 +90,9 @@ public class ProductModalController implements Initializable {
             closeModal();
 
         } catch (NumberFormatException e) {
+            System.err.println("CRASH CAUSE: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Input Error", "Number parsing failed: " + e.getMessage());
             showAlert("Input Error", "Please enter valid numbers for prices and stock quantities.");
         } catch (Exception e) {
             showAlert("Save Error", "An error occurred while saving: " + e.getMessage());
@@ -139,12 +146,15 @@ public class ProductModalController implements Initializable {
         newProduct.setRetailPrice(retailPrice);
         newProduct.setCurrentQuantity(stockQty);
         newProduct.setMinStockLevel(minThreshold);
-        newProduct.setCategoryName(cbCategory.getValue());
-        newProduct.setCategoryId(Short.parseShort(cbCategory.getId()));
+
+        newProduct.setCategoryName(cbCategory.getValue().getCategoryName());
+        newProduct.setCategoryId(cbCategory.getValue().getCategoryId());
         newProduct.setActive(chkActive.isSelected());
         newProduct.setBarcodes(barcodes);
-        newProduct.setPromotionQuantity(promoQty);
-        newProduct.setPromotionPrice(promoPrice);
+        if(promoQty != null && promoPrice != null){
+            newProduct.setPromotionQuantity(promoQty);
+            newProduct.setPromotionPrice(promoPrice);
+        }
 
         // Case A: Fresh product -> All 4 table slices marked dirty for initial DB write
         ProductCacheLine cacheLine = new ProductCacheLine(newProduct, true, true, true, true, System.currentTimeMillis());
@@ -169,8 +179,8 @@ public class ProductModalController implements Initializable {
             selectedProduct.setProductName(name);
             selectedProduct.setCostPrice(costPrice);
             selectedProduct.setRetailPrice(retailPrice);
-            selectedProduct.setCategoryName(cbCategory.getValue());
-            selectedProduct.setCategoryId(Short.parseShort(cbCategory.getId()));
+            selectedProduct.setCategoryName(cbCategory.getValue().getCategoryName());
+            selectedProduct.setCategoryId(cbCategory.getValue().getCategoryId());
             selectedProduct.setActive(chkActive.isSelected());
 
             cacheLine.setDirtyBit(true, ProductCacheLine.PRODUCT_BIT);
@@ -236,21 +246,28 @@ public class ProductModalController implements Initializable {
 
     public void setComboCategoryValues() {
         if (categoryRepository == null) return;
+
         List<Category> categories = categoryRepository.findAll();
-        System.out.println(Arrays.toString(categories.toArray()));
-        // Clear the map and combo box to prevent duplicates if recalled
+
         categoryNameToIdMap.clear();
         this.cbCategory.getItems().clear();
 
         for (Category cat : categories) {
             categoryNameToIdMap.put(cat.getCategoryName(), cat.getCategoryId());
-            this.cbCategory.getItems().add(cat.getCategoryName());
+            this.cbCategory.getItems().add(cat); // Add Category object, not String
         }
 
-        if (selectedProduct == null || selectedProduct.getCategoryName() == null) {
-            this.cbCategory.setValue("Choose a category for the product");
+        // Set prompt text instead of inserting a fake String into a ComboBox<Category>
+        this.cbCategory.setPromptText("Choose a category for the product");
+
+        if (selectedProduct != null && selectedProduct.getCategoryName() != null) {
+            // Find matching Category object from loaded list
+            categories.stream()
+                    .filter(cat -> cat.getCategoryName().equalsIgnoreCase(selectedProduct.getCategoryName()))
+                    .findFirst()
+                    .ifPresent(matchingCat -> this.cbCategory.setValue(matchingCat));
         } else {
-            this.cbCategory.setValue(selectedProduct.getCategoryName());
+            this.cbCategory.setValue(null);
         }
     }
 
@@ -283,7 +300,17 @@ public class ProductModalController implements Initializable {
             txtStockQty.setText(product.getCurrentQuantity().toString());
             txtMinThreshold.setText(product.getMinStockLevel().toString());
             chkActive.setSelected(product.isActive());
-            cbCategory.setValue(product.getCategoryName());
+            if (product != null && product.getCategoryName() != null) {
+                cbCategory.getItems().stream()
+                        .filter(cat -> cat.getCategoryName().equalsIgnoreCase(product.getCategoryName()))
+                        .findFirst()
+                        .ifPresentOrElse(
+                                cbCategory::setValue,
+                                () -> cbCategory.setValue(null)
+                        );
+            } else {
+                cbCategory.setValue(null);
+            }
             if(product.hasPromotion()){
                 promoFieldsContainer.setVisible(true);
                 promoFieldsContainer.setManaged(true);
