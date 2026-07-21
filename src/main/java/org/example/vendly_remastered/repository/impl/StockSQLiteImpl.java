@@ -73,7 +73,7 @@ public class StockSQLiteImpl implements IStockRepository {
     }
 
     @Override
-    public Map<Integer, BigDecimal> updateStockBatch(Map<Integer, Stock> stockUpdates) {
+    public Map<Integer, BigDecimal> updateStockBatch(Map<Integer, BigDecimal> stockUpdates) {
         Map<Integer, BigDecimal> updatedBalances = new java.util.HashMap<>();
         if (stockUpdates == null || stockUpdates.isEmpty()) return updatedBalances;
 
@@ -86,11 +86,11 @@ public class StockSQLiteImpl implements IStockRepository {
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             // 1. Queue all mutations into a single database batch execution path
-            for (Map.Entry<Integer, Stock> entry : stockUpdates.entrySet()) {
+            for (Map.Entry<Integer, BigDecimal> entry : stockUpdates.entrySet()) {
                 int productId = entry.getKey();
-                Stock stock = entry.getValue();
+                BigDecimal soldAmount = entry.getValue();
 
-                pstmt.setBigDecimal(1, stock.getCurrentStock()); // Amount sold
+                pstmt.setBigDecimal(1, soldAmount); // Amount sold
                 pstmt.setInt(2, productId);
                 pstmt.addBatch();
             }

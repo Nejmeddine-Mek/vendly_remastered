@@ -15,6 +15,7 @@ import org.example.vendly_remastered.models.entity.SaleDetailItem;
 import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
+import org.example.vendly_remastered.repository.IStockRepository;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.service.AuditLogsService;
 import org.example.vendly_remastered.service.SalesServices;
@@ -23,10 +24,7 @@ import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -65,7 +63,9 @@ public class SalesViewController implements Initializable {
     private final ExecutorService salesThreadPool = Executors.newFixedThreadPool(2);
     ISalesHeaderRepository saleHeaderRepository;
     ISaleDetailsRepository saleDetailsRepository;
+    IStockRepository stockRepository;
 
+    public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
     public void setSaleDetailsRepository(ISaleDetailsRepository saleDetailsRepository){
         this.saleDetailsRepository = saleDetailsRepository;
     }
@@ -295,38 +295,9 @@ public class SalesViewController implements Initializable {
         });
     }
 
-    // 4. Isolated core suggestion logic that can be explicitly invoked anywhere safely
-  /*  private void triggerSuggestionsDropdown() {
-        // Force JavaFX to run this at the end of the current frame cycle
-        Platform.runLater(() -> {
-            // 1. Regain focus immediately to capture user typing
-            barcodeField.requestFocus();
 
-            // 2. Position the carot cursor cleanly at the end of the text string
-            barcodeField.end();
-
-            if (suggestionPopup != null) {
-                // 3. Clear old visual state artifacts if any exist
-                if (suggestionPopup.isShowing()) {
-                    suggestionPopup.hide();
-                }
-            }
-            // 4. Force display layout placement immediately beneath the text field
-            suggestionPopup.show(barcodeField.getScene().getWindow());
-
-            // 5. OPTIONAL: If your suggestion engine does not automatically refresh
-            // when shown, manually fire a pseudo-text event to trigger the filtering logic:
-            String currentText = barcodeField.getText();
-            if (currentText != null && !currentText.isEmpty()) {
-                // This forces your skin/popup selection listeners to run their filtering loops right now
-                barcodeField.setText("");
-                barcodeField.setText(currentText);
-                barcodeField.end(); // Keep carot at the edge
-            }
-        });
-    }
     // from now on, the rest will involve searching and backend related tasks, we stop here for now
-*/
+
     private void saveSale() {
         if (saleItems.isEmpty()) {
             return;
@@ -388,10 +359,10 @@ public class SalesViewController implements Initializable {
 
         // 🛡️ Tracks total cost of goods sold (COGS) to find true net profit
         BigDecimal totalCostPrice = BigDecimal.ZERO;
-
+        Map<Integer, BigDecimal> newStock = new HashMap<>();
         for (CartItem item : saleItems) {
             Product cachedProduct = cache.get(item.getProductId());
-
+            newStock.put(item.getProductId(), item.getQuantity());
             if (cachedProduct != null) {
                 BigDecimal itemQuantity = item.getQuantity();
                 BigDecimal unitCost = cachedProduct.getCostPrice();
@@ -421,6 +392,20 @@ public class SalesViewController implements Initializable {
         //Set current authenticated user ID on the header
         header.setSaleUser(UserSession.getInstance().getUserId());
 
+        Map<Integer, BigDecimal> remainingStocks = cache.updateStockAndCheckAlerts(newStock);
+        for (Map.Entry<Integer, BigDecimal> entry : remainingStocks.entrySet()) {
+            int productId = entry.getKey();
+            BigDecimal currentStock = entry.getValue();
+
+            Product p = cache.get(productId);
+            if (p != null && p.getMinStockLevel() != null) {
+                // Correct check: Is remaining stock less than or equal to the minimum threshold?
+                if (currentStock.compareTo(p.getMinStockLevel()) <= 0) {
+                    // TODO: show alert
+                    System.out.println("STOCK ALERT - LOW STOCK");
+                }
+            }
+        }
         //main ui first saves header
         int saleId = saleHeaderRepository.saveSaleHeader(header);
         if(saleId == -1){

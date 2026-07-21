@@ -8,7 +8,7 @@ import java.util.Map;
 public interface IStockRepository {
     public Map<Integer, Stock> findAll();
     public Stock getStock(int productId);
-    public Map<Integer, BigDecimal> updateStockBatch(Map<Integer, Stock> stockUpdates);// only negative update
+    public Map<Integer, BigDecimal> updateStockBatch(Map<Integer, BigDecimal> stockUpdates);// only negative update
     public void addStock(int productId,Stock stock); // add new stock and create a batch corresponding to it
     public void addStockBulk(Map<Integer, Stock> itemsInInvoice, String deliveryNotes);
     public void saveStock(int id, Stock currentStock);

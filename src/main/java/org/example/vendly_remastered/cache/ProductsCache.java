@@ -5,6 +5,7 @@ import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IProductRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 public class ProductsCache {
@@ -83,6 +84,32 @@ public class ProductsCache {
             throw new IllegalStateException("ProductsCache has not been initialized! Call initialize() first at startup.");
         }
         return instance;
+    }
+
+    /**
+     * Updates stock for multiple products in a batch, returns items that fell below minimum stock.
+     *
+     * @param stockUpdates Map of Product ID -> New Stock Quantity
+     * @return Map of Product ID -> Current Stock level for products that triggered a low stock alert
+     */
+    public synchronized Map<Integer, BigDecimal> updateStockAndCheckAlerts(Map<Integer, BigDecimal> stockUpdates) {
+
+
+        Map<Integer, BigDecimal> updatedBalances = stockRepository.updateStockBatch(stockUpdates);
+
+        // Pass 2: Sync in-memory cache models with exact SQLite balances
+        for (Map.Entry<Integer, BigDecimal> entry : updatedBalances.entrySet()) {
+            int productId = entry.getKey();
+            BigDecimal newBalance = entry.getValue();
+
+            ProductCacheLine line = getLine(productId);
+            if (line != null && line.getProduct() != null) {
+                line.getProduct().setCurrentQuantity(newBalance);
+                line.setDirtyBit(false, ProductCacheLine.STOCK_BIT); // Fresh on disk
+            }
+        }
+
+        return updatedBalances; // UI checks if map !isEmpty() and pops alerts
     }
 
     /**
