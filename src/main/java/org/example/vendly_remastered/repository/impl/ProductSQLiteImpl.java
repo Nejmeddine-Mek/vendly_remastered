@@ -3,10 +3,7 @@ package org.example.vendly_remastered.repository.impl;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IProductRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 public class ProductSQLiteImpl implements IProductRepository {
@@ -95,7 +92,73 @@ public class ProductSQLiteImpl implements IProductRepository {
 
     @Override
     public void save(Product processedProduct) {
+        if (processedProduct == null) return;
 
+        if (processedProduct.getProductId() == 0) {
+            insertProduct(processedProduct);
+        } else {
+            updateProduct(processedProduct);
+        }
+    }
+
+    private void insertProduct(Product product) {
+        // Notice product_id is omitted so SQLite's INTEGER PRIMARY KEY auto-increments
+        String sql = """
+        INSERT INTO product (product_name, cost_price, retail_price, category, is_active)
+        VALUES (?, ?, ?, ?, ?);
+        """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, product.getProductName());
+            pstmt.setBigDecimal(2, product.getCostPrice());
+            pstmt.setBigDecimal(3, product.getRetailPrice());
+            pstmt.setShort(4, (short) product.getCategoryId());
+            pstmt.setBoolean(5, product.isActive());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int generatedId = rs.getInt(1);
+                        product.setProductId(generatedId); // 🔑 Critical: Syncs new DB ID back to entity
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Error inserting new product: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void updateProduct(Product product) {
+        String sql = """
+        UPDATE product 
+        SET product_name = ?, 
+            cost_price = ?, 
+            retail_price = ?, 
+            category = ?, 
+            is_active = ?, 
+            updated_on = CURRENT_TIMESTAMP
+        WHERE product_id = ?;
+        """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setString(1, product.getProductName());
+            pstmt.setBigDecimal(2, product.getCostPrice());
+            pstmt.setBigDecimal(3, product.getRetailPrice());
+            pstmt.setShort(4, (short) product.getCategoryId());
+            pstmt.setBoolean(5, product.isActive());
+            pstmt.setInt(6, product.getProductId());
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error updating product ID " + product.getProductId() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Override

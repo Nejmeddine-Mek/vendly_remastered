@@ -85,4 +85,8 @@ public class Product {
 
     public BigDecimal getPromotionQuantity(){ return promotion.getQuantity(); }
     public void setPromotionQuantity(BigDecimal newQ){ promotion.setQuantity(newQ);}
+
+    public Stock getStock() {
+        return currentStock;
+    }
 }

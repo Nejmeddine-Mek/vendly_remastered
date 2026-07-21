@@ -157,4 +157,33 @@ public class StockSQLiteImpl implements IStockRepository {
         }
     }
 
+    @Override
+
+    public void saveStock(int productId, Stock currentStock) {
+        if (currentStock == null || productId <= 0) return;
+
+        // Single-query UPSERT for SQLite 3.24+
+        String sql = """
+        INSERT INTO stock (product_id, current_stock, min_threshold, last_update)
+        VALUES (?, ?, ?, CURRENT_TIMESTAMP)
+        ON CONFLICT(product_id) DO UPDATE SET
+            current_stock = EXCLUDED.current_stock,
+            min_threshold = EXCLUDED.min_threshold,
+            last_update = CURRENT_TIMESTAMP;
+        """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setInt(1, productId);
+            pstmt.setBigDecimal(2, currentStock.getCurrentStock()); // Adjust getter names to match your Stock model
+            pstmt.setBigDecimal(3, currentStock.getMinThreshold());
+
+            pstmt.executeUpdate();
+
+        } catch (SQLException e) {
+            System.err.println("Error saving stock record for product ID " + productId + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }
