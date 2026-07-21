@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox spacing="20.0" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.SettingsController">
+    <padding>
+        <Insets bottom="25.0" left="30.0" right="30.0" top="25.0" />
+    </padding>
+
+    <children>
+        <!-- View Header -->
+        <VBox spacing="4.0">
+            <children>
+                <Label styleClass="header-title" text="Application Settings">
+                    <font>
+                        <Font name="System Bold" size="22.0" />
+                    </font>
+                </Label>
+                <Label text="Manage system localization, stock alerts, and threshold policies." textFill="#666666" />
+            </children>
+        </VBox>
+
+        <Separator />
+
+        <!-- Section 1: Localization & Language -->
+        <VBox spacing="12.0">
+            <children>
+                <Label styleClass="section-title" text="Language &amp; Region">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Label prefWidth="180.0" text="System Language:" />
+                        <ComboBox fx:id="languageComboBox" prefWidth="220.0" promptText="Select Language" styleClass="custom-combo-box" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <Separator />
+
+        <!-- Section 2: Stock Updates & Low Stock Alerts -->
+        <VBox spacing="15.0">
+            <children>
+                <Label styleClass="section-title" text="Stock Updates &amp; Alerts">
+                    <font>
+                        <Font name="System Bold" size="16.0" />
+                    </font>
+                </Label>
+
+                <!-- Toggle Notifications -->
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Label prefWidth="180.0" text="Low-Stock Notifications:" />
+                        <CheckBox fx:id="enableStockAlertsCheckBox" selected="true" styleClass="form-checkbox" text="Enable low-stock popups during POS checkout" />
+                    </children>
+                </HBox>
+
+                <!-- Negative Stock Prevention -->
+                <HBox alignment="CENTER_LEFT" spacing="20.0">
+                    <children>
+                        <Label prefWidth="180.0" text="Negative Stock Policy:" />
+                        <CheckBox fx:id="allowNegativeStockCheckBox" styleClass="form-checkbox" text="Allow stock quantity to drop below zero on sales" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+
+        <Separator />
+
+        <!-- Action Buttons -->
+        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+            <children>
+                <Button fx:id="cancelButton" prefWidth="100.0" styleClass="logout-button" text="Cancel" />
+                <Button fx:id="saveButton" prefWidth="130.0" styleClass="action-btn-primary" text="Save Changes" />
+            </children>
+        </HBox>
+    </children>
+</VBox>

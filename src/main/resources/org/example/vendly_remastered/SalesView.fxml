@@ -14,8 +14,9 @@
 
 <AnchorPane minHeight="506.0" minWidth="794.0" styleClass="form-divider" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.SalesViewController">
    <children>
-      <VBox minHeight="506.0" minWidth="794.0" styleClass="form-card" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">         <children>
-            <HBox spacing="30.0" xmlns="http://javafx.com" xmlns:fx="http://javafx.com">
+      <VBox minHeight="506.0" minWidth="794.0" styleClass="form-card" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <children>
+            <HBox spacing="30.0">
                <children>
 
                   <!-- LEFT SECTION: Item Entry Form Elements -->
@@ -43,7 +44,6 @@
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
                               <Label fx:id="barcodeLabel" minWidth="-Infinity" styleClass="form-label" text="Barcode/Name" />
-                              <!-- This primary entry field expands aggressively to occupy layout slack -->
                               <TextField fx:id="barcodeField" styleClass="form-field" HBox.hgrow="ALWAYS" />
                               <Label fx:id="noteLabel" minWidth="-Infinity" style="-fx-text-fill: #64748B; -fx-font-style: italic;" styleClass="form-label-helper" text="search by name @..." />
                            </children>
@@ -67,7 +67,7 @@
                         <!-- Line 2: Client Profile Identification Query -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <Label fx:id="clientName" minWidth="100.0" styleClass="form-label" text="Client Name" />
+                              <Label fx:id="clientNameLabel" minWidth="100.0" styleClass="form-label" text="Client Name" />
                               <TextField fx:id="clientNameField" styleClass="form-field" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
@@ -84,7 +84,7 @@
 
                </children>
             </HBox>
-            <HBox spacing="20.0" VBox.vgrow="ALWAYS" xmlns="http://javafx.com" xmlns:fx="http://javafx.com">
+            <HBox spacing="20.0" VBox.vgrow="ALWAYS">
                <children>
 
                   <!-- Live Checkout Receipt Data Table -->
@@ -116,7 +116,6 @@
                         </VBox>
 
                         <Region VBox.vgrow="ALWAYS" />
-                        <!-- Action buttons for checkout -->
                         <Button fx:id="confirmButton" maxWidth="Infinity" styleClass="action-btn-primary" text="Confirm &amp; Print" />
                      </children>
                   </VBox>
@@ -129,6 +128,5 @@
 
          </children>
       </VBox>
-
    </children>
 </AnchorPane>

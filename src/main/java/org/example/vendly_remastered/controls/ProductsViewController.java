@@ -48,8 +48,8 @@ public class ProductsViewController implements Initializable {
     @FXML private TableColumn<Product, String> colCategory;
     @FXML private TableColumn<Product, BigDecimal> colCostPrice;
     @FXML private TableColumn<Product, BigDecimal> colRetailPrice;
-    @FXML private TableColumn<Product, Integer> colStockQty;
-    @FXML private TableColumn<Product, Integer> colMinThreshold;
+    @FXML private TableColumn<Product, BigDecimal> colStockQty;
+    @FXML private TableColumn<Product, BigDecimal> colMinThreshold;
     @FXML private TableColumn<Product, Boolean> colStatus;
 
     private IProductRepository productRepository;

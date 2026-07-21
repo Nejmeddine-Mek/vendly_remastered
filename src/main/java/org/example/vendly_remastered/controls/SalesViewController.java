@@ -41,6 +41,7 @@ public class SalesViewController implements Initializable {
     @FXML private TextField clientNameField;
     @FXML private Label paidAmountLabel;
     @FXML private TextField paidAmountField;
+    @FXML private Label clientNameLabel;
 
     // those are to fix later
     @FXML private TableView<CartItem> saleItemsTable;
@@ -435,6 +436,8 @@ public class SalesViewController implements Initializable {
         });
         saleItems.clear();       // Wipe the checkout table
         barcodeField.clear();
+        clientNameField.clear();
+        paidAmountField.clear();
     }
     private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
         if (textVal == null || !textVal.startsWith("@")) {
