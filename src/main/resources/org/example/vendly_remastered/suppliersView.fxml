@@ -11,18 +11,9 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane minHeight="600.0" minWidth="900.0"
-            styleClass="workspace"
-            stylesheets="@MainViewStyles.css"
-            xmlns="http://javafx.com/javafx/23.0.1"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.example.vendly_remastered.controls.SuppliersViewController">
+<AnchorPane minHeight="600.0" minWidth="900.0" styleClass="workspace" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.SuppliersViewController">
     <children>
-        <VBox spacing="15.0"
-              AnchorPane.bottomAnchor="15.0"
-              AnchorPane.leftAnchor="15.0"
-              AnchorPane.rightAnchor="15.0"
-              AnchorPane.topAnchor="15.0">
+        <VBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
             <padding>
                 <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
             </padding>
@@ -49,7 +40,7 @@
                             </children>
                         </VBox>
 
-                        <VBox alignment="TOP_CENTER" prefWidth="210.0" minWidth="210.0" spacing="10.0" styleClass="form-card">
+                        <VBox alignment="TOP_CENTER" minWidth="210.0" prefWidth="210.0" spacing="10.0" styleClass="form-card">
                             <children>
                                 <Button fx:id="addSupplierButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="🏢 Add New Supplier" />
 
@@ -70,8 +61,8 @@
                                 <TableColumn fx:id="colContactName" prefWidth="140.0" text="Contact Person" />
                                 <TableColumn fx:id="colPhone" prefWidth="130.0" text="Phone Number" />
                                 <TableColumn fx:id="colEmail" prefWidth="160.0" text="Email Registry" />
-                                <TableColumn fx:id="colTotalOrders" prefWidth="100.0" text="Orders Placed" />
                                 <TableColumn fx:id="colBalanceOwed" prefWidth="110.0" text="Balance Owed" />
+                                <TableColumn fx:id="colCreatedBy" prefWidth="100.0" text="Created By" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -71,6 +71,12 @@ public class ControllerDispatcher {
 
         });
         registry.put(ClearDebtsController.class, controller -> {});
+        registry.put(SuppliersViewController.class, controller -> {
+            Connection conn = DatabaseManager.getConnection();
+            SuppliersViewController svc = (SuppliersViewController) controller;
+            svc.setSuppliersRepository(new SupplierSQLiteImpl(conn));
+            svc.initializeTable();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 
