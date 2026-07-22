@@ -17,9 +17,13 @@ import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
+import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
 
 public class ClientsViewController implements Initializable {
     @FXML private Label clientDetailsLabel;
@@ -65,15 +69,7 @@ public class ClientsViewController implements Initializable {
         });
 
         // 3. Settle Debt / Process Payment Placeholder Action
-        processPaymentButton.setOnAction(_ -> {
-            Client selected = clientTableView.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                // TODO: Open Settle Payment Modal when constructed
-                System.out.println("Processing payment for client ID: " + selected.getClientId());
-            } else {
-                showAlert("Selection Required", "Please select a client to process debt payment.");
-            }
-        });
+        setClearDebtButtonBehaviour();
 
         // 4. Initial load of the client table
         initializeTable();
@@ -159,12 +155,42 @@ public class ClientsViewController implements Initializable {
             ex.printStackTrace();
         }
     }
+    private void setClearDebtButtonBehaviour() {
+        processPaymentButton.setOnAction(_ -> {
+            Client targetClient = clientTableView.getSelectionModel().getSelectedItem();
+            if(targetClient == null){
+                //TODO: handle
+                return;
+            }
+            try {
+                // 1. Point to your wide layout FXML file
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ClearDebtsModal.fxml"));
+                Parent root = loader.load();
 
-    private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+                // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
+                Object controller = loader.getController();
+                ControllerDispatcher.execute(controller);
+
+                ClearDebtsController modalController = loader.getController();
+
+                // 4. Check if we are editing an existing product or adding a completely fresh item
+                modalController.setMode(targetClient);
+
+                // 5. Build and present the window scene configuration
+                Stage modalStage = new Stage();
+                modalStage.initModality(Modality.APPLICATION_MODAL);
+                modalStage.setTitle("Edit Client debts");
+                modalStage.setScene(new Scene(root));
+
+                // Execution pauses right here until the user clicks Save or Cancel
+                modalStage.showAndWait();
+
+
+            } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
+                alert.showAndWait();
+                ex.printStackTrace();
+            }
+        });
     }
 }

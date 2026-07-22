@@ -70,6 +70,7 @@ public class ControllerDispatcher {
         registry.put(ClientDetailsModalController.class, controller -> {
 
         });
+        registry.put(ClearDebtsController.class, controller -> {});
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

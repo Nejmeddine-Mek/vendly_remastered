@@ -67,6 +67,12 @@ public class ProductModalController implements Initializable {
     }
 
     private void closeWindow() {
+        if (btnCancel != null && btnCancel.getScene() != null) {
+            Stage stage = (Stage) btnCancel.getScene().getWindow();
+            if (stage != null) {
+                stage.close();
+            }
+        }
     }
 
     private void handleSaveAction() {
