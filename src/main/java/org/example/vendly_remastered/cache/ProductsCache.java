@@ -2,6 +2,7 @@ package org.example.vendly_remastered.cache;
 
 import org.example.vendly_remastered.cache.model.ProductCacheLine;
 import org.example.vendly_remastered.models.entity.Product;
+import org.example.vendly_remastered.repository.IBarcodeRepository;
 import org.example.vendly_remastered.repository.IProductRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
 
@@ -22,6 +23,7 @@ public class ProductsCache {
     // Core database gateways
     private final IProductRepository productRepository;
     private final IStockRepository stockRepository;
+    private final IBarcodeRepository barcodeRepository;
 
     // Access-Order LinkedHashMap for LRU eviction tracking
     private final LinkedHashMap<Integer, ProductCacheLine> cacheMap;
@@ -31,10 +33,11 @@ public class ProductsCache {
     /**
      * Private Constructor: Configures LRU LinkedHashMap with pure memory eviction.
      */
-    private ProductsCache(int capacity, IProductRepository repo, IStockRepository stockRepository) {
+    private ProductsCache(int capacity, IProductRepository repo, IStockRepository stockRepository, IBarcodeRepository repository) {
         this.maxCacheSize = capacity;
         this.productRepository = repo;
         this.stockRepository = stockRepository;
+        barcodeRepository = repository;
         this.cacheVersionCounter = 0;
 
         // Instantiate LinkedHashMap configured for access-order LRU tracking
@@ -69,9 +72,9 @@ public class ProductsCache {
     /**
      * Initializes the global cache instance. Must be called once during app startup.
      */
-    public static synchronized ProductsCache initialize(int capacity, IProductRepository repo, IStockRepository stockRepository) {
+    public static synchronized ProductsCache initialize(int capacity, IProductRepository repo, IStockRepository stockRepository, IBarcodeRepository barcodeRepository) {
         if (instance == null) {
-            instance = new ProductsCache(capacity, repo, stockRepository);
+            instance = new ProductsCache(capacity, repo, stockRepository, barcodeRepository);
         }
         return instance;
     }
@@ -250,9 +253,13 @@ public class ProductsCache {
             if (line.getDirtyBitStatus(ProductCacheLine.STOCK_BIT) && prod.getStock() != null) {
                 stockRepository.saveStock(newId, prod.getStock());
             }
-     /*       if (line.getDirtyBitStatus(ProductCacheLine.BARCODE_BIT) && prod.getBarcodes() != null) {
-                productRepository.updateProductBarcodes(newId, prod.getBarcodes());
-            }*/
+            if (line.getDirtyBitStatus(ProductCacheLine.BARCODE_BIT) && prod.getBarcodes() != null) {
+                Map<String, Integer> barcodeList = new HashMap<>();
+                for(String code : line.getProduct().getBarcodes()){
+                    barcodeList.put(code, newId);
+                }
+                barcodeRepository.insertBarcode(barcodeList);
+            }
 
             // Reset all flags since this new entity is now 100% persisted
             line.setAllDirtyBits(false);
@@ -308,12 +315,17 @@ public class ProductsCache {
             System.out.println("stock update/insert");
             stockRepository.saveStock(id, prod.getCurrentStock());
         }
-/*
+
         // Barcodes updated in child table
         if (line.getDirtyBitStatus(ProductCacheLine.BARCODE_BIT)) {
-            productRepository.updateProductBarcodes(id, prod.getBarcodes());
+            Map<String, Integer> barcodes = new HashMap<>();
+            int productId = line.getProduct().getProductId();
+            for(String code: line.getProduct().getBarcodes()){
+                barcodes.put(code, productId);
+            }
+            barcodeRepository.insertBarcode(barcodes);
         }
-
+/*
         // Promotional rules / discounts updated
         if (line.getDirtyBitStatus(ProductCacheLine.PROMO_BIT)) {
             productRepository.updatePromotions(id, prod.getPromotions());

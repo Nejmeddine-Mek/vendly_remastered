@@ -37,7 +37,6 @@ public class SalesViewController implements Initializable {
     @FXML private TextField barcodeField;
     @FXML private Label noteLabel;
     @FXML private CheckBox clientCheckBox;
-    @FXML private Label clientName;
     @FXML private TextField clientNameField;
     @FXML private Label paidAmountLabel;
     @FXML private TextField paidAmountField;
@@ -164,14 +163,14 @@ public class SalesViewController implements Initializable {
             if(newValue){
                 clientNameField.setVisible(true);
                 clientNameField.setManaged(true);
-                clientName.setVisible(true);
+                clientNameLabel.setVisible(true);
                 paidAmountField.setVisible(true);
                 paidAmountField.setManaged(true);
                 paidAmountLabel.setVisible(true);
             } else {
                 clientNameField.setVisible(false);
                 clientNameField.setManaged(false);
-                clientName.setVisible(false);
+                clientNameLabel.setVisible(false);
                 paidAmountField.setVisible(false);
                 paidAmountField.setManaged(false);
                 paidAmountLabel.setVisible(false);
@@ -182,7 +181,7 @@ public class SalesViewController implements Initializable {
         clientNameField.setPromptText("Client Name...");
         clientNameField.setVisible(false);
         clientNameField.setManaged(false);
-        clientName.setVisible(false);
+        clientNameLabel.setVisible(false);
         paidAmountField.setPromptText("Paid Amount here...");
         paidAmountField.setVisible(false);
         paidAmountField.setManaged(false);
@@ -288,6 +287,10 @@ public class SalesViewController implements Initializable {
                         targetProduct.getRetailPrice(),
                         BigDecimal.ONE
                 );
+                if (targetProduct.getPromotionPrice() != null && targetProduct.getPromotionQuantity() != null) {
+                    newItem.setPromotionPrice(targetProduct.getPromotionPrice());
+                    newItem.setPromotionQuantity(targetProduct.getPromotionQuantity());
+                }
                 saleItems.add(newItem);
             }
 

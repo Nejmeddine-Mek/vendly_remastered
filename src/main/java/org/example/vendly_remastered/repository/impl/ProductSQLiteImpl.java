@@ -3,6 +3,7 @@ package org.example.vendly_remastered.repository.impl;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IProductRepository;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.*;
 
@@ -24,9 +25,11 @@ public class ProductSQLiteImpl implements IProductRepository {
                 P.is_active,
                 C.category_name AS category_name, 
                 PB.barcode AS barcode 
+                PM.*
             FROM product P
             JOIN category C ON C.category_id = P.category
-            LEFT JOIN product_barcode PB ON P.product_id = PB.product_id;
+            LEFT JOIN product_barcode PB ON P.product_id = PB.product_id
+            LEFT JOIN promotion PM ON P.product_id = PM.product_id;
             """;
 
         // LinkedHashMap preserves the database order while deduplicating rows by product_id
@@ -49,12 +52,17 @@ public class ProductSQLiteImpl implements IProductRepository {
                     product.setRetailPrice(rs.getBigDecimal("retail_price"));
 
                     // Handle optional timestamps safely
-                    if (rs.getTimestamp("created_on") != null) {
-                        product.setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime());
-                    }
-                    if (rs.getTimestamp("updated_on") != null) {
-                        product.setUpdatedOn(rs.getTimestamp("updated_on").toLocalDateTime());
-                    }
+                    Timestamp createdOn = rs.getTimestamp("created_on");
+                    if (createdOn != null) product.setCreatedOn(createdOn.toLocalDateTime());
+
+                    Timestamp updatedOn = rs.getTimestamp("updated_on");
+                    if (updatedOn != null) product.setUpdatedOn(updatedOn.toLocalDateTime());
+
+                    BigDecimal promoQuantity = rs.getBigDecimal("promo_quantity");
+                    if (promoQuantity != null) product.setPromotionQuantity(promoQuantity);
+
+                    BigDecimal promoPrice = rs.getBigDecimal("promo_price");
+                    if (promoPrice != null) product.setPromotionPrice(promoPrice);
 
                     product.setCategoryId(rs.getShort("category_id"));
                     product.setActive(rs.getBoolean("is_active"));
@@ -170,50 +178,30 @@ public class ProductSQLiteImpl implements IProductRepository {
     public List<Product> findByName(String productName) {
         if (productName == null || productName.isBlank()) return new ArrayList<>();
 
-        // 🛡️ The wildcards must be stripped out of the SQL layout text entirely
         String sql = """
-            SELECT *
-            FROM product p
-            INNER JOIN category c ON p.category = c.category_id
-            INNER JOIN product_barcode pb ON p.product_id = pb.product_id
-            INNER JOIN stock s ON p.product_id = s.product_id
-            WHERE lower(p.product_name) LIKE ?;
-            """;
+        SELECT DISTINCT 
+            p.product_id, p.product_name, p.cost_price, p.retail_price, 
+            p.category, p.is_active, p.created_on, p.updated_on,
+            c.category_name,
+            s.current_stock, s.min_threshold,
+            pr.promo_quantity, pr.promo_price
+        FROM product p
+        INNER JOIN category c ON p.category = c.category_id
+        INNER JOIN stock s ON p.product_id = s.product_id
+        LEFT JOIN product_barcode pb ON p.product_id = pb.product_id
+        LEFT JOIN promotion pr ON p.product_id = pr.product_id
+        WHERE lower(p.product_name) LIKE ?;
+        """;
 
         List<Product> matches = new ArrayList<>();
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
-            // Construct the wildcard string dynamically inside the safety binder
             String searchPattern = "%" + productName.trim().toLowerCase() + "%";
             pstmt.setString(1, searchPattern);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    // 1. Map Base Product State
-                    Product product = new Product();
-                    product.setProductId(rs.getInt("product_id"));
-                    product.setProductName(rs.getString("product_name"));
-                    product.setCostPrice(rs.getBigDecimal("cost_price"));
-                    product.setRetailPrice(rs.getBigDecimal("retail_price"));
-                    product.setCategoryId(rs.getShort("category"));
-                    product.setCategoryName(rs.getString("category_name"));
-                    product.setActive(rs.getBoolean("is_active"));
-
-                    if (rs.getTimestamp("created_on") != null) {
-                        product.setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime());
-                    }
-                    if (rs.getTimestamp("updated_on") != null) {
-                        product.setUpdatedOn(rs.getTimestamp("updated_on").toLocalDateTime());
-                    }
-
-                    // 2. Map Stock Tracking Sub-Entity
-
-                    product.setCurrentQuantity(rs.getBigDecimal("current_stock"));
-                    product.setMinStockLevel(rs.getBigDecimal("min_threshold"));
-                    /*if (rs.getTimestamp("last_update") != null) {
-                        stock.setLastUpdate(rs.getTimestamp("last_update").toLocalDateTime());
-                    }*/
-                    // Connect associations
+                    Product product = mapResultSetToProduct(rs);
                     matches.add(product);
                 }
             }
@@ -222,7 +210,7 @@ public class ProductSQLiteImpl implements IProductRepository {
             sqle.printStackTrace();
         }
 
-        return matches; // Safely returns the populated collection matrix or an empty list
+        return matches;
     }
 
     @Override
@@ -230,48 +218,26 @@ public class ProductSQLiteImpl implements IProductRepository {
         if (barcode == null || barcode.isBlank()) return Optional.empty();
 
         String sql = """
-            SELECT *
-            FROM product p
-            JOIN category c on p.category = c.category_id
-            INNER JOIN product_barcode pb ON p.product_id = pb.product_id
-            INNER JOIN stock s ON p.product_id = s.product_id
-            WHERE pb.barcode = ?;
-            """;
+        SELECT 
+            p.product_id, p.product_name, p.cost_price, p.retail_price, 
+            p.category, p.is_active, p.created_on, p.updated_on,
+            c.category_name,
+            s.current_stock, s.min_threshold,
+            pr.promo_quantity, pr.promo_price
+        FROM product p
+        INNER JOIN category c ON p.category = c.category_id
+        INNER JOIN product_barcode pb ON p.product_id = pb.product_id
+        INNER JOIN stock s ON p.product_id = s.product_id
+        LEFT JOIN promotion pr ON p.product_id = pr.product_id
+        WHERE pb.barcode = ?;
+        """;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
             pstmt.setString(1, barcode.trim());
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    // 1. Build out the base product model properties
-                    Product product = new Product();
-                    product.setProductId(rs.getInt("product_id"));
-                    product.setProductName(rs.getString("product_name"));
-                    product.setCostPrice(rs.getBigDecimal("cost_price"));
-                    product.setRetailPrice(rs.getBigDecimal("retail_price"));
-                    product.setCategoryId(rs.getShort("category"));
-                    product.setCategoryName(rs.getString("category_name"));
-                    product.setActive(rs.getBoolean("is_active"));
-
-                    // Handle optional timestamps safely
-                    if (rs.getTimestamp("created_on") != null) {
-                        product.setCreatedOn(rs.getTimestamp("created_on").toLocalDateTime());
-                    }
-                    if (rs.getTimestamp("updated_on") != null) {
-                        product.setUpdatedOn(rs.getTimestamp("updated_on").toLocalDateTime());
-                    }
-
-                    // 2. Hydrate the composite Stock entity nested inside the product
-
-                    product.setCurrentQuantity(rs.getBigDecimal("current_stock"));
-                    product.setMinStockLevel(rs.getBigDecimal("min_threshold"));
-                 /*   if (rs.getTimestamp("last_update") != null) {
-                        stock.setLastUpdate(rs.getTimestamp("last_update").toLocalDateTime());
-                    }*/
-
-                    // Link them up
-                   /* product.setStock(stock);
-*/
+                    Product product = mapResultSetToProduct(rs);
                     return Optional.of(product);
                 }
             }
@@ -281,5 +247,47 @@ public class ProductSQLiteImpl implements IProductRepository {
         }
 
         return Optional.empty();
+    }
+
+    /**
+     * Shared mapping helper to keep mapping DRY and eliminate duplicate JDBC calls.
+     */
+    private Product mapResultSetToProduct(ResultSet rs) throws SQLException {
+        Product product = new Product();
+        product.setProductId(rs.getInt("product_id"));
+        product.setProductName(rs.getString("product_name"));
+        product.setCostPrice(rs.getBigDecimal("cost_price"));
+        product.setRetailPrice(rs.getBigDecimal("retail_price"));
+        product.setCategoryId(rs.getShort("category"));
+        product.setCategoryName(rs.getString("category_name"));
+        product.setActive(rs.getBoolean("is_active"));
+
+        // Optimized Timestamps mapping
+        Timestamp createdOn = rs.getTimestamp("created_on");
+        if (createdOn != null) {
+            product.setCreatedOn(createdOn.toLocalDateTime());
+        }
+
+        Timestamp updatedOn = rs.getTimestamp("updated_on");
+        if (updatedOn != null) {
+            product.setUpdatedOn(updatedOn.toLocalDateTime());
+        }
+
+        // Stock attributes
+        product.setCurrentQuantity(rs.getBigDecimal("current_stock"));
+        product.setMinStockLevel(rs.getBigDecimal("min_threshold"));
+
+        // Optimized Promotion attributes mapping
+        BigDecimal promoQuantity = rs.getBigDecimal("promo_quantity");
+        if (promoQuantity != null) {
+            product.setPromotionQuantity(promoQuantity);
+        }
+
+        BigDecimal promoPrice = rs.getBigDecimal("promo_price");
+        if (promoPrice != null) {
+            product.setPromotionPrice(promoPrice);
+        }
+
+        return product;
     }
 }

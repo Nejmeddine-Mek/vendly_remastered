@@ -14,6 +14,7 @@ import org.example.vendly_remastered.cache.PagesCache;
 import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
+import org.example.vendly_remastered.repository.impl.BarcodeSQLImpl;
 import org.example.vendly_remastered.repository.impl.ClientsSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.StockSQLiteImpl;
@@ -54,7 +55,7 @@ public class MainViewController implements Initializable {
         // now we set default behaviour of each field and button
         try {
             Connection conn = DatabaseManager.getConnection();
-            ProductsCache.initialize(20, new ProductSQLiteImpl(conn), new StockSQLiteImpl(conn));
+            ProductsCache.initialize(20, new ProductSQLiteImpl(conn), new StockSQLiteImpl(conn), new BarcodeSQLImpl(conn));
             ClientsCache.initialize(10,new ClientsSQLiteImpl(conn));
         } catch (SQLException e) {
             throw new RuntimeException(e);

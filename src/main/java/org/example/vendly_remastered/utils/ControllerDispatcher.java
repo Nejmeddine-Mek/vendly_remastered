@@ -51,6 +51,7 @@ public class ControllerDispatcher {
            Connection conn = DatabaseManager.getConnection();
            ProductModalController pmc = (ProductModalController) controller;
            pmc.setCategoryRepository(new CategorySQLiteImpl(conn));
+           pmc.setBarcodeRepository(new BarcodeSQLImpl(conn));
            pmc.setComboCategoryValues();
         });
         registry.put(SalesViewController.class, controller -> {

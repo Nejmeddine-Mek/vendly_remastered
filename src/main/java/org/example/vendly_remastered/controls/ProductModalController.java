@@ -10,10 +10,13 @@ import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.cache.model.ProductCacheLine;
 import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.models.entity.Product;
+import org.example.vendly_remastered.repository.IBarcodeRepository;
 import org.example.vendly_remastered.repository.ICategoryRepository;
+import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.Connection;
 import java.util.*;
 
 import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
@@ -44,11 +47,17 @@ public class ProductModalController implements Initializable {
     private final Map<String, Short> categoryNameToIdMap = new HashMap<>();
 
     private ICategoryRepository categoryRepository;
+    private IBarcodeRepository barcodeRepository;
     private Product selectedProduct = null;
     private boolean saveClicked = false;
-
+    private boolean addBarcodeClicked = false;
+    private boolean removeBarcodeClicked = false;
+    private List<String> barcodesToDelete = new ArrayList<>();
+    public void setBarcodeRepository(IBarcodeRepository repository){ barcodeRepository = repository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        setDeleteBarcodeBehaviour();
+        setBarcodeAddingBehaviour();
         chkEnablePromotion.setOnAction(_ -> {
             promoFieldsContainer.setVisible(!promoFieldsContainer.isVisible());
             promoFieldsContainer.setManaged(!promoFieldsContainer.isManaged());
@@ -201,7 +210,12 @@ public class ProductModalController implements Initializable {
         // Slice 3: Barcodes Table
         if (!selectedProduct.getBarcodes().equals(barcodes)) {
             selectedProduct.setBarcodes(barcodes);
+
             cacheLine.setDirtyBit(true, ProductCacheLine.BARCODE_BIT);
+            if(!barcodesToDelete.isEmpty()){
+                barcodeRepository.deleteBarcode(barcodesToDelete);
+                barcodesToDelete.clear();
+            }
         }
 
         // Slice 4: Promotion Table
@@ -327,4 +341,30 @@ public class ProductModalController implements Initializable {
         return null ;
     }
 
+    private void setBarcodeAddingBehaviour(){
+        txtBarcodeEntry.setTextFormatter(TextFormatterUtils.createBarcodeFormatter());
+        btnAddBarcode.setOnAction(_ -> {
+            String barcode = txtBarcodeEntry.getText().trim();
+            if(barcode.isEmpty())
+                return;
+            // Prevent duplicate entries in the UI list
+            if (lstBarcodes.getItems().contains(barcode))
+                return;
+
+            lstBarcodes.getItems().add(barcode);
+            barcodesToDelete.remove(barcode);
+
+            txtBarcodeEntry.clear(); // Ready for next scan/entry
+        });
+
+    }
+
+    private void setDeleteBarcodeBehaviour(){
+        btnRemoveBarcode.setOnAction(_ -> {
+            String targetBarcode = lstBarcodes.getSelectionModel().getSelectedItem();
+            lstBarcodes.getItems().remove(targetBarcode);
+            barcodesToDelete.add(targetBarcode);
+
+        });
+    }
 }
