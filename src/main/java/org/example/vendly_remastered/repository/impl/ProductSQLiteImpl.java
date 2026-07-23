@@ -24,7 +24,7 @@ public class ProductSQLiteImpl implements IProductRepository {
                 P.category AS category_id,
                 P.is_active,
                 C.category_name AS category_name, 
-                PB.barcode AS barcode 
+                PB.barcode AS barcode,
                 PM.*
             FROM product P
             JOIN category C ON C.category_id = P.category

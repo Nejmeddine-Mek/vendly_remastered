@@ -3,15 +3,24 @@ package org.example.vendly_remastered.controls;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
+import javafx.collections.transformation.SortedList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SuppliersViewController implements Initializable {
@@ -40,6 +49,10 @@ public class SuppliersViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableColumnsBehaviour();
+        supplierDetailsButton.setOnAction(_ -> {
+            setSupplierDetailsButtonBehaviour();
+        });
+        addSupplierButton.setOnAction(_ -> openModal(null));
     }
     private void setTableColumnsBehaviour() {
         colId.setCellValueFactory(new PropertyValueFactory<>("supplierId"));
@@ -71,11 +84,93 @@ public class SuppliersViewController implements Initializable {
     }
 
     public void initializeTable() {
-        supplierTableView.setItems(supplierList);
+        if (suppliersRepository == null) {
+            System.out.println("repo is null");
+            return;
+        }
 
-        // Fetch initial dataset if repository is already injected
-        if (suppliersRepository != null) {
-            supplierList.setAll(suppliersRepository.findAll());
+        // Fetch suppliers from in-memory cache / repo
+        List<Supplier> suppliers = suppliersRepository.findAll();
+        supplierList.setAll(suppliers);
+
+        // Setup dynamic filtering via searchField
+        FilteredList<Supplier> filteredData = new FilteredList<>(supplierList, p -> true);
+
+        searchField.textProperty().addListener((observable, oldValue, newValue) -> {
+            filteredData.setPredicate(supplier -> {
+                if (newValue == null || newValue.isBlank()) {
+                    return true;
+                }
+
+                String searchLower = newValue.toLowerCase().trim();
+
+                if (supplier.getSupplierCompany() != null && supplier.getSupplierCompany().toLowerCase().contains(searchLower)) {
+                    return true;
+                }
+                if (supplier.getSupplierFullName() != null && supplier.getSupplierFullName().toLowerCase().contains(searchLower)) {
+                    return true;
+                }
+                if (supplier.getPhoneNumber() != null && supplier.getPhoneNumber().contains(searchLower)) {
+                    return true;
+                }
+                return supplier.getEmail() != null && supplier.getEmail().toLowerCase().contains(searchLower);
+            });
+        });
+
+        SortedList<Supplier> sortedData = new SortedList<>(filteredData);
+        sortedData.comparatorProperty().bind(supplierTableView.comparatorProperty());
+
+        supplierTableView.setItems(sortedData);
+    }
+    private void setSearchBarBehaviour(){
+
+    }
+    private void setSupplierDetailsButtonBehaviour(){
+        Supplier selectedSuuplier = supplierTableView.getSelectionModel().getSelectedItem();
+        if(selectedSuuplier == null){
+            // TODO: handle with an alert or so
+            return;
+        }
+        openModal(selectedSuuplier);
+    }
+    private void openModal(Supplier supplier){
+        try {
+            // 1. Point to your wide layout FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/SupplierDetailsModal.fxml"));
+            Parent root = loader.load();
+
+            // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
+            Object controller = loader.getController();
+            ControllerDispatcher.execute(controller);
+
+            SupplierDetailsModalController modalController = loader.getController();
+
+            // 4. Check if we are editing an existing product or adding a completely fresh item
+            modalController.setMode(supplier);
+
+            modalController.setOnSupplierSaved(savedSupplier -> {
+                if (supplier == null) {
+                    // ADD: Insert the newly created supplier into master list
+                    supplierList.add(savedSupplier);
+                } else {
+                    // EDIT: Force TableView to visually refresh changed properties
+                    supplierTableView.refresh();
+                }
+            });
+            // 5. Build and present the window scene configuration
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setTitle("Edit Client debts");
+            modalStage.setScene(new Scene(root));
+
+            // Execution pauses right here until the user clicks Save or Cancel
+            modalStage.showAndWait();
+
+
+        } catch (Exception ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
+            alert.showAndWait();
+            ex.printStackTrace();
         }
     }
 }

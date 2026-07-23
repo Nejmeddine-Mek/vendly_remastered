@@ -66,6 +66,8 @@ public class ProductsViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableColumnsBehaviour();
         setButtonsBehaviour();
+        setSearchBarBehaviour();
+        setTableBehaviour();
     }
 
     private void setTableColumnsBehaviour(){
@@ -112,7 +114,7 @@ public class ProductsViewController implements Initializable {
         });
     }
 
-    public void setupSearchBarBehaviour() {
+    public void setSearchBarBehaviour() {
         Platform.runLater(() -> searchField.requestFocus());
 
         searchField.setOnKeyPressed(event -> {

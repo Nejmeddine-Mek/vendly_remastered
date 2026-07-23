@@ -71,7 +71,45 @@ public class SupplierSQLiteImpl implements ISuppliersRepository {
 
     @Override
     public int AddSupplier(Supplier supplier) {
-        return 0;
+        String sql = """
+            INSERT INTO suppliers (
+                supplier_company, 
+                supplier_full_name, 
+                phone_number, 
+                email, 
+                created_by, 
+                debts, 
+                is_active
+            ) VALUES (?, ?, ?, ?, ?, ?, ?);
+            """;
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            pstmt.setString(1, supplier.getSupplierCompany());
+            pstmt.setString(2, supplier.getSupplierFullName());
+            pstmt.setString(3, supplier.getPhoneNumber());
+            pstmt.setString(4, supplier.getEmail());
+
+            // Defaults to user ID 1 if createdBy was not set on the entity
+            pstmt.setInt(5, supplier.getCreatedBy() != null ? supplier.getCreatedBy() : 1);
+            pstmt.setBigDecimal(6, supplier.getDebts());
+            pstmt.setBoolean(7, supplier.isActive());
+
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1); // Auto-generated supplier_id from SQLite
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("CRITICAL: Error inserting supplier into DB");
+            e.printStackTrace();
+        }
+
+        return -1; // Failure fallback
     }
 
     @Override
