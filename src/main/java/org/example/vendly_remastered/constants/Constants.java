@@ -18,7 +18,7 @@ public enum Constants {
             case SETTINGS_VIEW  -> "settingsView.fxml";
             case USERS_VIEW     -> "UsersView.fxml";
             case DASHBOARD_VIEW -> "dashboardView.fxml";
-            case PURCHASES_VIEW -> "purchasesView.fxml";
+            case PURCHASES_VIEW -> "purchasesHistoryView.fxml";
         };
 
         return "/org/example/vendly_remastered/" + path;
