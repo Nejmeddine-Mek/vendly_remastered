@@ -82,6 +82,11 @@ public class ControllerDispatcher {
            SupplierDetailsModalController sdmv = (SupplierDetailsModalController) controller;
            sdmv.setSuppliersRepository(new SupplierSQLiteImpl(connection));
         });
+        registry.put(ClearSupplierDebtsController.class, controller -> {
+           Connection connection = DatabaseManager.getConnection();
+           ClearSupplierDebtsController csdc = (ClearSupplierDebtsController) controller;
+           csdc.setSuppliersRepository(new SupplierSQLiteImpl(connection));
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

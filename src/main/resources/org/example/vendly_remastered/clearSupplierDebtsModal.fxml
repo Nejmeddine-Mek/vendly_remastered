@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox fx:id="rootContainer" prefWidth="380.0" spacing="16.0" styleClass="debt-clearance-dialog" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.ClearSupplierDebtsController">
+
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <!-- Header Section -->
+    <VBox spacing="4.0" styleClass="dialog-header">
+        <Label styleClass="dialog-title" text="Clear Supplier Balance" />
+        <Label styleClass="dialog-subtitle" text="Record a partial or full payment made towards owed debt." />
+    </VBox>
+
+    <!-- Supplier Info & Debt Details -->
+    <GridPane hgap="10.0" styleClass="info-grid" vgap="10.0">
+        <columnConstraints>
+            <ColumnConstraints hgrow="NEVER" minWidth="100.0" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="150.0" />
+        </columnConstraints>
+        <rowConstraints>
+        <RowConstraints vgrow="SOMETIMES" />
+        <RowConstraints vgrow="SOMETIMES" />
+    </rowConstraints>
+
+    <!-- Supplier Name Display -->
+    <Label styleClass="field-label" text="Supplier:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+    <Label fx:id="supplierNameLabel" styleClass="value-label, client-name" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+    <!-- Outstanding Balance Display -->
+    <Label styleClass="field-label" text="Balance Owed:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+    <Label fx:id="currentDebtLabel" styleClass="value-label, debt-amount" text="0.00 DA" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+</GridPane>
+
+        <!-- Payment Input Field -->
+<VBox spacing="6.0" styleClass="input-group">
+<Label styleClass="field-label" text="Amount Paid (DA):" />
+<TextField fx:id="paymentAmountField" promptText="0.00" styleClass="form-field" />
+</VBox>
+
+        <!-- Action Buttons -->
+<HBox alignment="CENTER_RIGHT" spacing="10.0" styleClass="action-bar">
+<padding>
+    <Insets top="10.0" />
+</padding>
+<Button fx:id="cancelButton" cancelButton="true" styleClass="logout-button" text="Cancel" />
+<Button fx:id="saveButton" defaultButton="true" styleClass="action-btn-primary" text="Save Payment" />
+</HBox>
+
+        </VBox>

@@ -114,6 +114,38 @@ public class SupplierSQLiteImpl implements ISuppliersRepository {
 
     @Override
     public void updateSupplier(Supplier supplier) {
+        String sql = """
+            UPDATE suppliers 
+            SET supplier_company = ?,
+                supplier_full_name = ?,
+                phone_number = ?,
+                email = ?,
+                debts = ?,
+                is_active = ?,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE supplier_id = ?;
+            """;
 
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setString(1, supplier.getSupplierCompany());
+            pstmt.setString(2, supplier.getSupplierFullName());
+            pstmt.setString(3, supplier.getPhoneNumber());
+            pstmt.setString(4, supplier.getEmail());
+
+            // Ensures debts defaults to 0.00 if null
+            pstmt.setBigDecimal(5, supplier.getDebts() != null ? supplier.getDebts() : java.math.BigDecimal.ZERO);
+            pstmt.setBoolean(6, supplier.isActive());
+            pstmt.setLong(7, supplier.getSupplierId());
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows == 0) {
+                System.out.printf("No supplier was updated. Check if supplier_id (" + supplier.getSupplierId() + ") exists.");
+            }
+
+        } catch (SQLException e) {
+            System.err.println("CRITICAL: Error updating supplier ID: " + supplier.getSupplierId());
+            e.printStackTrace();
+        }
     }
 }

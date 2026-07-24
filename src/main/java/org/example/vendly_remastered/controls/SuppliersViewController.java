@@ -14,6 +14,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
@@ -48,6 +49,7 @@ public class SuppliersViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        setClearDebtButtonBehaviour();
         setTableColumnsBehaviour();
         supplierDetailsButton.setOnAction(_ -> {
             setSupplierDetailsButtonBehaviour();
@@ -172,5 +174,49 @@ public class SuppliersViewController implements Initializable {
             alert.showAndWait();
             ex.printStackTrace();
         }
+    }
+
+    private void setClearDebtButtonBehaviour() {
+        processOrderButton.setOnAction(_ -> {
+            Supplier targetSupplier = supplierTableView.getSelectionModel().getSelectedItem();
+            if(targetSupplier == null){
+                //TODO: handle
+                return;
+            }
+            try {
+                // 1. Point to your wide layout FXML file
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ClearSupplierDebtsModal.fxml"));
+                Parent root = loader.load();
+
+                // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
+                Object controller = loader.getController();
+                ControllerDispatcher.execute(controller);
+
+                ClearSupplierDebtsController modalController = loader.getController();
+
+
+                // 4. Check if we are editing an existing product or adding a completely fresh item
+                modalController.setMode(targetSupplier);
+
+                modalController.setOnPaymentSaved(updatedSupplier -> {
+                    // Forces the TableView to repaint cell values immediately
+                    supplierTableView.refresh();
+                });
+                // 5. Build and present the window scene configuration
+                Stage modalStage = new Stage();
+                modalStage.initModality(Modality.APPLICATION_MODAL);
+                modalStage.setTitle("Edit Client debts");
+                modalStage.setScene(new Scene(root));
+
+                // Execution pauses right here until the user clicks Save or Cancel
+                modalStage.showAndWait();
+
+
+            } catch (Exception ex) {
+                Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
+                alert.showAndWait();
+                ex.printStackTrace();
+            }
+        });
     }
 }
