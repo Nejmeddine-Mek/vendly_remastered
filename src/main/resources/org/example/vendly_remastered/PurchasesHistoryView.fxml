@@ -169,8 +169,14 @@
                     </children>
                 </VBox>
 
-                <!-- Action Button -->
-                <Button fx:id="btnOpenDetails" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" styleClass="action-btn-primary" text="View Purchased Items ➔" />
+                <!-- Action Buttons Container -->
+                <VBox spacing="8.0">
+                    <children>
+                        <Button fx:id="btnOpenDetails" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" styleClass="action-btn-primary" text="View Purchased Items ➔" />
+                        <Button fx:id="btnAddPurchase" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" style="-fx-background-color: #2563EB;" styleClass="action-btn-primary" text="+ Add New Purchase" />
+                    </children>
+                </VBox>
+
             </children>
         </VBox>
 

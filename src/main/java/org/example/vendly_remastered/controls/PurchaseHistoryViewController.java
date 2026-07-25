@@ -211,7 +211,7 @@ public class PurchaseHistoryViewController implements Initializable {
             loadInitialPurchaseTableData();
         });
     }
-/*
+
     private void setPurchaseDetailsButton() {
         btnOpenDetails.setOnAction(_ -> {
             PurchaseHeader selectedPurchase = purchasesTable.getSelectionModel().getSelectedItem();
@@ -224,10 +224,10 @@ public class PurchaseHistoryViewController implements Initializable {
             List<PurchaseDetailItem> boughtItems = purchaseDetailsRepository.getPurchaseDetails(selectedPurchase.getPurchaseId());
 
             try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/PurchaseDetailsModalView.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/PurchaseDetailsModal.fxml"));
                 Parent modalRoot = loader.load();
 
-                PurchaseDetailsModalController controller = loader.getController();
+                PurchaseEntryViewController controller = loader.getController();
                 controller.populateModalData(selectedPurchase, boughtItems);
 
                 Stage modalStage = new Stage();
@@ -244,7 +244,7 @@ public class PurchaseHistoryViewController implements Initializable {
             }
         });
     }
-*/
+
     private void updatePurchasesData(List<PurchaseHeader> newPurchases) {
         // Updating purchasesList automatically propagates: purchasesList -> filteredPurchases -> sortedData -> purchasesTable
         this.purchasesList.setAll(newPurchases);
