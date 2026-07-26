@@ -98,6 +98,8 @@ public class ControllerDispatcher {
             PurchaseEntryViewController pevc = (PurchaseEntryViewController) controller;
             pevc.setProductRepository(new ProductSQLiteImpl(connection));
             pevc.setSuppliersRepository(new SupplierSQLiteImpl(connection));
+            pevc.setPurchaseHeaderRepository(new PurchaseHeaderSQLiteImpl(connection));
+            pevc.setPurchaseDetailRepository(new PurchaseDetailsSQLiteImpl(connection));
             pevc.initializeComboBoxes();
         });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
