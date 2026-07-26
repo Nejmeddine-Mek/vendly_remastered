@@ -357,6 +357,9 @@ public class PurchaseEntryViewController implements Initializable {
 
             int generatedId = purchaseHeaderRepository.savePurchaseHeader(header);
             if (generatedId > 0) {
+                for(PurchaseDetailItem item: detailItems){
+                    item.setPurchaseId((long) generatedId);
+                }
                 // Next step: iterate detailItems and persist to purchase_details
                 // and stock/batch schemas using generatedId
             }
