@@ -17,13 +17,16 @@ import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
 import org.example.vendly_remastered.models.entity.PurchaseHeader;
 import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
 import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -57,6 +60,7 @@ public class PurchaseHistoryViewController implements Initializable {
     @FXML private Button btnFilterDate;
     @FXML private Button btnClearFilter;
     @FXML private Button btnOpenDetails;
+    @FXML private Button btnAddPurchase;
 
     private IPurchaseDetailsRepository purchaseDetailsRepository;
     private IPurchaseHeaderRepository purchaseHeaderRepository;
@@ -76,11 +80,14 @@ public class PurchaseHistoryViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         setTableViewBehaviour();
         setTableColumnsBehaviour();
+        btnAddPurchase.setOnAction(_ -> {
+            openModal(null);
+        });
         //setPurchaseDetailsButton();
         setDomainSearchButton();
     }
 
-    public void setTableColumnsBehaviour() {
+    private void setTableColumnsBehaviour() {
         colPurchaseId.setCellValueFactory(new PropertyValueFactory<>("purchaseId"));
         colSupplier.setCellValueFactory(new PropertyValueFactory<>("supplierName"));
 
@@ -96,7 +103,7 @@ public class PurchaseHistoryViewController implements Initializable {
         colAmountPaid.setCellValueFactory(new PropertyValueFactory<>("amountPaid"));
     }
 
-    public void setTableViewBehaviour() {
+    private void setTableViewBehaviour() {
         purchasesTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 updateUIWithSelectedPurchase(newSelection);
@@ -220,29 +227,43 @@ public class PurchaseHistoryViewController implements Initializable {
                 showAlert("No Purchase Selected", "Please select a purchase order from the table to view its items.");
                 return;
             }
-
-            List<PurchaseDetailItem> boughtItems = purchaseDetailsRepository.getPurchaseDetails(selectedPurchase.getPurchaseId());
-
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/PurchaseDetailsModal.fxml"));
-                Parent modalRoot = loader.load();
-
-                PurchaseEntryViewController controller = loader.getController();
-                controller.populateModalData(selectedPurchase, boughtItems);
-
-                Stage modalStage = new Stage();
-                modalStage.setTitle(String.format("Purchase Order Details — #%d", selectedPurchase.getPurchaseId()));
-                modalStage.initModality(Modality.APPLICATION_MODAL);
-                modalStage.initOwner(purchasesTable.getScene().getWindow());
-                modalStage.setScene(new Scene(modalRoot));
-                modalStage.setResizable(false);
-                modalStage.showAndWait();
-
-            } catch (IOException e) {
-                e.printStackTrace();
-                showAlert("UI Error", "Failed to load the purchase order details modal: " + e.getMessage());
-            }
+            openModal(selectedPurchase);
         });
+    }
+
+    private void openModal(PurchaseHeader selectedPurchase){
+        List<PurchaseDetailItem> boughtItems = new ArrayList<>();
+        if(selectedPurchase != null)
+            boughtItems = purchaseDetailsRepository.getPurchaseDetails(selectedPurchase.getPurchaseId());
+
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/PurchaseDetailsModal.fxml"));
+            Parent modalRoot = loader.load();
+
+            PurchaseEntryViewController controller = loader.getController();
+            controller.populateModalData(selectedPurchase, boughtItems);
+
+            ControllerDispatcher.execute(controller);
+
+            Stage modalStage = new Stage();
+            if(selectedPurchase == null){
+                modalStage.setTitle(String.format("register New Order"));
+            }
+            else
+                modalStage.setTitle(String.format("Purchase Order Details — #%d", selectedPurchase.getPurchaseId()));
+
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.initOwner(purchasesTable.getScene().getWindow());
+            modalStage.setScene(new Scene(modalRoot));
+            modalStage.setResizable(false);
+            modalStage.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showAlert("UI Error", "Failed to load the purchase order details modal: " + e.getMessage());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void updatePurchasesData(List<PurchaseHeader> newPurchases) {
@@ -266,4 +287,6 @@ public class PurchaseHistoryViewController implements Initializable {
         this.txtTotalProcurementCost.setText(String.format("%.2f DA", totalCost));
         this.txtTotalUnpaidDebts.setText(String.format("%.2f DA", totalUnpaid));
     }
+
+
 }

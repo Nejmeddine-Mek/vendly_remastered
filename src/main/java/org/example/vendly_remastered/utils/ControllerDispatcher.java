@@ -87,6 +87,19 @@ public class ControllerDispatcher {
            ClearSupplierDebtsController csdc = (ClearSupplierDebtsController) controller;
            csdc.setSuppliersRepository(new SupplierSQLiteImpl(connection));
         });
+        registry.put(PurchaseHistoryViewController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            PurchaseHistoryViewController phvc = (PurchaseHistoryViewController) controller;
+            phvc.setPurchaseHeaderRepository(new PurchaseHeaderSQLiteImpl(connection));
+            phvc.loadInitialPurchaseTableData();
+        });
+        registry.put(PurchaseEntryViewController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            PurchaseEntryViewController pevc = (PurchaseEntryViewController) controller;
+            pevc.setProductRepository(new ProductSQLiteImpl(connection));
+            pevc.setSuppliersRepository(new SupplierSQLiteImpl(connection));
+            pevc.initializeComboBoxes();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 
