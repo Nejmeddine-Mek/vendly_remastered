@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<ScrollPane fitToWidth="true" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.DashboardController">
+    <content>
+        <VBox spacing="20.0">
+            <padding>
+                <Insets bottom="25.0" left="30.0" right="30.0" top="25.0" />
+            </padding>
+            <children>
+
+                <!-- Header + Date Range Selector -->
+                <HBox alignment="CENTER_LEFT" spacing="15.0">
+                    <children>
+                        <VBox prefHeight="54.0" prefWidth="347.0" spacing="4.0" HBox.hgrow="ALWAYS">
+                            <children>
+                                <Label styleClass="header-title" text="Executive Dashboard">
+                                    <font>
+                                        <Font name="System Bold" size="22.0" />
+                                    </font>
+                                </Label>
+                                <Label text="Real-time sales analytics, seasonal trends, and client performance." textFill="#666666" />
+                            </children>
+                        </VBox>
+
+                        <!-- Date Filter Bar -->
+                        <HBox alignment="CENTER_RIGHT" prefHeight="54.0" prefWidth="586.0" spacing="10.0">
+                            <children>
+                                <ComboBox fx:id="cmbDatePreset" prefWidth="150.0" promptText="Preset Range" styleClass="custom-combo-box" />
+                                <DatePicker fx:id="dpStartDate" prefWidth="130.0" promptText="Start Date" />
+                                <Label text="to" textFill="#666666" />
+                                <DatePicker fx:id="dpEndDate" prefWidth="130.0" promptText="End Date" />
+                                <Button fx:id="btnApplyFilter" prefHeight="44.0" prefWidth="99.0" styleClass="action-btn-primary" text="Filter" />
+                            </children>
+                        </HBox>
+                    </children>
+                </HBox>
+
+                <Separator />
+
+                <!-- KPI Cards Row -->
+                <HBox spacing="15.0">
+                    <children>
+                        <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                            <children>
+                                <Label text="Filtered Revenue" textFill="#64748b"><font><Font size="13.0" /></font></Label>
+                                <Label fx:id="lblTotalRevenue" text="0.00 DA" textFill="#0f172a"><font><Font name="System Bold" size="20.0" /></font></Label>
+                            </children>
+                        </VBox>
+
+                        <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                            <children>
+                                <Label text="Filtered Purchases" textFill="#64748b"><font><Font size="13.0" /></font></Label>
+                                <Label fx:id="lblTotalPurchases" text="0.00 DA" textFill="#0f172a"><font><Font name="System Bold" size="20.0" /></font></Label>
+                            </children>
+                        </VBox>
+
+                        <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #fee2e2; -fx-border-radius: 8;">
+                            <children>
+                                <Label text="Low Stock Items" textFill="#dc2626"><font><Font size="13.0" /></font></Label>
+                                <Label fx:id="lblLowStockCount" text="0" textFill="#991b1b"><font><Font name="System Bold" size="20.0" /></font></Label>
+                            </children>
+                        </VBox>
+
+                        <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #fef3c7; -fx-border-radius: 8;">
+                            <children>
+                                <Label text="Expiring Batches" textFill="#d97706"><font><Font size="13.0" /></font></Label>
+                                <Label fx:id="lblExpiringCount" text="0" textFill="#92400e"><font><Font name="System Bold" size="20.0" /></font></Label>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+                <!-- Analytics Tab Pane -->
+                <TabPane tabClosingPolicy="UNAVAILABLE">
+                    <tabs>
+                        <!-- Tab 1: Financial & Sales Trends -->
+                        <Tab text="Sales &amp; Financial Trends">
+                            <content>
+                                <VBox spacing="15.0" style="-fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0;">
+                                    <children>
+                                        <LineChart fx:id="salesLineChart" createSymbols="true" prefHeight="280.0" title="Revenue Over Selected Period">
+                                            <xAxis><CategoryAxis label="Date" side="BOTTOM" /></xAxis>
+                                            <yAxis><NumberAxis label="Revenue (DA)" side="LEFT" /></yAxis>
+                                        </LineChart>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+
+                        <!-- Tab 2: Most Sold Products (Seasonal Insights) -->
+                        <Tab text="Top Products &amp; Categories">
+                            <content>
+                                <VBox spacing="15.0" style="-fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0;">
+                                    <children>
+                                        <BarChart fx:id="topProductsChart" legendVisible="false" prefHeight="280.0" title="Top 10 Most Sold Products (Units)">
+                                            <xAxis><CategoryAxis label="Product" side="BOTTOM" /></xAxis>
+                                            <yAxis><NumberAxis label="Units Sold" side="LEFT" /></yAxis>
+                                        </BarChart>
+                                    </children>
+                                </VBox>
+                            </content>
+                        </Tab>
+                    </tabs>
+                </TabPane>
+
+                <!-- Top Clients & Top Suppliers Section -->
+                <HBox spacing="15.0">
+                    <children>
+                        <!-- Top Clients Table -->
+                        <VBox prefWidth="480.0" spacing="10.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                            <children>
+                                <Label styleClass="section-title" text="Top Frequent Clients">
+                                    <font><Font name="System Bold" size="15.0" /></font>
+                                </Label>
+                                <TableView fx:id="tblTopClients" prefHeight="180.0" styleClass="pos-table">
+                                    <columns>
+                                        <TableColumn fx:id="colClientName" prefWidth="180.0" text="Client Name" />
+                                        <TableColumn fx:id="colClientOrders" prefWidth="100.0" text="Orders Count" />
+                                        <TableColumn fx:id="colClientTotal" prefWidth="140.0" text="Total Spent (DA)" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </VBox>
+
+                        <!-- Top Suppliers Table -->
+                        <VBox prefWidth="480.0" spacing="10.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
+                            <children>
+                                <Label styleClass="section-title" text="Top Suppliers by Volume">
+                                    <font><Font name="System Bold" size="15.0" /></font>
+                                </Label>
+                                <TableView fx:id="tblTopSuppliers" prefHeight="180.0" styleClass="pos-table">
+                                    <columns>
+                                        <TableColumn fx:id="colSupplierName" prefWidth="180.0" text="Supplier Name" />
+                                        <TableColumn fx:id="colSupplierPurchases" prefWidth="100.0" text="Purchases" />
+                                        <TableColumn fx:id="colSupplierTotal" prefWidth="140.0" text="Total Spent (DA)" />
+                                    </columns>
+                                </TableView>
+                            </children>
+                        </VBox>
+                    </children>
+                </HBox>
+
+            </children>
+        </VBox>
+    </content>
+</ScrollPane>

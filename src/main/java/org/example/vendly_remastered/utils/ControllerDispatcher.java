@@ -102,6 +102,12 @@ public class ControllerDispatcher {
             pevc.setPurchaseDetailRepository(new PurchaseDetailsSQLiteImpl(connection));
             pevc.initializeComboBoxes();
         });
+        registry.put(DashboardController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            DashboardController dc = (DashboardController) controller;
+            dc.setDashBoardRepository(new DashboardSQLiteImpl(connection));
+            dc.initializeContent();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

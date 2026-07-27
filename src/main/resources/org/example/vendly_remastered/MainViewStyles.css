@@ -617,3 +617,171 @@
 .date-picker-popup .next-month {
     -fx-text-fill: #94A3B8;
 }
+
+/* ==========================================
+   TabPane & Tab Styling
+   ========================================== */
+
+/* 1. Main TabPane container background */
+.tab-pane {
+    -fx-tab-min-width: 140px;
+    -fx-tab-min-height: 36px;
+    -fx-tab-max-height: 36px;
+    -fx-background-color: transparent;
+}
+
+/* 2. Background header bar holding the tabs */
+.tab-pane .tab-header-area {
+    -fx-padding: 0 0 10 0;
+}
+
+.tab-pane .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+/* 3. Base Tab button (Unselected / Inactive state) */
+.tab-pane .tab {
+    -fx-background-color: #f1f5f9;
+    -fx-background-radius: 6px 6px 0 0;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px 1px 0px 1px;
+    -fx-border-radius: 6px 6px 0 0;
+    -fx-padding: 6 16 6 16;
+    -fx-cursor: hand;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+/* 4. Tab Hover State */
+.tab-pane .tab:hover {
+    -fx-background-color: #e2e8f0;
+}
+
+.tab-pane .tab:hover .tab-label {
+    -fx-text-fill: #1e293b;
+}
+
+/* 5. Active / Selected Tab State */
+.tab-pane .tab:selected {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #cbd5e1 #cbd5e1 #ffffff #cbd5e1;
+    -fx-border-width: 2px 1px 0px 1px; /* Highlights top border */
+}
+
+.tab-pane .tab:selected .tab-label {
+    -fx-text-fill: #0f172a;
+    -fx-font-weight: bold;
+}
+
+/* 6. Active Tab Accent Indicator (Top Border Accent) */
+.tab-pane:focused .tab:selected {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* 7. Tab Content Border Box Integration */
+.tab-pane .tab-content-area {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1px;
+    -fx-border-radius: 0 0 8px 8px;
+    -fx-background-radius: 0 0 8px 8px;
+    -fx-padding: 0;
+}
+
+/* ==========================================
+   Revenue LineChart Styling
+   ========================================== */
+
+/* 1. Base Chart Background & Title */
+.chart {
+    -fx-padding: 10px;
+    -fx-background-color: transparent;
+}
+
+.chart-title {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+/* 2. Plot Area & Gridlines */
+.chart-plot-background {
+    -fx-background-color: #f8fafc;
+    -fx-background-radius: 6px;
+}
+
+.chart-vertical-grid-lines,
+.chart-horizontal-grid-lines {
+    -fx-stroke: #e2e8f0;
+    -fx-stroke-dash-array: 4 4; /* Clean dashed gridlines */
+}
+
+.chart-alternative-column-row-marker {
+    -fx-fill: transparent; /* Remove harsh alternating row shading */
+}
+
+/* 3. Axis Lines & Labels */
+.axis {
+    -fx-tick-label-fill: #64748b;
+    -fx-font-size: 11px;
+}
+
+.axis-label {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+}
+
+.axis:bottom {
+    -fx-border-color: #cbd5e1 transparent transparent transparent;
+}
+
+.axis:left {
+    -fx-border-color: transparent #cbd5e1 transparent transparent;
+}
+
+.axis-tick-mark {
+    -fx-stroke: #cbd5e1;
+}
+
+/* 4. Main Revenue Series Line (Primary Indigo/Blue Theme) */
+.default-color0.chart-series-line {
+    -fx-stroke: #2563eb;         /* Modern blue line */
+    -fx-stroke-width: 3px;
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.2), 6, 0, 0, 3);
+}
+
+/* 5. Data Points (Data Symbols) */
+.default-color0.chart-line-symbol {
+    -fx-background-color: #2563eb, #ffffff;
+    -fx-background-insets: 0, 2;
+    -fx-background-radius: 5px;
+    -fx-padding: 5px;            /* Size of the node bullet */
+    -fx-cursor: hand;
+}
+
+.default-color0.chart-line-symbol:hover {
+    -fx-background-color: #1d4ed8, #ffffff;
+    -fx-padding: 7px;            /* Expands slightly on hover */
+    -fx-effect: dropshadow(three-pass-box, rgba(37, 99, 235, 0.4), 8, 0, 0, 2);
+}
+
+/* 6. Chart Legend Styling */
+.chart-legend {
+    -fx-background-color: transparent;
+    -fx-padding: 10px 0 0 0;
+}
+
+.chart-legend-item-symbol {
+    -fx-background-radius: 4px;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #475569;
+    -fx-font-size: 12px;
+}
