@@ -9,15 +9,9 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
-import org.example.vendly_remastered.models.entity.Product;
-import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
-import org.example.vendly_remastered.models.entity.PurchaseHeader;
-import org.example.vendly_remastered.models.entity.Supplier;
-import org.example.vendly_remastered.repository.IProductRepository;
-import org.example.vendly_remastered.repository.IPurchaseDetailRepository;
-import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
-import org.example.vendly_remastered.repository.ISuppliersRepository;
-import org.example.vendly_remastered.repository.impl.PurchaseHeaderSQLiteImpl;
+import org.example.vendly_remastered.models.entity.*;
+import org.example.vendly_remastered.repository.*;
+
 import org.example.vendly_remastered.security.UserSession;
 
 import java.math.BigDecimal;
@@ -25,8 +19,7 @@ import java.math.RoundingMode;
 import java.net.URL;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class PurchaseEntryViewController implements Initializable {
     // ==========================================
@@ -67,6 +60,8 @@ public class PurchaseEntryViewController implements Initializable {
     @FXML private TableColumn<PurchaseDetailItem, String> colProductName;
     @FXML private TableColumn<PurchaseDetailItem, BigDecimal> colUnitCost;
     @FXML private TableColumn<PurchaseDetailItem, Integer> colQuantity;
+    @FXML private TableColumn<PurchaseDetailItem,LocalDate> colExpiryDate;
+    @FXML private TableColumn<PurchaseDetailItem,String> colBatchNumber;
     @FXML private TableColumn<PurchaseDetailItem, BigDecimal> colSubtotal;
     @FXML private TableColumn<PurchaseDetailItem, Void> colAction;
 
@@ -87,9 +82,19 @@ public class PurchaseEntryViewController implements Initializable {
 
     private IPurchaseHeaderRepository purchaseHeaderRepository;
     private IPurchaseDetailRepository purchaseDetailRepository;
+    private IBatchRepository batchRepository;
     private IProductRepository productRepository;
     private ISuppliersRepository suppliersRepository;
+    private IStockRepository stockRepository;
 
+
+    public void setStockRepository(IStockRepository stockRepository) {
+        this.stockRepository = stockRepository;
+    }
+
+    public void setBatchRepository(IBatchRepository batchRepository){
+        this.batchRepository = batchRepository;
+    }
     public void setProductRepository(IProductRepository productRepository) {
         this.productRepository = productRepository;
     }
@@ -191,6 +196,10 @@ public class PurchaseEntryViewController implements Initializable {
         colQuantity.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         colSubtotal.setCellValueFactory(new PropertyValueFactory<>("subtotal"));
 
+        // BATCH & EXPIRY
+        colBatchNumber.setCellValueFactory(new PropertyValueFactory<>("batchNumber"));
+        colExpiryDate.setCellValueFactory(new PropertyValueFactory<>("expiryDate"));
+
         colAction.setCellFactory(param -> new TableCell<>() {
             private final Button btnDelete = new Button("X");
             {
@@ -259,7 +268,7 @@ public class PurchaseEntryViewController implements Initializable {
 
         PurchaseDetailItem item = new PurchaseDetailItem(
                 detailItems.size() + 1,
-                (long) selectedProduct.getProductId(),
+                selectedProduct.getProductId(),
                 selectedProduct.getProductName(),
                 unitCost,
                 quantity
@@ -354,14 +363,34 @@ public class PurchaseEntryViewController implements Initializable {
         header.setPurchaseDate(pickedDate != null ? pickedDate.atStartOfDay() : LocalDateTime.now());
 
         if (purchaseHeaderRepository != null) {
-
+            // Get List of Expiry dates
             int generatedId = purchaseHeaderRepository.savePurchaseHeader(header);
             if (generatedId > 0) {
+                List<Batch> batchList = new ArrayList<>();
+                Map<Integer, BigDecimal> newItemsInStock = new HashMap<>();
                 for(PurchaseDetailItem item: detailItems){
+
                     item.setPurchaseId((long) generatedId);
+
+                    if (item.getQuantity() != null) {
+                        newItemsInStock.put(item.getProductId(), item.getQuantity().negate());
+                    }
+                    if (item.getExpiryDate() != null) {
+                        batchList.add(new Batch(
+                                Math.toIntExact(item.getProductId()),
+                                item.getBatchNumber(),
+                                item.getQuantity(),
+                                item.getExpiryDate()
+                        ));
+                    }
+
                 }
+
                 // Next step: iterate detailItems and persist to purchase_details
                 // and stock/batch schemas using generatedId
+                batchRepository.saveAll(batchList);
+                purchaseDetailRepository.savePurchaseItems(detailItems);
+                stockRepository.updateStockBatch(newItemsInStock);
             }
         }
     }
@@ -382,4 +411,5 @@ public class PurchaseEntryViewController implements Initializable {
     public void setPurchaseDetailRepository(IPurchaseDetailRepository purchaseDetailRepository) {
         this.purchaseDetailRepository = purchaseDetailRepository;
     }
+
 }

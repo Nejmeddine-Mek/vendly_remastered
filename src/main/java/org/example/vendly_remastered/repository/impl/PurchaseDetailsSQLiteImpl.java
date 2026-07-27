@@ -44,7 +44,7 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailRepository {
                 while (rs.next()) {
                     PurchaseDetailItem item = new PurchaseDetailItem();
                     item.setPurchaseId(rs.getLong("purchase_id"));
-                    item.setProductId(rs.getLong("product_id"));
+                    item.setProductId(rs.getInt("product_id"));
                     item.setItemNumber(rs.getInt("item_no"));
                     item.setUnitCost(rs.getBigDecimal("unit_cost"));
                     item.setQuantity(rs.getBigDecimal("quantity"));

@@ -1,15 +1,19 @@
 package org.example.vendly_remastered.models.entity;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class PurchaseDetailItem {
     private Long purchaseId;
-    private Long productId;
+    private int productId;
     private Integer itemNumber; // Line number order in table (1, 2, 3...)
     private String productName; // Display field for TableView
     private BigDecimal unitCost;
     private BigDecimal quantity;
     private BigDecimal subtotal;
+
+    private String batchNumber;
+    private LocalDate expiryDate;
 
     // Default Constructor
     public PurchaseDetailItem() {
@@ -20,7 +24,7 @@ public class PurchaseDetailItem {
     }
 
     // Constructor without purchaseId (used when building entry rows before saving)
-    public PurchaseDetailItem(Integer itemNumber, Long productId, String productName,
+    public PurchaseDetailItem(Integer itemNumber, int productId, String productName,
                               BigDecimal unitCost, BigDecimal quantity) {
         this.itemNumber = itemNumber;
         this.productId = productId;
@@ -31,7 +35,7 @@ public class PurchaseDetailItem {
     }
 
     // Full Parameterized Constructor
-    public PurchaseDetailItem(Long purchaseId, Long productId, Integer itemNumber,
+    public PurchaseDetailItem(Long purchaseId, int productId, Integer itemNumber,
                               String productName, BigDecimal unitCost, BigDecimal quantity) {
         this.purchaseId = purchaseId;
         this.productId = productId;
@@ -62,11 +66,11 @@ public class PurchaseDetailItem {
         this.purchaseId = purchaseId;
     }
 
-    public Long getProductId() {
+    public int getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(int productId) {
         this.productId = productId;
     }
 
@@ -123,5 +127,21 @@ public class PurchaseDetailItem {
                 ", quantity=" + quantity +
                 ", subtotal=" + subtotal +
                 '}';
+    }
+
+    public String getBatchNumber() {
+        return batchNumber;
+    }
+
+    public void setBatchNumber(String batchNumber) {
+        this.batchNumber = batchNumber;
+    }
+
+    public LocalDate getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(LocalDate expiryDate) {
+        this.expiryDate = expiryDate;
     }
 }
