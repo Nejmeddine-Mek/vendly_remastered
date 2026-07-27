@@ -9,9 +9,12 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.vendly_remastered.models.dto.ClientDashboardItem;
+import org.example.vendly_remastered.models.dto.ProductDashboardItem;
+import org.example.vendly_remastered.models.dto.RevenueDashboardItem;
 import org.example.vendly_remastered.models.dto.SupplierDashboardItem;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.IDashBoardRepository;
@@ -72,6 +75,8 @@ public class DashboardController implements Initializable {
     public void initializeContent(){
         loadClients();
         loadSuppliers();
+        loadRevenue();
+        loadProducts();
     }
 
     private void setupClientsTable() {
@@ -138,8 +143,90 @@ public class DashboardController implements Initializable {
         ObservableList<SupplierDashboardItem> data = FXCollections.observableArrayList(suppliers);
         tblTopSuppliers.setItems(data);
     }
+    private void setRevenueData(List<RevenueDashboardItem> revenueData) {
+        if (salesLineChart == null) return;
 
-    private void loadRevenue(LocalDate date){}
+        salesLineChart.getData().clear();
+
+        XYChart.Series<String, Number> revenueSeries = new XYChart.Series<>();
+        revenueSeries.setName("Revenue");
+
+        for (RevenueDashboardItem item : revenueData) {
+            if (item.date() != null) {
+                String dateLabel = item.date().toString();
+                XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(dateLabel, item.totalRevenue());
+
+                revenueSeries.getData().add(dataPoint);
+            }
+        }
+
+        // Add series to chart first so the visual nodes get created
+        salesLineChart.getData().add(revenueSeries);
+
+        // Attach tooltips to each node
+        for (int i = 0; i < revenueData.size(); i++) {
+            RevenueDashboardItem item = revenueData.get(i);
+            XYChart.Data<String, Number> dataPoint = revenueSeries.getData().get(i);
+
+            if (dataPoint.getNode() != null) {
+                String tooltipText = String.format(
+                        "Date: %s\nRevenue: $%.2f\nSales Count: %d",
+                        item.date(),
+                        item.totalRevenue(),
+                        (int) item.totalPurchases()
+                );
+
+                Tooltip tooltip = new Tooltip(tooltipText);
+                // Optional: reduce delay so it pops up fast on hover
+                tooltip.setShowDelay(javafx.util.Duration.millis(100));
+
+                Tooltip.install(dataPoint.getNode(), tooltip);
+            }
+        }
+    }
+    private void setProductsData(List<ProductDashboardItem> topProducts) {
+        if (topProductsChart == null) return;
+
+        topProductsChart.getData().clear();
+
+        XYChart.Series<String, Number> series = new XYChart.Series<>();
+        series.setName("Units Sold");
+
+        for (ProductDashboardItem item : topProducts) {
+            XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(item.productName(), item.unitsSold());
+            series.getData().add(dataPoint);
+        }
+
+        // Add series to chart so visual nodes are generated
+        topProductsChart.getData().add(series);
+
+        // Attach tooltips to each dataPoint node
+        for (int i = 0; i < topProducts.size(); i++) {
+            ProductDashboardItem item = topProducts.get(i);
+            XYChart.Data<String, Number> dataPoint = series.getData().get(i);
+
+            if (dataPoint.getNode() != null) {
+                String tooltipText = String.format(
+                        "Product: %s\nUnits Sold: %d\nTotal Revenue: $%.2f",
+                        item.productName(),
+                        item.unitsSold(),
+                        item.totalRevenue()
+                );
+
+                Tooltip tooltip = new Tooltip(tooltipText);
+                tooltip.setShowDelay(javafx.util.Duration.millis(100));
+                Tooltip.install(dataPoint.getNode(), tooltip);
+
+                // Subtle hover cursor effect
+                dataPoint.getNode().setOnMouseEntered(e -> dataPoint.getNode().setStyle("-fx-cursor: hand; -fx-opacity: 0.85;"));
+                dataPoint.getNode().setOnMouseExited(e -> dataPoint.getNode().setStyle("-fx-cursor: default; -fx-opacity: 1.0;"));
+            }
+        }
+    }
+    private void loadRevenue(){
+        List<RevenueDashboardItem> tenDaysRevenue = dashBoardRepository.getRevenue();
+        setRevenueData(tenDaysRevenue);
+    }
     private void loadRevenue(LocalDate beginningDate, LocalDate endDate){}
 
     private void loadSuppliers(){
@@ -154,7 +241,10 @@ public class DashboardController implements Initializable {
     }
     private void loadClients(LocalDate beginningDate, LocalDate endDate){}
 
-    private void loadProducts(LocalDate date){}
+    private void loadProducts(){
+        List<ProductDashboardItem> topProducts = dashBoardRepository.getTopProducts();
+        setProductsData(topProducts);
+    }
     private void loadProducts(LocalDate beginningDate, LocalDate endDate){}
 
 }

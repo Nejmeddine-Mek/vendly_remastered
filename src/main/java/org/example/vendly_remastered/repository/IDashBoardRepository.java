@@ -1,6 +1,8 @@
 package org.example.vendly_remastered.repository;
 
 import org.example.vendly_remastered.models.dto.ClientDashboardItem;
+import org.example.vendly_remastered.models.dto.ProductDashboardItem;
+import org.example.vendly_remastered.models.dto.RevenueDashboardItem;
 import org.example.vendly_remastered.models.dto.SupplierDashboardItem;
 
 import java.time.LocalDate;
@@ -12,4 +14,11 @@ public interface IDashBoardRepository {
 
     public List<SupplierDashboardItem> getTopSuppliers();
     public List<SupplierDashboardItem> getTopSuppliers(LocalDate beginningDate, LocalDate endDate);
+
+    public List<RevenueDashboardItem> getRevenue();
+    public List<RevenueDashboardItem> getRevenue(LocalDate beginningDate, LocalDate endDate);
+
+    public List<ProductDashboardItem> getTopProducts();
+    public List<ProductDashboardItem> getTopProducts(LocalDate beginningDate, LocalDate endDate);
 }
+

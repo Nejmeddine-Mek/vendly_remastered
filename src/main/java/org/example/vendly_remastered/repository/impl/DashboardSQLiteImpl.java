@@ -1,6 +1,8 @@
 package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.dto.ClientDashboardItem;
+import org.example.vendly_remastered.models.dto.ProductDashboardItem;
+import org.example.vendly_remastered.models.dto.RevenueDashboardItem;
 import org.example.vendly_remastered.models.dto.SupplierDashboardItem;
 import org.example.vendly_remastered.repository.IDashBoardRepository;
 
@@ -135,5 +137,120 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
 
         return items;
     }
+
+    @Override
+    public List<RevenueDashboardItem> getRevenue() {
+        // Default to the last 10 days ending today
+        LocalDate today = LocalDate.now();
+        return getRevenue(today.minusDays(9), today);
+    }
+
+    @Override
+    public List<RevenueDashboardItem> getRevenue(LocalDate beginningDate, LocalDate endDate) {
+        if (beginningDate == null || endDate == null) {
+            LocalDate today = LocalDate.now();
+            beginningDate = today.minusDays(9);
+            endDate = today;
+        }
+
+        String sql = """
+            SELECT 
+                DATE(SH.sale_date) AS saleDate,
+                COALESCE(SUM(SH.paid_amount), 0.0) AS totalRevenue,
+                COALESCE(COUNT(SH.sale_id), 0) AS totalPurchases
+            FROM sale_header SH
+            WHERE DATE(SH.sale_date) BETWEEN ? AND ?
+            GROUP BY DATE(SH.sale_date)
+            ORDER BY saleDate ASC;
+            """;
+
+        List<RevenueDashboardItem> items = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setString(1, beginningDate.toString());
+            pstmt.setString(2, endDate.toString());
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    String dateStr = rs.getString("saleDate");
+                    LocalDate date = (dateStr != null) ? LocalDate.parse(dateStr) : null;
+
+                    items.add(new RevenueDashboardItem(
+                            date,
+                            rs.getDouble("totalRevenue"),
+                            rs.getDouble("totalPurchases") // mapped to double in your DTO
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return items;
+    }
+
+    @Override
+    public List<ProductDashboardItem> getTopProducts() {
+        LocalDate today = LocalDate.now();
+        return getTopProducts(today.minusDays(9), today);
+    }
+
+    @Override
+    public List<ProductDashboardItem> getTopProducts(LocalDate beginningDate, LocalDate endDate) {
+        boolean filterByDate = (beginningDate != null && endDate != null);
+
+        String sql = filterByDate ? """
+        SELECT 
+            SD.product_id AS product_id,
+            SD.product_name AS productName,
+            SUM(SD.product_quantity * SD.product_unit_price) AS totalRevenue,
+            SUM(SD.product_quantity) AS totalQuantity
+        FROM sale_details SD 
+        NATURAL JOIN sale_header SH
+        WHERE DATE(SH.sale_date) BETWEEN ? AND ?
+        GROUP BY SD.product_name
+        ORDER BY totalQuantity DESC
+        LIMIT 10;
+        """ : """
+        SELECT 
+            SD.product_id AS product_id,
+            SD.product_name AS productName,
+            SUM(SD.product_quantity * SD.product_unit_price) AS totalRevenue,
+            SUM(SD.product_quantity) AS totalQuantity
+        FROM sale_details SD 
+        NATURAL JOIN sale_header SH
+        GROUP BY SD.product_name
+        ORDER BY totalQuantity DESC
+        LIMIT 10;
+        """;
+
+        List<ProductDashboardItem> items = new ArrayList<>();
+
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            if (filterByDate) {
+                pstmt.setString(1, beginningDate.toString());
+                pstmt.setString(2, endDate.toString());
+            }
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    items.add(new ProductDashboardItem(
+                            rs.getInt("product_id"),
+                            rs.getString("productName"),
+                            rs.getInt("totalQuantity"),
+                            rs.getDouble("totalRevenue")
+                    ));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return items;
+    }
+
+
 
 }
