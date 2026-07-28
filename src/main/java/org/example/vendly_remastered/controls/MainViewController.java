@@ -28,6 +28,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
@@ -52,7 +53,34 @@ public class MainViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // first you must check the language
+        // check authentications, all together to setup things the right way
+        Map<String, Boolean> authorization = UserSession.getInstance().getPrivileges();
+        for(Map.Entry<String, Boolean> entry: authorization.entrySet()){
+            switch (entry.getKey()){
+                case "can_see_clients":
+                    clientsButton.setVisible(entry.getValue());
+                    break;
+                case "can_see_products":
+                    productsButton.setVisible(entry.getValue());
+                    break;
+                case "can_see_suppliers":
+                    salesButton.setVisible(entry.getValue());
+                    break;
+                case "can_see_history":
+                    historyButton.setVisible(entry.getValue());
+                    break;
+                case "can_see_dashboard":
+                    dashboardButton.setVisible(entry.getValue());
+                    break;
+                case "can_see_settings":
+                    settingsButton.setVisible(entry.getValue());
+                    break;
+                case "can_see_users":
+                    usersButton.setVisible(entry.getValue());
+                    break;
+            }
+        }
+
         // now we set default behaviour of each field and button
         try {
             Connection conn = DatabaseManager.getConnection();

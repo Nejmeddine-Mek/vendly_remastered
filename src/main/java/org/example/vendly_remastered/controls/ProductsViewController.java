@@ -21,6 +21,7 @@ import org.example.vendly_remastered.models.entity.Stock;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 import org.example.vendly_remastered.repository.IProductRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
+import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
@@ -60,11 +61,19 @@ public class ProductsViewController implements Initializable {
     private FilteredList<Product> filteredData;
     private SortedList<Product> sortedData;
 
+    boolean READ_ONLY = false;
     public void setCategoryRepository(ICategoryRepository categoryRepository){ this.categoryRepository = categoryRepository; }
     public void setProductRepository(IProductRepository productRepository){ this.productRepository = productRepository; }
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        Map<String, Boolean> productsAuth = UserSession.getInstance().getPrivileges();
+        boolean canEditProducts = productsAuth.get("can_edit_products");
+        if(!canEditProducts){
+            addProductButton.setVisible(false);
+            adjustStockButton.setVisible(false);
+            READ_ONLY = true;
+        }
         setTableColumnsBehaviour();
         setButtonsBehaviour();
         setSearchBarBehaviour();
@@ -227,7 +236,7 @@ public class ProductsViewController implements Initializable {
             // 4. Check if we are editing an existing product or adding a completely fresh item
             boolean isEditMode = (product != null);
             if (isEditMode) {
-                modalController.setMode(product);
+                modalController.setMode(product, READ_ONLY);
             }
 
             // 5. Build and present the window scene configuration

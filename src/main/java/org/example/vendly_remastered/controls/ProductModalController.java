@@ -49,9 +49,6 @@ public class ProductModalController implements Initializable {
     private ICategoryRepository categoryRepository;
     private IBarcodeRepository barcodeRepository;
     private Product selectedProduct = null;
-    private boolean saveClicked = false;
-    private boolean addBarcodeClicked = false;
-    private boolean removeBarcodeClicked = false;
     private List<String> barcodesToDelete = new ArrayList<>();
     public void setBarcodeRepository(IBarcodeRepository repository){ barcodeRepository = repository; }
     @Override
@@ -286,9 +283,24 @@ public class ProductModalController implements Initializable {
         }
     }
 
-    public void setMode(Product product) {
+    public void setMode(Product product, boolean READ_ONLY) {
+        if(READ_ONLY){
+            btnSave.setVisible(false);
+            btnCancel.setVisible(false);
+            txtBarcodeEntry.setVisible(false);
+            btnAddBarcode.setVisible(false);
+            txtName.setEditable(false);
+            txtRetailPrice.setEditable(false);
+            txtPromoPrice.setEditable(false);
+            txtPromoQty.setEditable(false);
+            txtCostPrice.setEditable(false);
+            txtMinThreshold.setEditable(false);
+            txtStockQty.setEditable(false);
+            chkActive.setDisable(true);
+            chkEnablePromotion.setDisable(true);
+            btnRemoveBarcode.setVisible(false);
+        }
         this.selectedProduct = product;
-        this.saveClicked = false;
 
         if (product == null) {
             // 🌟 CREATION MODE SETUP
