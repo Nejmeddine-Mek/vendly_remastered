@@ -20,5 +20,7 @@ public interface IDashBoardRepository {
 
     public List<ProductDashboardItem> getTopProducts();
     public List<ProductDashboardItem> getTopProducts(LocalDate beginningDate, LocalDate endDate);
+    public int getLowStockCount();
+    public int getExpiringProductsCount();
 }
 

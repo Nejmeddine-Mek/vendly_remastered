@@ -22,38 +22,38 @@
         <!-- Top Header & Global Search Bar -->
         <HBox alignment="CENTER_LEFT" spacing="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
             <children>
-                <Label fx:id="pageTitle" text="Purchase History Log">
+                <Label fx:id="pageTitle" text="%purchase.history.title">
                     <font>
                         <Font name="System Bold" size="18.0" />
                     </font>
                 </Label>
                 <HBox HBox.hgrow="ALWAYS" />
-                <TextField fx:id="searchField" prefWidth="250.0" promptText="Search by Purchase ID or Supplier..." styleClass="form-field" />
+                <TextField fx:id="searchField" prefWidth="250.0" promptText="%purchase.history.search.prompt" styleClass="form-field" />
             </children>
         </HBox>
 
         <!-- Date Range Filter Toolbar -->
         <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-background-color: #F1F5F9; -fx-padding: 8 12; -fx-background-radius: 6; -fx-border-color: #CBD5E1; -fx-border-radius: 6;" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="55.0">
             <children>
-                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="From:" />
-                <DatePicker fx:id="dpStartDate" prefWidth="130.0" promptText="Start Date" />
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="%purchase.history.filter.from" />
+                <DatePicker fx:id="dpStartDate" prefWidth="130.0" promptText="%purchase.history.filter.start_date" />
 
-                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="To:" />
-                <DatePicker fx:id="dpEndDate" prefWidth="130.0" promptText="End Date" />
+                <Label style="-fx-font-weight: bold; -fx-text-fill: #475569;" text="%purchase.history.filter.to" />
+                <DatePicker fx:id="dpEndDate" prefWidth="130.0" promptText="%purchase.history.filter.end_date" />
 
-                <Button fx:id="btnFilterDate" styleClass="action-btn-primary" text="Filter Range" />
-                <Button fx:id="btnClearFilter" styleClass="logout-button" text="Reset" />
+                <Button fx:id="btnFilterDate" styleClass="action-btn-primary" text="%purchase.history.filter.btn_apply" />
+                <Button fx:id="btnClearFilter" styleClass="logout-button" text="%purchase.history.filter.btn_reset" />
             </children>
         </HBox>
 
         <!-- Purchases Data Table -->
         <TableView fx:id="purchasesTable" styleClass="pos-table" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="320.0" AnchorPane.topAnchor="110.0">
             <columns>
-                <TableColumn fx:id="colPurchaseId" prefWidth="85.0" text="Purchase ID" />
-                <TableColumn fx:id="colDate" prefWidth="150.0" text="Date &amp; Time" />
-                <TableColumn fx:id="colSupplier" prefWidth="130.0" text="Supplier" />
-                <TableColumn fx:id="colTotalCost" prefWidth="100.0" text="Total Cost" />
-                <TableColumn fx:id="colAmountPaid" prefWidth="100.0" text="Amount Paid" />
+                <TableColumn fx:id="colPurchaseId" prefWidth="85.0" text="%purchase.history.col.id" />
+                <TableColumn fx:id="colDate" prefWidth="150.0" text="%purchase.history.col.date" />
+                <TableColumn fx:id="colSupplier" prefWidth="130.0" text="%purchase.history.col.supplier" />
+                <TableColumn fx:id="colTotalCost" prefWidth="100.0" text="%purchase.history.col.total_cost" />
+                <TableColumn fx:id="colAmountPaid" prefWidth="100.0" text="%purchase.history.col.amount_paid" />
             </columns>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -68,7 +68,7 @@
             <children>
 
                 <!-- SECTION 1: FILTERED PERIOD METRICS -->
-                <Label styleClass="total-card-title" text="Period Metrics">
+                <Label styleClass="total-card-title" text="%purchase.history.metrics.title">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
@@ -78,7 +78,7 @@
                     <children>
                         <HBox alignment="CENTER_LEFT">
                             <children>
-                                <Label styleClass="form-label" text="Purchases Count:" textFill="#757575" />
+                                <Label styleClass="form-label" text="%purchase.history.metrics.count" textFill="#757575" />
                                 <HBox HBox.hgrow="ALWAYS" />
                                 <TextField fx:id="txtTotalPurchasesCount" alignment="CENTER_RIGHT" editable="false" focusTraversable="false" prefWidth="90.0" style="-fx-font-weight: bold;" styleClass="form-field" text="0" />
                             </children>
@@ -86,7 +86,7 @@
 
                         <HBox alignment="CENTER_LEFT">
                             <children>
-                                <Label styleClass="form-label" text="Total Outflow:" textFill="#757575" />
+                                <Label styleClass="form-label" text="%purchase.history.metrics.outflow" textFill="#757575" />
                                 <HBox HBox.hgrow="ALWAYS" />
                                 <TextField fx:id="txtTotalProcurementCost" alignment="CENTER_RIGHT" editable="false" focusTraversable="false" prefWidth="120.0" style="-fx-text-fill: #2563EB; -fx-font-weight: bold;" styleClass="form-field" text="0.00 DZD" />
                             </children>
@@ -94,7 +94,7 @@
 
                         <HBox alignment="CENTER_LEFT">
                             <children>
-                                <Label styleClass="form-label" text="Unpaid Balance:" textFill="#757575" />
+                                <Label styleClass="form-label" text="%purchase.history.metrics.unpaid" textFill="#757575" />
                                 <HBox HBox.hgrow="ALWAYS" />
                                 <TextField fx:id="txtTotalUnpaidDebts" alignment="CENTER_RIGHT" editable="false" focusTraversable="false" prefWidth="120.0" style="-fx-text-fill: #DC2626; -fx-font-weight: bold;" styleClass="form-field" text="0.00 DZD" />
                             </children>
@@ -105,7 +105,7 @@
                 <Separator style="-fx-padding: 4 0;" />
 
                 <!-- SECTION 2: SELECTED PURCHASE INSPECTION DETAILS -->
-                <Label fx:id="transactionSummary" styleClass="total-card-title" text="Selected Order Details">
+                <Label fx:id="transactionSummary" styleClass="total-card-title" text="%purchase.history.details.title">
                     <font>
                         <Font name="System Bold" size="14.0" />
                     </font>
@@ -121,12 +121,12 @@
                             </columnConstraints>
                             <children>
                                 <VBox spacing="2.0" GridPane.columnIndex="0">
-                                    <Label styleClass="form-label" text="Purchase ID" textFill="#757575" />
-                                    <TextField fx:id="txtSelectedPurchaseId" editable="false" focusTraversable="false" promptText="N/A" styleClass="form-field" />
+                                    <Label styleClass="form-label" text="%purchase.history.details.id" textFill="#757575" />
+                                    <TextField fx:id="txtSelectedPurchaseId" editable="false" focusTraversable="false" promptText="%purchase.history.prompt.na" styleClass="form-field" />
                                 </VBox>
                                 <VBox spacing="2.0" GridPane.columnIndex="1">
-                                    <Label styleClass="form-label" text="Date &amp; Time" textFill="#757575" />
-                                    <TextField fx:id="txtSelectedDate" editable="false" focusTraversable="false" promptText="N/A" styleClass="form-field" />
+                                    <Label styleClass="form-label" text="%purchase.history.details.date" textFill="#757575" />
+                                    <TextField fx:id="txtSelectedDate" editable="false" focusTraversable="false" promptText="%purchase.history.prompt.na" styleClass="form-field" />
                                 </VBox>
                             </children>
                             <rowConstraints>
@@ -136,14 +136,14 @@
 
                         <!-- Supplier -->
                         <VBox spacing="2.0">
-                            <Label styleClass="form-label" text="Supplier" textFill="#757575" />
-                            <TextField fx:id="txtSelectedSupplier" editable="false" focusTraversable="false" promptText="Select a row..." styleClass="form-field" />
+                            <Label styleClass="form-label" text="%purchase.history.details.supplier" textFill="#757575" />
+                            <TextField fx:id="txtSelectedSupplier" editable="false" focusTraversable="false" promptText="%purchase.history.prompt.select_row" styleClass="form-field" />
                         </VBox>
 
                         <!-- Receiver / Buyer User -->
                         <VBox spacing="2.0">
-                            <Label styleClass="form-label" text="Recorded By (User)" textFill="#757575" />
-                            <TextField fx:id="txtSelectedUser" editable="false" focusTraversable="false" promptText="Select a row..." styleClass="form-field" />
+                            <Label styleClass="form-label" text="%purchase.history.details.user" textFill="#757575" />
+                            <TextField fx:id="txtSelectedUser" editable="false" focusTraversable="false" promptText="%purchase.history.prompt.select_row" styleClass="form-field" />
                         </VBox>
 
                         <!-- Cost Breakdown (Total & Owed) -->
@@ -154,11 +154,11 @@
                             </columnConstraints>
                             <children>
                                 <VBox spacing="2.0" GridPane.columnIndex="0">
-                                    <Label styleClass="form-label" text="Total Cost" textFill="#757575" />
+                                    <Label styleClass="form-label" text="%purchase.history.details.total_cost" textFill="#757575" />
                                     <TextField fx:id="txtSelectedTotalCost" editable="false" focusTraversable="false" promptText="0.00" style="-fx-text-fill: #1E293B; -fx-font-weight: bold;" styleClass="form-field" />
                                 </VBox>
                                 <VBox spacing="2.0" GridPane.columnIndex="1">
-                                    <Label styleClass="form-label" text="Balance Owed" textFill="#757575" />
+                                    <Label styleClass="form-label" text="%purchase.history.details.debt" textFill="#757575" />
                                     <TextField fx:id="txtSelectedDebt" editable="false" focusTraversable="false" promptText="0.00" style="-fx-text-fill: #DC2626; -fx-font-weight: bold;" styleClass="form-field" />
                                 </VBox>
                             </children>
@@ -172,8 +172,8 @@
                 <!-- Action Buttons Container -->
                 <VBox spacing="8.0">
                     <children>
-                        <Button fx:id="btnOpenDetails" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" styleClass="action-btn-primary" text="View Purchased Items ➔" />
-                        <Button fx:id="btnAddPurchase" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" style="-fx-background-color: #2563EB;" styleClass="action-btn-primary" text="+ Add New Purchase" />
+                        <Button fx:id="btnOpenDetails" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" styleClass="action-btn-primary" text="%purchase.history.btn.view_items" />
+                        <Button fx:id="btnAddPurchase" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="35.0" style="-fx-background-color: #2563EB;" styleClass="action-btn-primary" text="%purchase.history.btn.add_purchase" />
                     </children>
                 </VBox>
 

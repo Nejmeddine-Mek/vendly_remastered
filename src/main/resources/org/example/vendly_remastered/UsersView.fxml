@@ -26,27 +26,27 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label fx:id="userDetailsLabel" styleClass="form-label" text="Selected User Profile:" />
-                                        <TextArea fx:id="userDetailsArea" editable="false" prefHeight="85.0" prefWidth="450.0" promptText="Select a staff member row from the registry below to inspect profile configuration parameters..." styleClass="form-field" wrapText="true" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="userDetailsLabel" styleClass="form-label" text="%users.label.profile" />
+                                        <TextArea fx:id="userDetailsArea" editable="false" prefHeight="85.0" prefWidth="450.0" promptText="%users.prompt.profile_inspect" styleClass="form-field" wrapText="true" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
 
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
-                                        <Label fx:id="userSearchLabel" styleClass="form-label" text="Search Staff:" />
-                                        <TextField fx:id="searchField" prefWidth="300.0" promptText="Search by Username, Full Name, or Role..." styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="userSearchLabel" styleClass="form-label" text="%users.label.search" />
+                                        <TextField fx:id="searchField" prefWidth="300.0" promptText="%users.prompt.search" styleClass="form-field" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
                         </VBox>
 
-                        <VBox alignment="TOP_CENTER" prefWidth="210.0" minWidth="210.0" spacing="10.0" styleClass="form-card">
+                        <VBox alignment="TOP_CENTER" minWidth="210.0" prefWidth="210.0" spacing="10.0" styleClass="form-card">
                             <children>
-                                <Button fx:id="addUserButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="➕ Provision New User" />
+                                <Button fx:id="addUserButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="%users.btn.add" />
 
-                                <Button fx:id="userModifyButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="View &amp; Modify Profile" />
+                                <Button fx:id="userModifyButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="%users.btn.modify" />
 
-                                <Button fx:id="toggleStatusButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="🔒 Deactivate / Activate" />
+                                <Button fx:id="toggleStatusButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="%users.btn.toggle_status" />
                             </children>
                         </VBox>
                     </children>
@@ -56,14 +56,14 @@
                     <children>
                         <TableView fx:id="userTableView" prefHeight="400.0" prefWidth="870.0" styleClass="pos-table" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colUserId" prefWidth="60.0" text="User ID" />
-                                <TableColumn fx:id="colUsername" prefWidth="130.0" text="Username" />
-                                <TableColumn fx:id="colFullName" prefWidth="180.0" text="Full Name" />
-                                <TableColumn fx:id="colRole" prefWidth="120.0" text="System Role" />
-                                <TableColumn fx:id="colStatus" prefWidth="90.0" text="Account Status" />
-                                <TableColumn fx:id="colCreatedBy" prefWidth="120.0" text="Created By" />
-                                <TableColumn fx:id="colCreatedAt" prefWidth="140.0" text="Created At" />
-                                <TableColumn fx:id="colLastLogin" prefWidth="140.0" text="Last Login Audit" />
+                                <TableColumn fx:id="colUserId" prefWidth="60.0" text="%users.col.id" />
+                                <TableColumn fx:id="colUsername" prefWidth="130.0" text="%users.col.username" />
+                                <TableColumn fx:id="colFullName" prefWidth="180.0" text="%users.col.fullname" />
+                                <TableColumn fx:id="colRole" prefWidth="120.0" text="%users.col.role" />
+                                <TableColumn fx:id="colStatus" prefWidth="90.0" text="%users.col.status" />
+                                <TableColumn fx:id="colCreatedBy" prefWidth="120.0" text="%users.col.created_by" />
+                                <TableColumn fx:id="colCreatedAt" prefWidth="140.0" text="%users.col.created_at" />
+                                <TableColumn fx:id="colLastLogin" prefWidth="140.0" text="%users.col.last_login" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

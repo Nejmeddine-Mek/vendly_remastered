@@ -17,6 +17,7 @@ import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
 import org.example.vendly_remastered.models.entity.PurchaseHeader;
 import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
 import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
+import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
@@ -237,8 +238,11 @@ public class PurchaseHistoryViewController implements Initializable {
             boughtItems = purchaseDetailsRepository.getPurchaseDetails(selectedPurchase.getPurchaseId());
 
         try {
+            Config config = Config.getInstance();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/PurchaseDetailsModal.fxml"));
+            loader.setResources(config.getLanguageBundle());
             Parent modalRoot = loader.load();
+            config.applyOrientation(modalRoot);
 
             PurchaseEntryViewController controller = loader.getController();
             controller.populateModalData(selectedPurchase, boughtItems);

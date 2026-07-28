@@ -16,8 +16,8 @@
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="12.0">
         <VBox HBox.hgrow="ALWAYS">
-            <Label fx:id="lblModalTitle" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Supplier Details" />
-            <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Manage supplier profile, contact details, and account status" />
+            <Label fx:id="lblModalTitle" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="%supplier_modal.header.title" />
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="%supplier_modal.header.subtitle" />
         </VBox>
         <Button fx:id="btnClose" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14px; -fx-text-fill: #64748B;" text="✕" />
     </HBox>
@@ -27,56 +27,56 @@
     <!-- Form Container -->
     <GridPane hgap="12.0" vgap="12.0">
         <columnConstraints>
-        <ColumnConstraints percentWidth="50" />
-        <ColumnConstraints percentWidth="50" />
-    </columnConstraints>
+            <ColumnConstraints percentWidth="50" />
+            <ColumnConstraints percentWidth="50" />
+        </columnConstraints>
 
-    <!-- Supplier Company -->
-    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Company Name *" />
-        <TextField fx:id="txtSupplierCompany" promptText="e.g. Sarl TechDistro" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
-    </VBox>
-
-    <!-- Contact Full Name -->
-    <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Contact Person *" />
-        <TextField fx:id="txtSupplierFullName" promptText="e.g. Karim Benali" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
-    </VBox>
-
-    <!-- Phone Number -->
-    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Phone Number *" />
-        <TextField fx:id="txtPhoneNumber" promptText="e.g. 0550123456" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
-    </VBox>
-
-    <!-- Email -->
-    <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Email Address" />
-        <TextField fx:id="txtEmail" promptText="e.g. contact@techdistro.dz" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
-    </VBox>
-
-    <!-- Initial/Current Debt Balance -->
-    <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
-        <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Balance Owed / Debt (DA)" />
-        <TextField fx:id="txtDebts" promptText="0.00" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
-    </VBox>
-
-    <!-- Account Active Status Switch -->
-    <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
-        <CheckBox fx:id="chkIsActive" selected="true" style="-fx-font-size: 13px; -fx-text-fill: #334155;" text="Active Supplier (Enabled for procurement and orders)" />
-    </HBox>
-
-    <rowConstraints>
-    <RowConstraints />
-    <RowConstraints />
-    <RowConstraints />
-    <RowConstraints />
-</rowConstraints>
-        </GridPane>
-
-        <!-- Footer Actions -->
-<HBox alignment="CENTER_RIGHT" spacing="12.0" style="-fx-padding: 12 0 0 0;">
-<Button fx:id="btnCancel" styleClass="logout-button" text="Cancel" />
-<Button fx:id="btnSave" styleClass="action-btn-primary" text="Save Supplier Details" />
-</HBox>
+        <!-- Supplier Company -->
+        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%supplier_modal.label.company" />
+            <TextField fx:id="txtSupplierCompany" promptText="%supplier_modal.prompt.company" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
+
+        <!-- Contact Full Name -->
+        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%supplier_modal.label.fullname" />
+            <TextField fx:id="txtSupplierFullName" promptText="%supplier_modal.prompt.fullname" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+        </VBox>
+
+        <!-- Phone Number -->
+        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%supplier_modal.label.phone" />
+            <TextField fx:id="txtPhoneNumber" promptText="%supplier_modal.prompt.phone" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+        </VBox>
+
+        <!-- Email -->
+        <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%supplier_modal.label.email" />
+            <TextField fx:id="txtEmail" promptText="%supplier_modal.prompt.email" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+        </VBox>
+
+        <!-- Initial/Current Debt Balance -->
+        <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%supplier_modal.label.debts" />
+            <TextField fx:id="txtDebts" promptText="0.00" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+        </VBox>
+
+        <!-- Account Active Status Switch -->
+        <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
+            <CheckBox fx:id="chkIsActive" selected="true" style="-fx-font-size: 13px; -fx-text-fill: #334155;" text="%supplier_modal.chk.is_active" />
+        </HBox>
+
+        <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+        </rowConstraints>
+    </GridPane>
+
+    <!-- Footer Actions -->
+    <HBox alignment="CENTER_RIGHT" spacing="12.0" style="-fx-padding: 12 0 0 0;">
+        <Button fx:id="btnCancel" styleClass="logout-button" text="%supplier_modal.btn.cancel" />
+        <Button fx:id="btnSave" styleClass="action-btn-primary" text="%supplier_modal.btn.save" />
+    </HBox>
+</VBox>

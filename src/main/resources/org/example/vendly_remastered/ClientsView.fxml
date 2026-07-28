@@ -26,27 +26,27 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label fx:id="clientDetailsLabel" styleClass="form-label" text="Selected Client Details:" />
-                                        <TextArea fx:id="clientDetailsArea" editable="false" prefHeight="85.0" prefWidth="450.0" promptText="Select a client row from the registry below to inspect parameters..." styleClass="form-field" wrapText="true" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="clientDetailsLabel" styleClass="form-label" text="%clients.selectedClientInfo" />
+                                        <TextArea fx:id="clientDetailsArea" editable="false" prefHeight="85.0" prefWidth="450.0" promptText="%clients.selectedAreaPrompt" styleClass="form-field" wrapText="true" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
 
                                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                                     <children>
-                                        <Label fx:id="clientSearchLabel" styleClass="form-label" text="Search Clients:" />
-                                        <TextField fx:id="searchField" prefWidth="300.0" promptText="Enter Name, Phone Number, or Client ID..." styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="clientSearchLabel" styleClass="form-label" text="%clients.searchClient" />
+                                        <TextField fx:id="searchField" prefWidth="300.0" promptText="%clients.searchPrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
                         </VBox>
 
-                        <VBox alignment="TOP_CENTER" prefWidth="210.0" minWidth="210.0" spacing="10.0" styleClass="form-card">
+                        <VBox alignment="TOP_CENTER" minWidth="210.0" prefWidth="210.0" spacing="10.0" styleClass="form-card">
                             <children>
-                                <Button fx:id="addClientButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="➕ Add New Client" />
+                                <Button fx:id="addClientButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="%client.addClient" />
 
-                                <Button fx:id="clientDetailsButton" mnemonicParsing="false"  prefWidth="190.0" styleClass="btn-action-manage" text="View &amp; Modify Client" />
+                                <Button fx:id="clientDetailsButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="%client.viewModifyClient" />
 
-                                <Button fx:id="processPaymentButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="💳 Clear / Pay Debt" />
+                                <Button fx:id="processPaymentButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="%client.clearPayDebt" />
                             </children>
                         </VBox>
                     </children>
@@ -56,13 +56,13 @@
                     <children>
                         <TableView fx:id="clientTableView" prefHeight="400.0" prefWidth="870.0" styleClass="pos-table" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
-                                <TableColumn fx:id="colFirstName" prefWidth="130.0" text="First Name" />
-                                <TableColumn fx:id="colLastName" prefWidth="130.0" text="Last Name" />
-                                <TableColumn fx:id="colPhone" prefWidth="140.0" text="Phone Number" />
-                                <TableColumn fx:id="colEmail" prefWidth="180.0" text="Email Address" />
-                                <TableColumn fx:id="colPurchases" prefWidth="110.0" text="Total Purchases" />
-                                <TableColumn fx:id="colDebts" prefWidth="110.0" text="Outstanding Debt" />
+                                <TableColumn fx:id="colId" prefWidth="60.0" text="%client.ID" />
+                                <TableColumn fx:id="colFirstName" prefWidth="130.0" text="%client.firstName" />
+                                <TableColumn fx:id="colLastName" prefWidth="130.0" text="%client.lastName" />
+                                <TableColumn fx:id="colPhone" prefWidth="140.0" text="%client.phoneNumber" />
+                                <TableColumn fx:id="colEmail" prefWidth="180.0" text="%client.email" />
+                                <TableColumn fx:id="colPurchases" prefWidth="110.0" text="%client.totalPurchases" />
+                                <TableColumn fx:id="colDebts" prefWidth="110.0" text="%client.debts" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

@@ -17,6 +17,7 @@ import org.example.vendly_remastered.models.entity.SaleDetailItem;
 import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
+import org.example.vendly_remastered.utils.Config;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -234,9 +235,11 @@ public class HistoryViewController implements Initializable {
             List<SaleDetailItem> boughtItems = saleDetailsRepository.getSaleDetails(selectedSale.getSaleId());
 
             try {
+                Config config = Config.getInstance();
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/SaleDetailsModalView.fxml"));
+                loader.setResources(config.getLanguageBundle());
                 Parent modalRoot = loader.load();
-
+                config.applyOrientation(modalRoot);
                 SaleDetailsModalController controller = loader.getController();
                 controller.populateModalData(selectedSale, boughtItems);
 

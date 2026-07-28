@@ -13,6 +13,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IUserRepository;
+import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;
@@ -177,8 +178,11 @@ public class UsersViewController implements Initializable {
 
     private void openUserModal(User user) {
         try {
+            Config config = Config.getInstance();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/UserDetailsModal.fxml"));
+            loader.setResources(config.getLanguageBundle());
             Parent root = loader.load();
+            config.applyOrientation(root);
             Object controller = loader.getController();
             ControllerDispatcher.execute(controller);
             UserDetailsModalController modalController = loader.getController();

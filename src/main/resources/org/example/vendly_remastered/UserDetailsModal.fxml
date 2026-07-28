@@ -16,49 +16,49 @@
 
     <!-- Header Section -->
     <VBox spacing="4.0">
-        <Label fx:id="userDetailsLabel" styleClass="total-card-title" text="USER ACCOUNT PROFILE" />
-        <Label styleClass="form-label-helper" text="View or update registry parameters" />
+        <Label fx:id="userDetailsLabel" styleClass="total-card-title" text="%user_modal.header.title" />
+        <Label styleClass="form-label-helper" text="%user_modal.header.subtitle" />
     </VBox>
 
     <!-- Form Container -->
     <VBox spacing="12.0" VBox.vgrow="ALWAYS">
 
         <VBox spacing="4.0">
-            <Label style="-fx-text-fill: #64748B;" styleClass="form-label" text="User ID (Read Only)" />
+            <Label style="-fx-text-fill: #64748B;" styleClass="form-label" text="%user_modal.label.user_id" />
             <TextField fx:id="txtUserId" editable="false" style="-fx-background-color: #1E293B; -fx-text-fill: #94A3B8; -fx-opacity: 0.8;" />
         </VBox>
 
         <VBox spacing="4.0">
-            <Label styleClass="form-label" text="Username" />
-            <TextField fx:id="txtUsername" promptText="e.g., n.eddine" styleClass="form-field" />
+            <Label styleClass="form-label" text="%user_modal.label.username" />
+            <TextField fx:id="txtUsername" promptText="%user_modal.prompt.username" styleClass="form-field" />
         </VBox>
 
         <VBox spacing="4.0">
-            <Label styleClass="form-label" text="Full Name" />
-            <TextField fx:id="txtFullName" promptText="e.g., Nejem Eddine" styleClass="form-field" />
+            <Label styleClass="form-label" text="%user_modal.label.fullname" />
+            <TextField fx:id="txtFullName" promptText="%user_modal.prompt.fullname" styleClass="form-field" />
         </VBox>
 
         <VBox spacing="4.0">
-            <Label styleClass="form-label" text="Assigned Role" />
-            <ComboBox fx:id="comboRole" maxWidth="1.7976931348623157E308" promptText="Select Authorization Level" styleClass="custom-combo-box" />
+            <Label styleClass="form-label" text="%user_modal.label.role" />
+            <ComboBox fx:id="comboRole" maxWidth="1.7976931348623157E308" promptText="%user_modal.prompt.select_role" styleClass="custom-combo-box" />
         </VBox>
 
         <!-- 🔒 Password Fields Layer -->
         <VBox spacing="4.0">
-            <Label styleClass="form-label" text="Account Password" />
+            <Label styleClass="form-label" text="%user_modal.label.password" />
             <PasswordField fx:id="txtPassword" promptText="••••••••" styleClass="form-field" />
         </VBox>
 
         <VBox spacing="4.0">
-            <Label styleClass="form-label" text="Confirm Password" />
+            <Label styleClass="form-label" text="%user_modal.label.confirm_password" />
             <PasswordField fx:id="txtConfirmPassword" promptText="••••••••" styleClass="form-field" />
         </VBox>
     </VBox>
 
     <!-- Context Actions Area -->
     <VBox spacing="10.0">
-        <Button fx:id="userModifyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="38.0" styleClass="btn-action-manage" text="Save Registry Changes" />
+        <Button fx:id="userModifyButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="38.0" styleClass="btn-action-manage" text="%user_modal.btn.save" />
 
-        <Button fx:id="toggleStatusButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="38.0" styleClass="logout-button" text="Deactivate Account" />
+        <Button fx:id="toggleStatusButton" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="38.0" styleClass="logout-button" text="%user_modal.btn.deactivate" />
     </VBox>
 </VBox>

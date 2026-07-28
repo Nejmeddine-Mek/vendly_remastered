@@ -19,6 +19,7 @@ import org.example.vendly_remastered.repository.impl.ClientsSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.StockSQLiteImpl;
 import org.example.vendly_remastered.security.UserSession;
+import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 import org.example.vendly_remastered.utils.DatabaseManager;
 
@@ -107,8 +108,12 @@ public class MainViewController implements Initializable {
     }
     private Parent injectView(String fxmlPath) {
         try {
+            Config config = Config.getInstance();
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+            loader.setResources(config.getLanguageBundle());
+
             Parent targetNode = loader.load();
+            config.applyOrientation(targetNode);
             Object controller = loader.getController();
             if(controller != null)
                 ControllerDispatcher.execute(controller);

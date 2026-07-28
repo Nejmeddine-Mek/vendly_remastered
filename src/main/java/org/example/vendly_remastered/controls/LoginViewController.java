@@ -11,6 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.repository.IUserRepository;
+import org.example.vendly_remastered.utils.Config;
 
 import java.io.IOException;
 import java.net.URL;
@@ -57,10 +58,13 @@ public class LoginViewController implements Initializable {
         boolean success = userRepository.authenticate(username, plainPassword);
         if(success){
             try {
+                Config config = Config.getInstance();
                 // 1. Load the Dashboard FXML file
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/MainView.fxml"));
+                loader.setResources(config.getLanguageBundle());
                 Parent root = loader.load();
 
+                config.applyOrientation(root);
                 // 2. Get the current active Window Stage
                 Stage stage = (Stage) loginButton.getScene().getWindow();
 

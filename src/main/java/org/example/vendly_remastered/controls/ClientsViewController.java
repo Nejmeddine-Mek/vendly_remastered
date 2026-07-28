@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
+import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
@@ -127,9 +128,11 @@ public class ClientsViewController implements Initializable {
 
     private void openClientModal(Client client) {
         try {
+            Config config = Config.getInstance();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ClientDetailsModal.fxml"));
+            loader.setResources(config.getLanguageBundle());
             Parent root = loader.load();
-
+            config.applyOrientation(root);
             Object controller = loader.getController();
             ControllerDispatcher.execute(controller);
 
@@ -163,10 +166,12 @@ public class ClientsViewController implements Initializable {
                 return;
             }
             try {
+                Config config = Config.getInstance();
                 // 1. Point to your wide layout FXML file
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ClearDebtsModal.fxml"));
+                loader.setResources(config.getLanguageBundle());
                 Parent root = loader.load();
-
+                config.applyOrientation(root);
                 // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
                 Object controller = loader.getController();
                 ControllerDispatcher.execute(controller);

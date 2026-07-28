@@ -19,12 +19,12 @@
 
                 <VBox alignment="CENTER" spacing="6.0">
                     <children>
-                        <Label fx:id="appNameLabel" text="VENDLY" textFill="WHITE">
+                        <Label text="%Login.appName" textFill="WHITE">
                             <font>
                                 <Font name="Segoe UI Bold" size="36.0" />
                             </font>
                         </Label>
-                        <Label fx:id="sloganLabel" text="Enterprise Market ERP" textFill="#94A3B8">
+                        <Label text="%Login.slogan" textFill="#94A3B8">
                             <font>
                                 <Font name="Segoe UI Regular" size="14.0" />
                             </font>
@@ -40,15 +40,15 @@
 
                         <VBox spacing="6.0">
                             <children>
-                                <Label fx:id="usernameLabel" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Username or Email" textFill="WHITE" />
-                                <TextField fx:id="usernameField" promptText="Enter your workspace ID..." style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-border-color: #475569;" styleClass="form-field" />
+                                <Label style="-fx-font-weight: bold; -fx-font-size: 13px;" text="%Login.username" textFill="WHITE" />
+                                <TextField fx:id="usernameField" promptText="%Login.usernamePrompt" style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-border-color: #475569;" styleClass="form-field" />
                             </children>
                         </VBox>
 
                         <VBox spacing="6.0">
                             <children>
-                                <Label fx:id="passwordLabel" style="-fx-font-weight: bold; -fx-font-size: 13px;" text="Password" textFill="WHITE" />
-                                <PasswordField fx:id="passwordField" promptText="Enter security key..." style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-border-color: #475569;" styleClass="form-field" />
+                                <Label style="-fx-font-weight: bold; -fx-font-size: 13px;" text="%Login.password" textFill="WHITE" />
+                                <PasswordField fx:id="passwordField" promptText="%Login.passwordPrompt" style="-fx-background-color: #1E293B; -fx-text-fill: white; -fx-border-color: #475569;" styleClass="form-field" />
                             </children>
                         </VBox>
 
@@ -57,7 +57,7 @@
 
                 <VBox alignment="CENTER" spacing="15.0">
                     <children>
-                        <Button fx:id="loginButton" mnemonicParsing="false" prefHeight="44.0" prefWidth="320.0" style="-fx-font-size: 14px;" styleClass="action-btn-primary" text="Sign In to Workspace" />
+                        <Button fx:id="loginButton" mnemonicParsing="false" prefHeight="44.0" prefWidth="320.0" style="-fx-font-size: 14px;" styleClass="action-btn-primary" text="%Login.loginButton" />
 
                         <Label fx:id="errorLabel" style="-fx-font-weight: bold; -fx-font-size: 12px;" textFill="#EF4444" wrapText="true" />
                     </children>

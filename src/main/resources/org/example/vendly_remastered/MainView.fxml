@@ -17,39 +17,39 @@
                   <VBox minHeight="141.0" minWidth="230.0" />
                   <VBox alignment="CENTER" prefHeight="436.0" prefWidth="230.0">
                      <children>
-                        <Button fx:id="salesButton" mnemonicParsing="false" styleClass="navBtn" text="Sales">
+                        <Button fx:id="salesButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.sales">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="productsButton" mnemonicParsing="false" styleClass="navBtn" text="Products">
+                        <Button fx:id="productsButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.products">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="clientsButton" mnemonicParsing="false" styleClass="navBtn" text="Clients">
+                        <Button fx:id="clientsButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.clients">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="suppliersButton" mnemonicParsing="false" styleClass="navBtn" text="Suppliers">
+                        <Button fx:id="suppliersButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.suppliers">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="historyButton" mnemonicParsing="false" styleClass="navBtn" text="HIstory">
+                        <Button fx:id="historyButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.history">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="purchasesButton" mnemonicParsing="false" styleClass="navBtn" text="Purchases">
+                        <Button fx:id="purchasesButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.purchases">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="dashboardButton" mnemonicParsing="false" styleClass="navBtn" text="Dashboard">
+                        <Button fx:id="dashboardButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.dashboard">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="settingsButton" mnemonicParsing="false" styleClass="navBtn" text="Settings">
+                        <Button fx:id="settingsButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.settings">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
-                        <Button fx:id="usersButton" mnemonicParsing="false" styleClass="navBtn" text="Users">
+                        <Button fx:id="usersButton" mnemonicParsing="false" styleClass="navBtn" text="%nav.users">
                            <cursor>
                               <Cursor fx:constant="HAND" />
                            </cursor></Button>
@@ -62,20 +62,17 @@
                   <!-- Top Dynamic Header Bar Area -->
                   <HBox alignment="CENTER_RIGHT" prefHeight="70.0" styleClass="header-bar" HBox.hgrow="ALWAYS">
                      <children>
-                        <Label fx:id="usernameLabel" prefHeight="70.0" prefWidth="206.0" styleClass="header-username" text="Username" HBox.hgrow="ALWAYS" />
-                        <Label fx:id="dateLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="70.0" prefWidth="346.0" styleClass="header-date" text="Date" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="usernameLabel" prefHeight="70.0" prefWidth="206.0" styleClass="header-username" HBox.hgrow="ALWAYS" />
+                        <Label fx:id="dateLabel" alignment="CENTER" contentDisplay="CENTER" prefHeight="70.0" prefWidth="346.0" styleClass="header-date" HBox.hgrow="ALWAYS" />
 
-                        <!-- This spacer will automatically expand to push the logout button to the far right edge 
-                        <Region HBox.hgrow="ALWAYS" />-->
-
-                        <Button fx:id="logoutButton" mnemonicParsing="false" styleClass="logout-button" text="Log Out" HBox.hgrow="ALWAYS">
+                        <Button fx:id="logoutButton" mnemonicParsing="false" styleClass="logout-button" text="%nav.logout" HBox.hgrow="ALWAYS">
                            <HBox.margin>
                               <Insets left="50.0" />
                            </HBox.margin></Button>
                      </children>
                   </HBox>
 
-                  <!-- Sub-page injection panel now expands to 100% of available screen size -->
+                  <!-- Sub-page injection panel -->
                   <VBox fx:id="contentContainer" styleClass="main-content-pane" VBox.vgrow="ALWAYS" />
                </children>
             </VBox>

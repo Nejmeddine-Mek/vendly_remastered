@@ -32,23 +32,23 @@
                     <children>
                         <VBox prefHeight="54.0" prefWidth="347.0" spacing="4.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="header-title" text="Executive Dashboard">
+                                <Label styleClass="header-title" text="%dashboard.title">
                                     <font>
                                         <Font name="System Bold" size="22.0" />
                                     </font>
                                 </Label>
-                                <Label text="Real-time sales analytics, seasonal trends, and client performance." textFill="#666666" />
+                                <Label text="%dashboard.subtitle" textFill="#666666" />
                             </children>
                         </VBox>
 
                         <!-- Date Filter Bar -->
                         <HBox alignment="CENTER_RIGHT" prefHeight="54.0" prefWidth="586.0" spacing="10.0">
                             <children>
-                                <ComboBox fx:id="cmbDatePreset" prefWidth="150.0" promptText="Preset Range" styleClass="custom-combo-box" />
-                                <DatePicker fx:id="dpStartDate" prefWidth="130.0" promptText="Start Date" />
-                                <Label text="to" textFill="#666666" />
-                                <DatePicker fx:id="dpEndDate" prefWidth="130.0" promptText="End Date" />
-                                <Button fx:id="btnApplyFilter" prefHeight="44.0" prefWidth="99.0" styleClass="action-btn-primary" text="Filter" />
+                                <ComboBox fx:id="cmbDatePreset" prefWidth="150.0" promptText="%dashboard.filter.preset" styleClass="custom-combo-box" />
+                                <DatePicker fx:id="dpStartDate" prefWidth="130.0" promptText="%dashboard.filter.start_date" />
+                                <Label text="%dashboard.filter.to" textFill="#666666" />
+                                <DatePicker fx:id="dpEndDate" prefWidth="130.0" promptText="%dashboard.filter.end_date" />
+                                <Button fx:id="btnApplyFilter" prefHeight="44.0" prefWidth="99.0" styleClass="action-btn-primary" text="%dashboard.filter.apply" />
                             </children>
                         </HBox>
                     </children>
@@ -61,28 +61,28 @@
                     <children>
                         <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                             <children>
-                                <Label text="Filtered Revenue" textFill="#64748b"><font><Font size="13.0" /></font></Label>
+                                <Label text="%dashboard.kpi.revenue" textFill="#64748b"><font><Font size="13.0" /></font></Label>
                                 <Label fx:id="lblTotalRevenue" text="0.00 DA" textFill="#0f172a"><font><Font name="System Bold" size="20.0" /></font></Label>
                             </children>
                         </VBox>
 
                         <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                             <children>
-                                <Label text="Filtered Purchases" textFill="#64748b"><font><Font size="13.0" /></font></Label>
+                                <Label text="%dashboard.kpi.purchases" textFill="#64748b"><font><Font size="13.0" /></font></Label>
                                 <Label fx:id="lblTotalPurchases" text="0.00 DA" textFill="#0f172a"><font><Font name="System Bold" size="20.0" /></font></Label>
                             </children>
                         </VBox>
 
                         <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #fee2e2; -fx-border-radius: 8;">
                             <children>
-                                <Label text="Low Stock Items" textFill="#dc2626"><font><Font size="13.0" /></font></Label>
+                                <Label text="%dashboard.kpi.low_stock" textFill="#dc2626"><font><Font size="13.0" /></font></Label>
                                 <Label fx:id="lblLowStockCount" text="0" textFill="#991b1b"><font><Font name="System Bold" size="20.0" /></font></Label>
                             </children>
                         </VBox>
 
                         <VBox prefWidth="240.0" spacing="8.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #fef3c7; -fx-border-radius: 8;">
                             <children>
-                                <Label text="Expiring Batches" textFill="#d97706"><font><Font size="13.0" /></font></Label>
+                                <Label text="%dashboard.kpi.expiring" textFill="#d97706"><font><Font size="13.0" /></font></Label>
                                 <Label fx:id="lblExpiringCount" text="0" textFill="#92400e"><font><Font name="System Bold" size="20.0" /></font></Label>
                             </children>
                         </VBox>
@@ -93,13 +93,13 @@
                 <TabPane tabClosingPolicy="UNAVAILABLE">
                     <tabs>
                         <!-- Tab 1: Financial & Sales Trends -->
-                        <Tab text="Sales &amp; Financial Trends">
+                        <Tab text="%dashboard.tab.sales">
                             <content>
                                 <VBox spacing="15.0" style="-fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0;">
                                     <children>
-                                        <LineChart fx:id="salesLineChart" createSymbols="true" prefHeight="280.0" title="Revenue Over Selected Period">
-                                            <xAxis><CategoryAxis label="Date" side="BOTTOM" /></xAxis>
-                                            <yAxis><NumberAxis label="Revenue (DA)" side="LEFT" /></yAxis>
+                                        <LineChart fx:id="salesLineChart" createSymbols="true" prefHeight="280.0" title="%dashboard.chart.revenue.title">
+                                            <xAxis><CategoryAxis label="%dashboard.chart.revenue.xaxis" side="BOTTOM" /></xAxis>
+                                            <yAxis><NumberAxis label="%dashboard.chart.revenue.yaxis" side="LEFT" /></yAxis>
                                         </LineChart>
                                     </children>
                                 </VBox>
@@ -107,13 +107,13 @@
                         </Tab>
 
                         <!-- Tab 2: Most Sold Products (Seasonal Insights) -->
-                        <Tab text="Top Products &amp; Categories">
+                        <Tab text="%dashboard.tab.top_products">
                             <content>
                                 <VBox spacing="15.0" style="-fx-padding: 15; -fx-background-color: #ffffff; -fx-border-color: #e2e8f0;">
                                     <children>
-                                        <BarChart fx:id="topProductsChart" legendVisible="false" prefHeight="280.0" title="Top 10 Most Sold Products (Units)">
-                                            <xAxis><CategoryAxis label="Product" side="BOTTOM" /></xAxis>
-                                            <yAxis><NumberAxis label="Units Sold" side="LEFT" /></yAxis>
+                                        <BarChart fx:id="topProductsChart" legendVisible="false" prefHeight="280.0" title="%dashboard.chart.top_products.title">
+                                            <xAxis><CategoryAxis label="%dashboard.chart.top_products.xaxis" side="BOTTOM" /></xAxis>
+                                            <yAxis><NumberAxis label="%dashboard.chart.top_products.yaxis" side="LEFT" /></yAxis>
                                         </BarChart>
                                     </children>
                                 </VBox>
@@ -128,14 +128,14 @@
                         <!-- Top Clients Table -->
                         <VBox prefWidth="480.0" spacing="10.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                             <children>
-                                <Label styleClass="section-title" text="Top Frequent Clients">
+                                <Label styleClass="section-title" text="%dashboard.section.top_clients">
                                     <font><Font name="System Bold" size="15.0" /></font>
                                 </Label>
                                 <TableView fx:id="tblTopClients" prefHeight="180.0" styleClass="pos-table">
                                     <columns>
-                                        <TableColumn fx:id="colClientName" prefWidth="180.0" text="Client Name" />
-                                        <TableColumn fx:id="colClientOrders" prefWidth="100.0" text="Orders Count" />
-                                        <TableColumn fx:id="colClientTotal" prefWidth="140.0" text="Total Spent (DA)" />
+                                        <TableColumn fx:id="colClientName" prefWidth="180.0" text="%dashboard.table.client.col_name" />
+                                        <TableColumn fx:id="colClientOrders" prefWidth="100.0" text="%dashboard.table.client.col_orders" />
+                                        <TableColumn fx:id="colClientTotal" prefWidth="140.0" text="%dashboard.table.client.col_total" />
                                     </columns>
                                 </TableView>
                             </children>
@@ -144,14 +144,14 @@
                         <!-- Top Suppliers Table -->
                         <VBox prefWidth="480.0" spacing="10.0" style="-fx-background-color: #ffffff; -fx-padding: 15; -fx-background-radius: 8; -fx-border-color: #e2e8f0; -fx-border-radius: 8;">
                             <children>
-                                <Label styleClass="section-title" text="Top Suppliers by Volume">
+                                <Label styleClass="section-title" text="%dashboard.section.top_suppliers">
                                     <font><Font name="System Bold" size="15.0" /></font>
                                 </Label>
                                 <TableView fx:id="tblTopSuppliers" prefHeight="180.0" styleClass="pos-table">
                                     <columns>
-                                        <TableColumn fx:id="colSupplierName" prefWidth="180.0" text="Supplier Name" />
-                                        <TableColumn fx:id="colSupplierPurchases" prefWidth="100.0" text="Purchases" />
-                                        <TableColumn fx:id="colSupplierTotal" prefWidth="140.0" text="Total Spent (DA)" />
+                                        <TableColumn fx:id="colSupplierName" prefWidth="180.0" text="%dashboard.table.supplier.col_name" />
+                                        <TableColumn fx:id="colSupplierPurchases" prefWidth="100.0" text="%dashboard.table.supplier.col_purchases" />
+                                        <TableColumn fx:id="colSupplierTotal" prefWidth="140.0" text="%dashboard.table.supplier.col_total" />
                                     </columns>
                                 </TableView>
                             </children>

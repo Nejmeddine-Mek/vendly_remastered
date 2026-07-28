@@ -17,8 +17,8 @@
     <!-- Header Section -->
     <HBox alignment="CENTER_LEFT" spacing="12.0">
         <VBox HBox.hgrow="ALWAYS">
-            <Label fx:id="lblModalTitle" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="Client Details" />
-            <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="Manage client profile, contact details, and account status" />
+            <Label fx:id="lblModalTitle" style="-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #1E293B;" text="%client_modal.header.title" />
+            <Label style="-fx-font-size: 12px; -fx-text-fill: #64748B;" text="%client_modal.header.subtitle" />
         </VBox>
         <Button fx:id="btnClose" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-font-size: 14px; -fx-text-fill: #64748B;" text="✕" />
     </HBox>
@@ -34,37 +34,37 @@
 
         <!-- Company Name -->
         <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Company Name *" />
-            <TextField fx:id="txtCompanyName" promptText="e.g. SARL Oasis Logistics" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%client_modal.label.company_name" />
+            <TextField fx:id="txtCompanyName" promptText="%client_modal.prompt.company_name" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
         <!-- Contact Full Name -->
         <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Contact Person *" />
-            <TextField fx:id="txtContactFullName" promptText="e.g. Karim Benali" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%client_modal.label.contact_person" />
+            <TextField fx:id="txtContactFullName" promptText="%client_modal.prompt.contact_person" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
         <!-- Phone Number -->
         <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Phone Number" />
-            <TextField fx:id="txtPhone" promptText="e.g. 0550123456" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%client_modal.label.phone" />
+            <TextField fx:id="txtPhone" promptText="%client_modal.prompt.phone" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
         <!-- Email -->
         <VBox spacing="4.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Email Address" />
-            <TextField fx:id="txtEmail" promptText="e.g. contact@oasis.dz" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%client_modal.label.email" />
+            <TextField fx:id="txtEmail" promptText="%client_modal.prompt.email" style="-fx-padding: 8; -fx-border-color: #CBD5E1; -fx-border-radius: 4;" styleClass="form-field" />
         </VBox>
 
         <!-- Address (Full Width) -->
         <VBox spacing="4.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="2">
-            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="Business Address" />
-            <TextArea fx:id="txtAddress" prefRowCount="2" promptText="Street address, city, region..." wrapText="true" />
+            <Label style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #334155;" text="%client_modal.label.address" />
+            <TextArea fx:id="txtAddress" prefRowCount="2" promptText="%client_modal.prompt.address" wrapText="true" />
         </VBox>
 
         <!-- Account Active Status Switch -->
         <HBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="0" GridPane.columnSpan="2" GridPane.rowIndex="3">
-            <CheckBox fx:id="chkIsActive" selected="true" style="-fx-font-size: 13px; -fx-text-fill: #334155;" text="Active Account (Client can perform transactions)" />
+            <CheckBox fx:id="chkIsActive" selected="true" style="-fx-font-size: 13px; -fx-text-fill: #334155;" text="%client_modal.chk.active" />
         </HBox>
 
         <rowConstraints>
@@ -77,7 +77,7 @@
 
     <!-- Footer Actions -->
     <HBox alignment="CENTER_RIGHT" spacing="12.0" style="-fx-padding: 12 0 0 0;">
-        <Button fx:id="btnCancel" styleClass="logout-button" text="Cancel" />
-        <Button fx:id="btnSave" styleClass="action-btn-primary" text="Save Client Details" />
+        <Button fx:id="btnCancel" styleClass="logout-button" text="%client_modal.btn.cancel" />
+        <Button fx:id="btnSave" styleClass="action-btn-primary" text="%client_modal.btn.save" />
     </HBox>
 </VBox>

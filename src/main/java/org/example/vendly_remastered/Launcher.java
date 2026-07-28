@@ -2,6 +2,7 @@ package org.example.vendly_remastered;
 
 import javafx.application.Application;
 import org.example.vendly_remastered.security.PasswordHasher;
+import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.DatabaseManager;
 
 public class Launcher {

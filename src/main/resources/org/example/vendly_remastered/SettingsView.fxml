@@ -24,12 +24,12 @@
                 <!-- View Header -->
                 <VBox spacing="4.0">
                     <children>
-                        <Label styleClass="header-title" text="Application Settings">
+                        <Label styleClass="header-title" text="%settings.header.title">
                             <font>
                                 <Font name="System Bold" size="22.0" />
                             </font>
                         </Label>
-                        <Label text="Manage system policies, stock tracking rules, categories, and user permissions." textFill="#666666" />
+                        <Label text="%settings.header.subtitle" textFill="#666666" />
                     </children>
                 </VBox>
 
@@ -38,7 +38,7 @@
                 <!-- Section 1: Localization & Region -->
                 <VBox spacing="12.0">
                     <children>
-                        <Label styleClass="section-title" text="Language &amp; Region">
+                        <Label styleClass="section-title" text="%settings.section.language">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -46,8 +46,8 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="System Language:" />
-                                <ComboBox fx:id="languageComboBox" prefWidth="220.0" promptText="Select Language" styleClass="custom-combo-box" />
+                                <Label prefWidth="180.0" text="%settings.label.sys_language" />
+                                <ComboBox fx:id="languageComboBox" prefWidth="220.0" promptText="%settings.prompt.select_language" styleClass="custom-combo-box" />
                             </children>
                         </HBox>
                     </children>
@@ -58,7 +58,7 @@
                 <!-- Section 2: Inventory & Stock Policies -->
                 <VBox spacing="12.0">
                     <children>
-                        <Label styleClass="section-title" text="Inventory &amp; Stock Policies">
+                        <Label styleClass="section-title" text="%settings.section.inventory">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -66,32 +66,32 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="Stock Management:" />
-                                <CheckBox fx:id="trackStockCheckBox" selected="true" styleClass="form-checkbox" text="Enable global stock tracking and inventory counts" />
+                                <Label prefWidth="180.0" text="%settings.label.stock_mgmt" />
+                                <CheckBox fx:id="trackStockCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.track_stock" />
                             </children>
                         </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="Stock Updates:" />
-                                <CheckBox fx:id="updateStockFromPurchasesCheckBox" selected="true" styleClass="form-checkbox" text="Automatically update stock quantities when saving purchases" />
+                                <Label prefWidth="180.0" text="%settings.label.stock_updates" />
+                                <CheckBox fx:id="updateStockFromPurchasesCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.auto_update_purchases" />
                             </children>
                         </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="Negative Stock Policy:" />
-                                <CheckBox fx:id="allowNegativeStockCheckBox" styleClass="form-checkbox" text="Allow stock quantity to drop below zero on sales" />
+                                <Label prefWidth="180.0" text="%settings.label.negative_stock" />
+                                <CheckBox fx:id="allowNegativeStockCheckBox" styleClass="form-checkbox" text="%settings.chk.allow_negative_stock" />
                             </children>
                         </HBox>
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="System Alerts:" />
+                                <Label prefWidth="180.0" text="%settings.label.alerts" />
                                 <VBox spacing="8.0">
                                     <children>
-                                        <CheckBox fx:id="enableStockAlertsCheckBox" selected="true" styleClass="form-checkbox" text="Enable low-stock warnings during POS checkout" />
-                                        <CheckBox fx:id="enableExpiryAlertsCheckBox" selected="true" styleClass="form-checkbox" text="Enable batch expiry alert cards and notifications" />
+                                        <CheckBox fx:id="enableStockAlertsCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.enable_stock_alerts" />
+                                        <CheckBox fx:id="enableExpiryAlertsCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.enable_expiry_alerts" />
                                     </children>
                                 </VBox>
                             </children>
@@ -104,7 +104,7 @@
                 <!-- Section 3: Debts & Account Balances -->
                 <VBox spacing="12.0">
                     <children>
-                        <Label styleClass="section-title" text="Debts &amp; Account Balances">
+                        <Label styleClass="section-title" text="%settings.section.debts">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -112,11 +112,11 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="Customer Debts:" />
+                                <Label prefWidth="180.0" text="%settings.label.cust_debts" />
                                 <VBox spacing="8.0">
                                     <children>
-                                        <CheckBox fx:id="trackCustomerDebtsCheckBox" selected="true" styleClass="form-checkbox" text="Track customer balances (amount clients owe you from partial/deferred sales)" />
-                                        <CheckBox fx:id="warnOverdueDebtCheckBox" selected="true" styleClass="form-checkbox" text="Warn cashier at POS when selected client has a non-zero debt balance" />
+                                        <CheckBox fx:id="trackCustomerDebtsCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.track_cust_debts" />
+                                        <CheckBox fx:id="warnOverdueDebtCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.warn_overdue_debt" />
                                     </children>
                                 </VBox>
                             </children>
@@ -124,8 +124,8 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="Supplier Debts:" />
-                                <CheckBox fx:id="trackSupplierDebtsCheckBox" selected="true" styleClass="form-checkbox" text="Track supplier balances (running tally of amount owed to suppliers on purchases)" />
+                                <Label prefWidth="180.0" text="%settings.label.supp_debts" />
+                                <CheckBox fx:id="trackSupplierDebtsCheckBox" selected="true" styleClass="form-checkbox" text="%settings.chk.track_supp_debts" />
                             </children>
                         </HBox>
                     </children>
@@ -136,7 +136,7 @@
                 <!-- Section 4: Category Management -->
                 <VBox spacing="12.0">
                     <children>
-                        <Label styleClass="section-title" text="Product Categories">
+                        <Label styleClass="section-title" text="%settings.section.categories">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -144,8 +144,8 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
-                                <TextField fx:id="txtNewCategoryName" prefWidth="250.0" promptText="Enter new category name..." styleClass="form-field" />
-                                <Button fx:id="btnAddCategory" onAction="#handleSaveCategory" styleClass="action-btn-primary" text="Add Category" />
+                                <TextField fx:id="txtNewCategoryName" prefWidth="250.0" promptText="%settings.prompt.new_category" styleClass="form-field" />
+                                <Button fx:id="btnAddCategory" onAction="#handleSaveCategory" styleClass="action-btn-primary" text="%settings.btn.add_category" />
                             </children>
                         </HBox>
 
@@ -154,9 +154,9 @@
                                 <ListView fx:id="categoryListView" prefHeight="130.0" prefWidth="300.0" styleClass="custom-list-view" />
                                 <VBox spacing="8.0">
                                     <children>
-                                        <Label styleClass="field-label" text="Existing Categories" />
-                                        <Label prefWidth="280.0" text="• Categories cannot be deleted to preserve historic sales logs." textFill="#888888" wrapText="true" />
-                                        <Label prefWidth="280.0" text="• Double-click an existing entry in the list to rename it." textFill="#888888" wrapText="true" />
+                                        <Label styleClass="field-label" text="%settings.label.existing_cats" />
+                                        <Label prefWidth="280.0" text="%settings.info.cat_no_delete" textFill="#888888" wrapText="true" />
+                                        <Label prefWidth="280.0" text="%settings.info.cat_rename" textFill="#888888" wrapText="true" />
                                     </children>
                                 </VBox>
                             </children>
@@ -169,7 +169,7 @@
                 <!-- Section 5: Roles & Permission Matrix -->
                 <VBox spacing="12.0">
                     <children>
-                        <Label styleClass="section-title" text="Role &amp; Security Permissions">
+                        <Label styleClass="section-title" text="%settings.section.roles">
                             <font>
                                 <Font name="System Bold" size="16.0" />
                             </font>
@@ -177,16 +177,16 @@
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
                             <children>
-                                <Label prefWidth="180.0" text="Select Role to Edit:" />
-                                <ComboBox fx:id="rolesComboBox" prefWidth="220.0" promptText="Choose Role" styleClass="custom-combo-box" />
-                                <Button fx:id="btnNewRole" styleClass="action-btn-secondary" text="+ Create Role" />
+                                <Label prefWidth="180.0" text="%settings.label.select_role" />
+                                <ComboBox fx:id="rolesComboBox" prefWidth="220.0" promptText="%settings.prompt.choose_role" styleClass="custom-combo-box" />
+                                <Button fx:id="btnNewRole" styleClass="action-btn-secondary" text="%settings.btn.create_role" />
                             </children>
                         </HBox>
 
                         <!-- In-place Permission Matrix Panel -->
                         <VBox fx:id="permissionsPanel" spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 6; -fx-border-color: #e2e8f0; -fx-border-radius: 6;">
                             <children>
-                                <Label styleClass="field-label" text="Role Access Rights">
+                                <Label styleClass="field-label" text="%settings.label.access_rights">
                                     <font>
                                         <Font name="System Bold" size="13.0" />
                                     </font>
@@ -196,16 +196,16 @@
                                     <children>
                                         <VBox spacing="8.0">
                                             <children>
-                                                <CheckBox fx:id="permAccessPOS" styleClass="form-checkbox" text="Access POS Checkout" />
-                                                <CheckBox fx:id="permManagePurchases" styleClass="form-checkbox" text="Manage Purchases &amp; Suppliers" />
-                                                <CheckBox fx:id="permManageProducts" styleClass="form-checkbox" text="Manage Products &amp; Stock" />
+                                                <CheckBox fx:id="permAccessPOS" styleClass="form-checkbox" text="%settings.perm.pos" />
+                                                <CheckBox fx:id="permManagePurchases" styleClass="form-checkbox" text="%settings.perm.purchases" />
+                                                <CheckBox fx:id="permManageProducts" styleClass="form-checkbox" text="%settings.perm.products" />
                                             </children>
                                         </VBox>
                                         <VBox spacing="8.0">
                                             <children>
-                                                <CheckBox fx:id="permViewReports" styleClass="form-checkbox" text="View Financial Reports &amp; Profit" />
-                                                <CheckBox fx:id="permManageUsers" styleClass="form-checkbox" text="Manage Users &amp; System Settings" />
-                                                <CheckBox fx:id="permApplyDiscounts" styleClass="form-checkbox" text="Apply Custom Discounts on POS" />
+                                                <CheckBox fx:id="permViewReports" styleClass="form-checkbox" text="%settings.perm.reports" />
+                                                <CheckBox fx:id="permManageUsers" styleClass="form-checkbox" text="%settings.perm.users" />
+                                                <CheckBox fx:id="permApplyDiscounts" styleClass="form-checkbox" text="%settings.perm.discounts" />
                                             </children>
                                         </VBox>
                                     </children>
@@ -220,8 +220,8 @@
                 <!-- Bottom Action Bar -->
                 <HBox alignment="CENTER_RIGHT" spacing="12.0">
                     <children>
-                        <Button fx:id="cancelButton" prefWidth="100.0" styleClass="logout-button" text="Cancel" />
-                        <Button fx:id="saveButton" onAction="#handleSaveSettings" prefWidth="130.0" styleClass="action-btn-primary" text="Save Changes" />
+                        <Button fx:id="cancelButton" prefWidth="100.0" styleClass="logout-button" text="%settings.btn.cancel" />
+                        <Button fx:id="saveButton" onAction="#handleSaveSettings" prefWidth="130.0" styleClass="action-btn-primary" text="%settings.btn.save" />
                     </children>
                 </HBox>
             </children>

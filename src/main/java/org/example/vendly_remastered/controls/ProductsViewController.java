@@ -21,6 +21,7 @@ import org.example.vendly_remastered.models.entity.Stock;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 import org.example.vendly_remastered.repository.IProductRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
+import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
@@ -210,10 +211,13 @@ public class ProductsViewController implements Initializable {
 
     private void openProductModal(Product product) {
         try {
+            Config config = Config.getInstance();
             // 1. Point to your wide layout FXML file
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ProductDetailsModal.fxml"));
+            loader.setResources(config.getLanguageBundle());
             Parent root = loader.load();
 
+            config.applyOrientation(root);
             // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
             Object controller = loader.getController();
             ControllerDispatcher.execute(controller);

@@ -26,15 +26,15 @@
                             <children>
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label fx:id="supplierInfo" prefWidth="140.0" styleClass="form-label" text="Supplier Logistics Info:" />
-                                        <TextArea fx:id="supplierDetailsArea" editable="false" prefHeight="85.0" prefWidth="400.0" promptText="Select a corporate supplier registry line to review supply contracts, open items, or address indexes..." styleClass="form-field" wrapText="true" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="supplierInfo" prefWidth="140.0" styleClass="form-label" text="%supplier.supplierLogisticsInfo" />
+                                        <TextArea fx:id="supplierDetailsArea" editable="false" prefHeight="85.0" prefWidth="400.0" promptText="%supplier.selectedAreaPrompt" styleClass="form-field" wrapText="true" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
 
                                 <HBox alignment="CENTER_LEFT" spacing="15.0">
                                     <children>
-                                        <Label fx:id="searchSuppliersLabel" prefWidth="140.0" styleClass="form-label" text="Search Suppliers:" />
-                                        <TextField fx:id="searchField" promptText="Enter Company Name, Contact Person, or Tax ID..." styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                        <Label fx:id="searchSuppliersLabel" prefWidth="140.0" styleClass="form-label" text="%supplier.searchSupplier" />
+                                        <TextField fx:id="searchField" promptText="%supplier.searchSupplierPrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
                                     </children>
                                 </HBox>
                             </children>
@@ -42,11 +42,11 @@
 
                         <VBox alignment="TOP_CENTER" minWidth="210.0" prefWidth="210.0" spacing="10.0" styleClass="form-card">
                             <children>
-                                <Button fx:id="addSupplierButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="🏢 Add New Supplier" />
+                                <Button fx:id="addSupplierButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="%supplier.addSupplier" />
 
-                                <Button fx:id="supplierDetailsButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="View &amp; Modify Company" />
+                                <Button fx:id="supplierDetailsButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="%supplier.viewModifySupplier" />
 
-                                <Button fx:id="processOrderButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="📦 New Supply Order" />
+                                <Button fx:id="processOrderButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="%supplier.clearDebts" />
                             </children>
                         </VBox>
                     </children>
@@ -56,13 +56,13 @@
                     <children>
                         <TableView fx:id="supplierTableView" prefHeight="400.0" prefWidth="870.0" styleClass="pos-table" VBox.vgrow="ALWAYS">
                             <columns>
-                                <TableColumn fx:id="colId" prefWidth="60.0" text="ID" />
-                                <TableColumn fx:id="colCompanyName" prefWidth="180.0" text="Company Name" />
-                                <TableColumn fx:id="colContactName" prefWidth="140.0" text="Contact Person" />
-                                <TableColumn fx:id="colPhone" prefWidth="130.0" text="Phone Number" />
-                                <TableColumn fx:id="colEmail" prefWidth="160.0" text="Email Registry" />
-                                <TableColumn fx:id="colBalanceOwed" prefWidth="110.0" text="Balance Owed" />
-                                <TableColumn fx:id="colCreatedBy" prefWidth="100.0" text="Created By" />
+                                <TableColumn fx:id="colId" prefWidth="60.0" text="%supplier.ID" />
+                                <TableColumn fx:id="colCompanyName" prefWidth="180.0" text="%supplier.companyName" />
+                                <TableColumn fx:id="colContactName" prefWidth="140.0" text="%supplier.contactPerson" />
+                                <TableColumn fx:id="colPhone" prefWidth="130.0" text="%supplier.phoneNumer" />
+                                <TableColumn fx:id="colEmail" prefWidth="160.0" text="%supplier.email" />
+                                <TableColumn fx:id="colBalanceOwed" prefWidth="110.0" text="%supplier.balanceOwed" />
+                                <TableColumn fx:id="colCreatedBy" prefWidth="100.0" text="%supplier.createdBy" />
                             </columns>
                             <columnResizePolicy>
                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />

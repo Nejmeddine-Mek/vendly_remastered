@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
@@ -19,7 +20,7 @@
         <!-- Header -->
         <HBox alignment="CENTER_LEFT" prefHeight="50.0" styleClass="modal-header">
             <children>
-                <Label fx:id="modalTitleLabel" styleClass="modal-title-text" text="Add New Product" />
+                <Label fx:id="modalTitleLabel" styleClass="modal-title-text" text="%product_modal.header.title" />
             </children>
             <padding>
                 <Insets left="20.0" />
@@ -41,15 +42,15 @@
                 <!-- Product Name -->
                 <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
                     <children>
-                        <Label styleClass="form-label" text="Product Name *" />
-                        <TextField fx:id="txtName" prefHeight="35.0" promptText="e.g., Coca-Cola 1.5L" styleClass="form-field" />
+                        <Label styleClass="form-label" text="%product_modal.label.name" />
+                        <TextField fx:id="txtName" prefHeight="35.0" promptText="%product_modal.prompt.name" styleClass="form-field" />
                     </children>
                 </VBox>
 
                 <!-- Cost Price -->
                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
                     <children>
-                        <Label styleClass="form-label" text="Cost Price (DA) *" />
+                        <Label styleClass="form-label" text="%product_modal.label.cost_price" />
                         <TextField fx:id="txtCostPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
                     </children>
                 </VBox>
@@ -57,7 +58,7 @@
                 <!-- Retail Price -->
                 <VBox spacing="5.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                     <children>
-                        <Label styleClass="form-label" text="Retail Price (DA) *" />
+                        <Label styleClass="form-label" text="%product_modal.label.retail_price" />
                         <TextField fx:id="txtRetailPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
                     </children>
                 </VBox>
@@ -65,36 +66,36 @@
                 <!-- Barcodes Multi-Match List -->
                 <VBox spacing="5.0" GridPane.columnIndex="0" GridPane.rowIndex="1" GridPane.rowSpan="2">
                     <children>
-                        <Label styleClass="form-label" text="Product Barcodes (Multi-Match)" />
+                        <Label styleClass="form-label" text="%product_modal.label.barcodes" />
                         <HBox spacing="10.0">
                             <children>
-                                <TextField fx:id="txtBarcodeEntry" prefHeight="35.0" promptText="Scan or type barcode..." styleClass="form-field" HBox.hgrow="ALWAYS" />
-                                <Button fx:id="btnAddBarcode" prefHeight="35.0" prefWidth="60.0" styleClass="action-btn-secondary" text="Add" />
+                                <TextField fx:id="txtBarcodeEntry" prefHeight="35.0" promptText="%product_modal.prompt.scan_barcode" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="btnAddBarcode" prefHeight="35.0" prefWidth="60.0" styleClass="action-btn-secondary" text="%product_modal.btn.add" />
                             </children>
                         </HBox>
                         <ListView fx:id="lstBarcodes" minHeight="80.0" prefHeight="100.0" styleClass="custom-list-view" VBox.vgrow="ALWAYS" />
                         <HBox alignment="TOP_RIGHT">
                             <children>
-                                <Button fx:id="btnRemoveBarcode" styleClass="text-danger-btn" text="Remove Selected" />
+                                <Button fx:id="btnRemoveBarcode" styleClass="text-danger-btn" text="%product_modal.btn.remove_selected" />
                             </children>
                         </HBox>
                     </children>
                 </VBox>
 
                 <!-- Inventory & Category Details -->
-                <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="2" alignment="TOP_LEFT">
+                <VBox spacing="12.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
                     <children>
                         <HBox spacing="15.0">
                             <children>
                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                     <children>
-                                        <Label styleClass="form-label" text="Initial Stock" />
+                                        <Label styleClass="form-label" text="%product_modal.label.initial_stock" />
                                         <TextField fx:id="txtStockQty" prefHeight="35.0" styleClass="form-field" text="0" />
                                     </children>
                                 </VBox>
                                 <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                                     <children>
-                                        <Label styleClass="form-label" text="Min Threshold" />
+                                        <Label styleClass="form-label" text="%product_modal.label.min_threshold" />
                                         <TextField fx:id="txtMinThreshold" prefHeight="35.0" styleClass="form-field" text="5" />
                                     </children>
                                 </VBox>
@@ -102,8 +103,8 @@
                         </HBox>
                         <VBox spacing="5.0">
                             <children>
-                                <Label styleClass="form-label" text="Category *" />
-                                <ComboBox fx:id="cbCategory" maxWidth="1.797693134862315E308" prefHeight="35.0" promptText="Select Category" styleClass="custom-combo-box" />
+                                <Label styleClass="form-label" text="%product_modal.label.category" />
+                                <ComboBox fx:id="cbCategory" maxWidth="1.797693134862315E308" prefHeight="35.0" promptText="%product_modal.prompt.select_category" styleClass="custom-combo-box" />
                             </children>
                         </VBox>
                     </children>
@@ -128,7 +129,7 @@
             <children>
                 <HBox alignment="CENTER_LEFT" spacing="10.0">
                     <children>
-                        <CheckBox fx:id="chkEnablePromotion" styleClass="form-checkbox" text="Enable Wholesale / Bulk Promotion Price" />
+                        <CheckBox fx:id="chkEnablePromotion" styleClass="form-checkbox" text="%product_modal.chk.enable_promotion" />
                     </children>
                 </HBox>
 
@@ -136,13 +137,13 @@
                     <children>
                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="form-label" text="Promotion Trigger Quantity" />
-                                <TextField fx:id="txtPromoQty" prefHeight="35.0" promptText="e.g., 6.0 (Pack/Box Qty)" styleClass="form-field" />
+                                <Label styleClass="form-label" text="%product_modal.label.promo_qty" />
+                                <TextField fx:id="txtPromoQty" prefHeight="35.0" promptText="%product_modal.prompt.promo_qty" styleClass="form-field" />
                             </children>
                         </VBox>
                         <VBox spacing="5.0" HBox.hgrow="ALWAYS">
                             <children>
-                                <Label styleClass="form-label" text="Promotion Bulk Price (DA)" />
+                                <Label styleClass="form-label" text="%product_modal.label.promo_price" />
                                 <TextField fx:id="txtPromoPrice" prefHeight="35.0" promptText="0.00" styleClass="form-field" />
                             </children>
                         </VBox>
@@ -154,16 +155,13 @@
         <!-- Modal Actions -->
         <HBox alignment="CENTER_RIGHT" spacing="15.0">
             <children>
-                <CheckBox fx:id="chkActive" alignment="CENTER_LEFT" selected="true" styleClass="form-checkbox" text="Product is Active for Sale" HBox.hgrow="ALWAYS">
-                    <HBox.margin>
-                        <Insets right="200.0" />
-                    </HBox.margin>
-                </CheckBox>
-                <Button fx:id="btnCancel" prefHeight="35.0" prefWidth="100.0" styleClass="logout-button" text="Cancel" />
-                <Button fx:id="btnSave" prefHeight="35.0" prefWidth="120.0" styleClass="action-btn-primary" text="Save Product" />
+                <CheckBox fx:id="chkActive" alignment="CENTER_LEFT" selected="true" styleClass="form-checkbox" text="%product_modal.chk.active" />
+                <Region HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnCancel" prefHeight="35.0" prefWidth="100.0" styleClass="logout-button" text="%product_modal.btn.cancel" />
+                <Button fx:id="btnSave" prefHeight="35.0" prefWidth="120.0" styleClass="action-btn-primary" text="%product_modal.btn.save" />
             </children>
             <padding>
-                <Insets bottom="25.0" right="20.0" top="10.0" />
+                <Insets bottom="25.0" left="20.0" right="20.0" top="10.0" />
             </padding>
         </HBox>
     </children>

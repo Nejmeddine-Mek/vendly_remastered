@@ -251,6 +251,39 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
         return items;
     }
 
+    @Override
+    public int getLowStockCount() {
+        String sql = """
+                SELECT COUNT(*) AS lowStock FROM stock S
+                WHERE S.current_stock <= S.min_threshold;
+                """;
+        try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("lowStock");
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    @Override
+    public int getExpiringProductsCount() {
+        String sql = """
+                SELECT COUNT(*) AS expiring FROM batch
+                WHERE DATE(expiry_date) BETWEEN DATE('now') AND DATE('now', '+10 days');
+                """;
+        try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("expiring");
+            }
+        }catch (SQLException e){
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
 
 }

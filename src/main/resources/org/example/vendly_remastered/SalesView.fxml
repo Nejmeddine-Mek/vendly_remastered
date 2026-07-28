@@ -25,10 +25,10 @@
                         <!-- Line 1: Quantity and Price Inputs -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <Label fx:id="quantityLabel" minWidth="-Infinity" styleClass="form-label" text="Quantity" />
+                              <Label fx:id="quantityLabel" minWidth="-Infinity" styleClass="form-label" text="%sales.qty" />
                               <TextField fx:id="quantityField" styleClass="form-field" HBox.hgrow="ALWAYS" />
 
-                              <Label fx:id="priceLabel" minWidth="-Infinity" styleClass="form-label" text="Price">
+                              <Label fx:id="priceLabel" minWidth="-Infinity" styleClass="form-label" text="%sales.price">
                                  <HBox.margin>
                                     <Insets left="15.0" />
                                  </HBox.margin>
@@ -43,9 +43,9 @@
                         <!-- Line 2: Product Barcode or Search Hook -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <Label fx:id="barcodeLabel" minWidth="-Infinity" styleClass="form-label" text="Barcode/Name" />
+                              <Label fx:id="barcodeLabel" minWidth="-Infinity" styleClass="form-label" text="%sales.barcode" />
                               <TextField fx:id="barcodeField" styleClass="form-field" HBox.hgrow="ALWAYS" />
-                              <Label fx:id="noteLabel" minWidth="-Infinity" style="-fx-text-fill: #64748B; -fx-font-style: italic;" styleClass="form-label-helper" text="search by name @..." />
+                              <Label fx:id="noteLabel" minWidth="-Infinity" style="-fx-text-fill: #64748B; -fx-font-style: italic;" styleClass="form-label-helper" text="%sales.note" />
                            </children>
                            <padding>
                               <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
@@ -60,23 +60,23 @@
                         <!-- Line 1: Client Selection Flag -->
                         <HBox alignment="CENTER_LEFT" minHeight="30.0">
                            <children>
-                              <CheckBox fx:id="clientCheckBox" mnemonicParsing="false" styleClass="form-checkbox" text="Client" />
+                              <CheckBox fx:id="clientCheckBox" mnemonicParsing="false" styleClass="form-checkbox" text="%sales.clientCheckbox" />
                            </children>
                         </HBox>
 
                         <!-- Line 2: Client Profile Identification Query -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <Label fx:id="clientNameLabel" minWidth="100.0" styleClass="form-label" text="Client Name" />
-                              <TextField fx:id="clientNameField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="clientNameLabel" minWidth="100.0" styleClass="form-label" text="%sales.clientName" />
+                              <TextField fx:id="clientNameField" promptText="%sales.clientNamePrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
 
                         <!-- Line 3: Credit Tracking & Debt Handling Parameters -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
-                              <Label fx:id="paidAmountLabel" minWidth="100.0" styleClass="form-label" text="Not fully paid" />
-                              <TextField fx:id="paidAmountField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="paidAmountLabel" minWidth="100.0" styleClass="form-label" text="%sales.notFullyPaid" />
+                              <TextField fx:id="paidAmountField" promptText="%sales.paymentPrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
                            </children>
                         </HBox>
                      </children>
@@ -90,11 +90,11 @@
                   <!-- Live Checkout Receipt Data Table -->
                   <TableView fx:id="saleItemsTable" styleClass="pos-table" HBox.hgrow="ALWAYS">
                      <columns>
-                        <TableColumn fx:id="colBarcode" text="Barcode" />
-                        <TableColumn fx:id="colProduct" text="Product" />
-                        <TableColumn fx:id="colQuantity" text="Quantity" />
-                        <TableColumn fx:id="colUnitPrice" text="Unit Price" />
-                        <TableColumn fx:id="colSubTotal" text="Sub-Total" />
+                        <TableColumn fx:id="colBarcode" text="%sales.barcodeCol" />
+                        <TableColumn fx:id="colProduct" text="%sales.productCol" />
+                        <TableColumn fx:id="colQuantity" text="%sales.quantityCol" />
+                        <TableColumn fx:id="colUnitPrice" text="%sales.unitPrice" />
+                        <TableColumn fx:id="colSubTotal" text="%sales.subTotal" />
                      </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -104,19 +104,27 @@
                   <!-- Right Pane: Checkout Actions & Grand Total Summary Panel -->
                   <VBox minWidth="280.0" prefWidth="280.0" styleClass="total-card" HBox.hgrow="SOMETIMES">
                      <children>
-                        <Label fx:id="transactionSummaryLabel" styleClass="total-card-title" text="TRANSACTION SUMMARY" />
+                        <Label fx:id="transactionSummaryLabel" styleClass="total-card-title" text="%sales.transactionSummary" />
                         <Region VBox.vgrow="ALWAYS" />
 
                         <!-- Big Bold Total Readout Display -->
                         <VBox alignment="CENTER" styleClass="total-display-box">
                            <children>
-                              <Label fx:id="totalAmountLabel" styleClass="total-display-label" text="Total Amount" />
+                              <Label fx:id="totalAmountLabel" styleClass="total-display-label" text="%sales.totalAmount" />
                               <Label fx:id="totalLabel" styleClass="total-display-value" text="0.00 DA" />
                            </children>
                         </VBox>
 
                         <Region VBox.vgrow="ALWAYS" />
-                        <Button fx:id="confirmButton" maxWidth="Infinity" styleClass="action-btn-primary" text="Confirm &amp; Print" />
+
+                        <!-- Action Buttons Stack -->
+                        <VBox spacing="8.0">
+                           <children>
+                              <Button fx:id="queueButton" maxWidth="Infinity" styleClass="action-btn-secondary" text="%sales.queue" />
+                              <Button fx:id="returnLossButton" maxWidth="Infinity" styleClass="action-btn-secondary" text="%sales.returnLoss" />
+                              <Button fx:id="confirmButton" maxWidth="Infinity" styleClass="action-btn-primary" text="%sales.confirm" />
+                           </children>
+                        </VBox>
                      </children>
                   </VBox>
 
