@@ -53,6 +53,15 @@ public class MainViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        salesButton.managedProperty().bind(salesButton.visibleProperty());
+        productsButton.managedProperty().bind(productsButton.visibleProperty());
+        clientsButton.managedProperty().bind(clientsButton.visibleProperty());
+        suppliersButton.managedProperty().bind(suppliersButton.visibleProperty());
+        historyButton.managedProperty().bind(historyButton.visibleProperty());
+        purchasesButton.managedProperty().bind(purchasesButton.visibleProperty());
+        dashboardButton.managedProperty().bind(dashboardButton.visibleProperty());
+        settingsButton.managedProperty().bind(settingsButton.visibleProperty());
+        usersButton.managedProperty().bind(usersButton.visibleProperty());
         // check authentications, all together to setup things the right way
         Map<String, Boolean> authorization = UserSession.getInstance().getPrivileges();
         for(Map.Entry<String, Boolean> entry: authorization.entrySet()){
@@ -64,7 +73,7 @@ public class MainViewController implements Initializable {
                     productsButton.setVisible(entry.getValue());
                     break;
                 case "can_see_suppliers":
-                    salesButton.setVisible(entry.getValue());
+                    suppliersButton.setVisible(entry.getValue());
                     break;
                 case "can_see_history":
                     historyButton.setVisible(entry.getValue());

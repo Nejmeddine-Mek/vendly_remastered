@@ -299,6 +299,7 @@ public class ProductModalController implements Initializable {
             chkActive.setDisable(true);
             chkEnablePromotion.setDisable(true);
             btnRemoveBarcode.setVisible(false);
+            cbCategory.setEditable(false);
         }
         this.selectedProduct = product;
 

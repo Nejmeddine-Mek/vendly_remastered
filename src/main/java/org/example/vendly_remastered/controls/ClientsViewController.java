@@ -15,6 +15,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
+import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
@@ -45,6 +46,7 @@ public class ClientsViewController implements Initializable {
     @FXML private TableColumn<Client, Integer> colPurchases;
     @FXML private TableColumn<Client, Double> colDebts;
 
+    private boolean READ_ONLY = false;
     private IClientsRepository clientsRepository;
     private ObservableList<Client> clientMasterList = FXCollections.observableArrayList();
 
@@ -54,6 +56,13 @@ public class ClientsViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        addClientButton.managedProperty().bind(addClientButton.visibleProperty());
+        processPaymentButton.managedProperty().bind(processPaymentButton.visibleProperty());
+        READ_ONLY = !UserSession.getInstance().hasPrivilege("can_edit_clients");
+        if(READ_ONLY){
+            addClientButton.setVisible(false);
+            processPaymentButton.setVisible(false);
+        }
         setTableColumnsBehaviour();
 
         // 1. New Client Action
@@ -139,7 +148,7 @@ public class ClientsViewController implements Initializable {
             ClientDetailsModalController modalController = loader.getController();
 
             boolean isEditMode = (client != null);
-            modalController.setMode(client);
+            modalController.setMode(client, READ_ONLY);
 
             Stage modalStage = new Stage();
             modalStage.initModality(Modality.APPLICATION_MODAL);

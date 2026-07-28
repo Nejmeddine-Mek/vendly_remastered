@@ -34,11 +34,7 @@ import java.util.Map;
 import java.util.ResourceBundle;
 
 public class ProductsViewController implements Initializable {
-    @FXML private Label selectedProdInfoLabel;
-    @FXML private TextArea productDetailsArea;
-    @FXML private Label searchRegistryLabel;
     @FXML private TextField searchField;
-    @FXML private Label categoryLabel;
     @FXML private ComboBox<Category> categoryFilterComboBox;
     @FXML private Button addProductButton;
     @FXML private Button productDetailsButton;
@@ -67,6 +63,8 @@ public class ProductsViewController implements Initializable {
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        addProductButton.managedProperty().bind(addProductButton.visibleProperty());
+        adjustStockButton.managedProperty().bind(adjustStockButton.visibleProperty());
         Map<String, Boolean> productsAuth = UserSession.getInstance().getPrivileges();
         boolean canEditProducts = productsAuth.get("can_edit_products");
         if(!canEditProducts){

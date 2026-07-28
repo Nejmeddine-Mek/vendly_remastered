@@ -41,7 +41,17 @@ public class SupplierDetailsModalController implements Initializable {
         this.onSupplierSaved = onSupplierSaved;
     }
 
-    public void setMode(Supplier supplier) {
+    public void setMode(Supplier supplier, boolean READ_ONLY) {
+        if(READ_ONLY){
+            txtSupplierCompany.setEditable(false);
+            txtSupplierFullName.setEditable(false);
+            txtPhoneNumber.setEditable(false);
+            txtEmail.setEditable(false);
+            txtDebts.setEditable(false);
+            chkIsActive.setDisable(true);
+            btnCancel.setVisible(false);
+            btnSave.setVisible(false);
+        }
         this.selectedSupplier = supplier;
 
         if (supplier == null) {

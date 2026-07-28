@@ -30,7 +30,19 @@ public class ClientDetailsModalController implements Initializable {
     private Client selectedClient;
 
 
-    public void setMode(Client client) {
+    public void setMode(Client client, boolean READ_ONLY) {
+        if(READ_ONLY){
+
+            txtPhone.setEditable(false);
+            txtAddress.setEditable(false);
+            txtEmail.setEditable(false);
+            txtCompanyName.setEditable(false);
+            txtContactFullName.setEditable(false);
+            btnSave.setVisible(false);
+            btnCancel.setVisible(false);
+            chkIsActive.setDisable(true);
+
+        }
         this.selectedClient = client;
 
         if (client == null) {

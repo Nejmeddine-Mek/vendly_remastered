@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
+import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.utils.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
@@ -45,11 +46,20 @@ public class SuppliersViewController implements Initializable {
 
     ISuppliersRepository suppliersRepository;
 
+    private boolean READ_ONLY = false;
     private final ObservableList<Supplier> supplierList = FXCollections.observableArrayList();
     public void setSuppliersRepository(ISuppliersRepository suppliersRepository){ this.suppliersRepository = suppliersRepository; }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        processOrderButton.managedProperty().bind(processOrderButton.visibleProperty());
+        addSupplierButton.managedProperty().bind(addSupplierButton.visibleProperty());
+        READ_ONLY = !UserSession.getInstance().hasPrivilege("can_edit_suppliers");
+        if(READ_ONLY){
+            processOrderButton.setVisible(false);
+            addSupplierButton.setVisible(false);
+
+        }
         setClearDebtButtonBehaviour();
         setTableColumnsBehaviour();
         supplierDetailsButton.setOnAction(_ -> {
@@ -151,7 +161,7 @@ public class SuppliersViewController implements Initializable {
             SupplierDetailsModalController modalController = loader.getController();
 
             // 4. Check if we are editing an existing product or adding a completely fresh item
-            modalController.setMode(supplier);
+            modalController.setMode(supplier, READ_ONLY);
 
             modalController.setOnSupplierSaved(savedSupplier -> {
                 if (supplier == null) {
