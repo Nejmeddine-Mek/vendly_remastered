@@ -12,6 +12,7 @@ import javafx.util.StringConverter;
 import org.example.vendly_remastered.models.entity.*;
 import org.example.vendly_remastered.repository.*;
 
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 
 import java.math.BigDecimal;
@@ -144,6 +145,9 @@ public class PurchaseEntryViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        txtRemainingDebt.managedProperty().bind(Config.getInstance().trackSupplierDebtsProperty());
+        txtRemainingDebt.visibleProperty().bind(txtRemainingDebt.managedProperty());
+
         setupTableBindings();
         setupFieldListeners();
         btnAddRow.setOnAction(_ -> {

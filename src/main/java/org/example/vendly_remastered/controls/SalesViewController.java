@@ -79,6 +79,9 @@ public class SalesViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // language file first
         //set default behaviour of fields
+        // tracking clients' debts here
+        clientCheckBox.visibleProperty().bind(Config.getInstance().trackClientsDebtsProperty());
+        clientCheckBox.managedProperty().bind(clientCheckBox.visibleProperty());
 
         setQuantityBehaviour();
         setPriceBehaviour(0.0);
@@ -403,13 +406,14 @@ public class SalesViewController implements Initializable {
                 BigDecimal currentStock = entry.getValue();
 
                 Product p = cache.get(productId);
-                if (p != null && p.getMinStockLevel() != null) {
-                    // Correct check: Is remaining stock less than or equal to the minimum threshold?
-                    if (currentStock.compareTo(p.getMinStockLevel()) <= 0) {
-                        // TODO: show alert
-                        System.out.println("STOCK ALERT - LOW STOCK");
+                if(Config.getInstance().isLowStockPOSAlert())
+                    if (p != null && p.getMinStockLevel() != null) {
+                        // Correct check: Is remaining stock less than or equal to the minimum threshold?
+                        if (currentStock.compareTo(p.getMinStockLevel()) <= 0) {
+                            // TODO: show alert
+                            System.out.println("STOCK ALERT - LOW STOCK");
+                        }
                     }
-                }
             }
         }
 

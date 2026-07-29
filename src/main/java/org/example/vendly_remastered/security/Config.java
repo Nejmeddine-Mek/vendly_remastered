@@ -1,5 +1,8 @@
 package org.example.vendly_remastered.security;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
 
@@ -24,23 +27,21 @@ public class Config {
     private ResourceBundle languageBundle;
     private Locale currentLocale;
 
-    private boolean trackStock = false;
-    private boolean updateStockOnSale = false;
-    private boolean allowNegativeStock = false;
+    private final BooleanProperty trackStock = new SimpleBooleanProperty(false);
+    private final BooleanProperty updateStockOnSale = new SimpleBooleanProperty(false);
+    private final BooleanProperty allowNegativeStock = new SimpleBooleanProperty(false);
 
-    private boolean lowStockPOSAlert = false;
-    private boolean batchExpiryAlerts = false;
+    private final BooleanProperty lowStockPOSAlert = new SimpleBooleanProperty(false);
+    private final BooleanProperty batchExpiryAlerts = new SimpleBooleanProperty(false);
 
-    private boolean trackClientsDebts = false;
-    private boolean trackSupplierDebts = false;
+    private final BooleanProperty trackClientsDebts = new SimpleBooleanProperty(false);
+    private final BooleanProperty trackSupplierDebts = new SimpleBooleanProperty(false);
 
     private static Config instance;
 
-
-
     private Config() {
-        // Load language from config.txt or create default if missing
-        setLanguage(loadLanguageFromConfigFile());
+        // Load settings and language from config.txt or create default if missing
+        loadConfigFromFile();
     }
 
     public static synchronized Config getInstance() {
@@ -50,42 +51,48 @@ public class Config {
         return instance;
     }
 
-    private String loadLanguageFromConfigFile() {
+    public void loadConfigFromFile() {
         Properties props = new Properties();
 
         if (Files.exists(Paths.get(CONFIG_FILE))) {
             try (FileInputStream in = new FileInputStream(CONFIG_FILE)) {
                 props.load(in);
+
+                // Load language
                 String lang = props.getProperty("language");
-                if (lang != null && !lang.isBlank()) {
-                    return lang.trim();
-                }
+                setLanguage(lang != null && !lang.isBlank() ? lang.trim() : DEFAULT_LANGUAGE);
+
+                // Load boolean configuration flags
+                trackStock.set(Boolean.parseBoolean(props.getProperty("trackStock", "false")));
+                updateStockOnSale.set(Boolean.parseBoolean(props.getProperty("updateStockOnSale", "false")));
+                allowNegativeStock.set(Boolean.parseBoolean(props.getProperty("allowNegativeStock", "false")));
+                lowStockPOSAlert.set(Boolean.parseBoolean(props.getProperty("lowStockPOSAlert", "false")));
+                batchExpiryAlerts.set(Boolean.parseBoolean(props.getProperty("batchExpiryAlerts", "false")));
+                trackClientsDebts.set(Boolean.parseBoolean(props.getProperty("trackClientsDebts", "false")));
+                trackSupplierDebts.set(Boolean.parseBoolean(props.getProperty("trackSupplierDebts", "false")));
+
+                return;
             } catch (IOException e) {
                 System.err.println("[Config] Error reading " + CONFIG_FILE + ". Recreating default file.");
             }
         }
 
-        // File doesn't exist or failed to load: create default file with language=fr
-        saveLanguageToConfigFile(DEFAULT_LANGUAGE);
-        return DEFAULT_LANGUAGE;
+        // File doesn't exist or failed to load: create default file
+        setLanguage(DEFAULT_LANGUAGE);
+        saveConfigToFile(DEFAULT_LANGUAGE, false, false, false, false, false, false, false);
     }
 
     public void saveLanguageToConfigFile(String langCode) {
-        Properties props = new Properties();
-        props.setProperty("language", langCode);
-        props.setProperty("trackStock", String.valueOf(this.trackStock));
-        props.setProperty("updateStockOnSale", String.valueOf(this.updateStockOnSale));
-        props.setProperty("allowNegativeStock", String.valueOf(this.allowNegativeStock));
-        props.setProperty("lowStockPOSAlert", String.valueOf(this.lowStockPOSAlert));
-        props.setProperty("batchExpiryAlerts", String.valueOf(this.batchExpiryAlerts));
-        props.setProperty("trackClientsDebts", String.valueOf(this.trackClientsDebts));
-        props.setProperty("trackSupplierDebts", String.valueOf(this.trackSupplierDebts));
-
-        try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
-            props.store(out, "Vendly Remastered Configuration");
-        } catch (IOException e) {
-            System.err.println("[Config] Failed to save " + CONFIG_FILE + ": " + e.getMessage());
-        }
+        saveConfigToFile(
+                langCode,
+                trackStock.get(),
+                updateStockOnSale.get(),
+                allowNegativeStock.get(),
+                lowStockPOSAlert.get(),
+                batchExpiryAlerts.get(),
+                trackClientsDebts.get(),
+                trackSupplierDebts.get()
+        );
     }
 
     public void saveConfigToFile(String langCode, boolean trackStock, boolean updateStockOnSale,
@@ -102,12 +109,22 @@ public class Config {
         props.setProperty("trackClientsDebts", String.valueOf(trackClientsDebts));
         props.setProperty("trackSupplierDebts", String.valueOf(trackSupplierDebts));
 
+        // Update live properties
+        this.trackStock.set(trackStock);
+        this.updateStockOnSale.set(updateStockOnSale);
+        this.allowNegativeStock.set(allowNegativeStock);
+        this.lowStockPOSAlert.set(lowStockPOSAlert);
+        this.batchExpiryAlerts.set(batchExpiryAlerts);
+        this.trackClientsDebts.set(trackClientsDebts);
+        this.trackSupplierDebts.set(trackSupplierDebts);
+
         try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
             props.store(out, "Vendly Remastered Configuration");
         } catch (IOException e) {
             System.err.println("[Config] Failed to save " + CONFIG_FILE + ": " + e.getMessage());
         }
     }
+
     public String getLanguage() {
         return language;
     }
@@ -154,59 +171,91 @@ public class Config {
         }
     }
 
+    // --- Stock & Alert Getters, Setters, and Properties ---
+
     public boolean isTrackStock() {
-        return trackStock;
+        return trackStock.get();
     }
 
     public void setTrackStock(boolean trackStock) {
-        this.trackStock = trackStock;
+        this.trackStock.set(trackStock);
+    }
+
+    public BooleanProperty trackStockProperty() {
+        return trackStock;
     }
 
     public boolean isUpdateStockOnSale() {
-        return updateStockOnSale;
+        return updateStockOnSale.get();
     }
 
     public void setUpdateStockOnSale(boolean updateStockOnSale) {
-        this.updateStockOnSale = updateStockOnSale;
+        this.updateStockOnSale.set(updateStockOnSale);
+    }
+
+    public BooleanProperty updateStockOnSaleProperty() {
+        return updateStockOnSale;
     }
 
     public boolean isAllowNegativeStock() {
-        return allowNegativeStock;
+        return allowNegativeStock.get();
     }
 
     public void setAllowNegativeStock(boolean allowNegativeStock) {
-        this.allowNegativeStock = allowNegativeStock;
+        this.allowNegativeStock.set(allowNegativeStock);
+    }
+
+    public BooleanProperty allowNegativeStockProperty() {
+        return allowNegativeStock;
     }
 
     public boolean isLowStockPOSAlert() {
-        return lowStockPOSAlert;
+        return lowStockPOSAlert.get();
     }
 
     public void setLowStockPOSAlert(boolean lowStockPOSAlert) {
-        this.lowStockPOSAlert = lowStockPOSAlert;
+        this.lowStockPOSAlert.set(lowStockPOSAlert);
+    }
+
+    public BooleanProperty lowStockPOSAlertProperty() {
+        return lowStockPOSAlert;
     }
 
     public boolean isBatchExpiryAlerts() {
-        return batchExpiryAlerts;
+        return batchExpiryAlerts.get();
     }
 
     public void setBatchExpiryAlerts(boolean batchExpiryAlerts) {
-        this.batchExpiryAlerts = batchExpiryAlerts;
+        this.batchExpiryAlerts.set(batchExpiryAlerts);
     }
 
+    public BooleanProperty batchExpiryAlertsProperty() {
+        return batchExpiryAlerts;
+    }
+
+    // --- Debt Getters, Setters, and Properties ---
+
     public boolean isTrackClientsDebts() {
-        return trackClientsDebts;
+        return trackClientsDebts.get();
     }
 
     public void setTrackClientsDebts(boolean trackClientsDebts) {
-        this.trackClientsDebts = trackClientsDebts;
+        this.trackClientsDebts.set(trackClientsDebts);
+    }
+
+    public ObservableValue<Boolean> trackClientsDebtsProperty() {
+        return trackClientsDebts;
     }
 
     public boolean isTrackSupplierDebts() {
-        return trackSupplierDebts;
+        return trackSupplierDebts.get();
     }
 
     public void setTrackSupplierDebts(boolean trackSupplierDebts) {
-        this.trackSupplierDebts = trackSupplierDebts;
+        this.trackSupplierDebts.set(trackSupplierDebts);
+    }
+
+    public ObservableValue<Boolean> trackSupplierDebtsProperty() {
+        return trackSupplierDebts;
     }
 }

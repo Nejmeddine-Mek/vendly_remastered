@@ -7,6 +7,7 @@ import javafx.scene.control.*;
         import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
+import org.example.vendly_remastered.security.Config;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -146,15 +147,18 @@ public class SupplierDetailsModalController implements Initializable {
         }
 
         BigDecimal debts = BigDecimal.ZERO;
-        try {
-            if (!debtInput.isEmpty()) {
-                debts = new BigDecimal(debtInput);
+        if(Config.getInstance().isTrackSupplierDebts()){
+            try {
+                if (!debtInput.isEmpty()) {
+                    debts = new BigDecimal(debtInput);
+                }
+            } catch (NumberFormatException e) {
+                showAlert("Validation Error", "Invalid numeric format for debts.");
+                txtDebts.requestFocus();
+                return;
             }
-        } catch (NumberFormatException e) {
-            showAlert("Validation Error", "Invalid numeric format for debts.");
-            txtDebts.requestFocus();
-            return;
         }
+
 
         // 4. Construct or update target Supplier model
         if (selectedSupplier == null) {

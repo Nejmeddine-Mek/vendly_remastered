@@ -1,6 +1,9 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanBinding;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -51,7 +54,13 @@ public class SuppliersViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        processOrderButton.managedProperty().bind(processOrderButton.visibleProperty());
+        BooleanBinding showProcessOrder = Bindings.and(
+                // Add any other visibility conditions here, or just your config flag:
+                (ObservableBooleanValue) Config.getInstance().trackSupplierDebtsProperty(),
+                // Optional: add any extra conditions like cart.notEmptyProperty(), etc.
+                (ObservableBooleanValue) Config.getInstance().trackSupplierDebtsProperty()
+        );
+        processOrderButton.managedProperty().bind(showProcessOrder);
         addSupplierButton.managedProperty().bind(addSupplierButton.visibleProperty());
         READ_ONLY = !UserSession.getInstance().hasPrivilege("can_edit_suppliers");
         if(READ_ONLY){
