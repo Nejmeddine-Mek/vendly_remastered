@@ -61,8 +61,12 @@ public class ProductsViewController implements Initializable {
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        addProductButton.managedProperty().bind(addProductButton.visibleProperty());
+        // hide these for now
         adjustStockButton.managedProperty().bind(adjustStockButton.visibleProperty());
+        adjustStockButton.setVisible(false);
+
+        addProductButton.managedProperty().bind(addProductButton.visibleProperty());
+
         Map<String, Boolean> productsAuth = UserSession.getInstance().getPrivileges();
         boolean canEditProducts = productsAuth.get("can_edit_products");
         if(!canEditProducts){

@@ -145,8 +145,12 @@ public class PurchaseEntryViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        txtRemainingDebt.managedProperty().bind(Config.getInstance().trackSupplierDebtsProperty());
-        txtRemainingDebt.visibleProperty().bind(txtRemainingDebt.managedProperty());
+        txtRemainingDebt.editableProperty().bind(Config.getInstance().trackSupplierDebtsProperty());
+        txtAmountPaid.editableProperty().bind(Config.getInstance().trackSupplierDebtsProperty());
+        if(!Config.getInstance().isTrackSupplierDebts()){
+            txtAmountPaid.textProperty().bind(txtNetToPay.textProperty());
+            txtRemainingDebt.setText("0.0");
+        }
 
         setupTableBindings();
         setupFieldListeners();

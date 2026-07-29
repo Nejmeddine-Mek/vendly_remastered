@@ -1,5 +1,8 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.beans.Observable;
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
@@ -54,8 +57,17 @@ public class ClientsViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        ObservableBooleanValue showPaymentButton = Bindings.and(
+                (ObservableBooleanValue) Config.getInstance().trackClientsDebtsProperty(),
+                processPaymentButton.visibleProperty()
+        );
+
         addClientButton.managedProperty().bind(addClientButton.visibleProperty());
-        processPaymentButton.managedProperty().bind(processPaymentButton.visibleProperty());
+        processPaymentButton.managedProperty().bind(showPaymentButton);
+        if(!Config.getInstance().isTrackClientsDebts()){
+            processPaymentButton.setVisible(false);
+        }
         READ_ONLY = !UserSession.getInstance().hasPrivilege("can_edit_clients");
         if(READ_ONLY){
             addClientButton.setVisible(false);

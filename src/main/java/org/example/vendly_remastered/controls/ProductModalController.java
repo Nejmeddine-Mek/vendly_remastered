@@ -1,5 +1,7 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -12,6 +14,7 @@ import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IBarcodeRepository;
 import org.example.vendly_remastered.repository.ICategoryRepository;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
@@ -53,6 +56,13 @@ public class ProductModalController implements Initializable {
     public void setBarcodeRepository(IBarcodeRepository repository){ barcodeRepository = repository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
+        txtStockQty.editableProperty().bind(Config.getInstance().trackStockProperty());
+        txtMinThreshold.editableProperty().bind(Config.getInstance().trackStockProperty());
+        if(!Config.getInstance().isTrackStock()){
+            txtStockQty.setText("0.0");
+            txtMinThreshold.setText("0.0");
+        }
         setDeleteBarcodeBehaviour();
         setBarcodeAddingBehaviour();
         chkEnablePromotion.setOnAction(_ -> {
