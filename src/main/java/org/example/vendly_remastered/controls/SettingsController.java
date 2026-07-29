@@ -11,6 +11,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import org.example.vendly_remastered.security.AppConfig;
+import org.example.vendly_remastered.security.Config;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -54,33 +55,36 @@ public class SettingsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+
         // 1. Populate Language Dropdown
-        languageComboBox.setItems(FXCollections.observableArrayList("English", "French", "Arabic"));
+        languageComboBox.setItems(FXCollections.observableArrayList("English", "Français", "العربية"));
 
         // 2. Load configurations from AppConfig singleton instance
         loadConfigValues();
     }
     private void loadConfigValues() {
-        AppConfig config = AppConfig.getInstance();
-        if (config == null) {
-            return; // Guard until getInstance() implementation is ready
-        }
+        // hide this for now
+        warnOverdueDebtCheckBox.setManaged(false);
+        warnOverdueDebtCheckBox.setVisible(false);
 
-        // Language
-        if (config.getLanguage() != null) {
-            languageComboBox.setValue(config.getLanguage());
-        }
+        Config config = Config.getInstance();
+        String language = config.getLanguage(); // e.g., "en", "fr", "ar"
 
-        // Inventory Policies
+        if ("ar".equals(language)) {
+            languageComboBox.setValue("العربية");
+        } else if ("fr".equals(language)) {
+            languageComboBox.setValue("Français");
+        } else {
+            languageComboBox.setValue("English"); // default fallback
+        }
         trackStockCheckBox.setSelected(config.isTrackStock());
-        updateStockFromPurchasesCheckBox.setSelected(config.isUpdateStockFromPurchases());
+        updateStockFromPurchasesCheckBox.setSelected(config.isUpdateStockOnSale());
         allowNegativeStockCheckBox.setSelected(config.isAllowNegativeStock());
-        enableStockAlertsCheckBox.setSelected(config.isEnableStockAlerts());
-        enableExpiryAlertsCheckBox.setSelected(config.isEnableExpiryAlerts());
 
-        // Debt & Balance Policies
-        trackCustomerDebtsCheckBox.setSelected(config.isTrackCustomerDebts());
-        warnOverdueDebtCheckBox.setSelected(config.isWarnOverdueDebt());
+        enableStockAlertsCheckBox.setSelected(config.isLowStockPOSAlert());
+        enableExpiryAlertsCheckBox.setSelected(config.isBatchExpiryAlerts());
+
+        trackCustomerDebtsCheckBox.setSelected(config.isTrackClientsDebts());
         trackSupplierDebtsCheckBox.setSelected(config.isTrackSupplierDebts());
     }
 

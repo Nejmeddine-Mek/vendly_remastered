@@ -19,7 +19,7 @@ import org.example.vendly_remastered.repository.impl.ClientsSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.StockSQLiteImpl;
 import org.example.vendly_remastered.security.UserSession;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 import org.example.vendly_remastered.utils.DatabaseManager;
 

@@ -16,6 +16,7 @@ import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.service.AuditLogsService;
 import org.example.vendly_remastered.service.SalesServices;
@@ -395,21 +396,23 @@ public class SalesViewController implements Initializable {
 
         //Set current authenticated user ID on the header
         header.setSaleUser(UserSession.getInstance().getUserId());
+        if(Config.getInstance().isTrackStock()){
+            Map<Integer, BigDecimal> remainingStocks = cache.updateStockAndCheckAlerts(newStock);
+            for (Map.Entry<Integer, BigDecimal> entry : remainingStocks.entrySet()) {
+                int productId = entry.getKey();
+                BigDecimal currentStock = entry.getValue();
 
-        Map<Integer, BigDecimal> remainingStocks = cache.updateStockAndCheckAlerts(newStock);
-        for (Map.Entry<Integer, BigDecimal> entry : remainingStocks.entrySet()) {
-            int productId = entry.getKey();
-            BigDecimal currentStock = entry.getValue();
-
-            Product p = cache.get(productId);
-            if (p != null && p.getMinStockLevel() != null) {
-                // Correct check: Is remaining stock less than or equal to the minimum threshold?
-                if (currentStock.compareTo(p.getMinStockLevel()) <= 0) {
-                    // TODO: show alert
-                    System.out.println("STOCK ALERT - LOW STOCK");
+                Product p = cache.get(productId);
+                if (p != null && p.getMinStockLevel() != null) {
+                    // Correct check: Is remaining stock less than or equal to the minimum threshold?
+                    if (currentStock.compareTo(p.getMinStockLevel()) <= 0) {
+                        // TODO: show alert
+                        System.out.println("STOCK ALERT - LOW STOCK");
+                    }
                 }
             }
         }
+
         //main ui first saves header
         int saleId = saleHeaderRepository.saveSaleHeader(header);
         if(saleId == -1){

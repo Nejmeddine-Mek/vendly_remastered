@@ -17,7 +17,7 @@ import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
 import org.example.vendly_remastered.models.entity.PurchaseHeader;
 import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
 import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;

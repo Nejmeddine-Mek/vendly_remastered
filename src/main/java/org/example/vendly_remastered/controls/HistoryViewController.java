@@ -17,7 +17,7 @@ import org.example.vendly_remastered.models.entity.SaleDetailItem;
 import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 
 import java.io.IOException;
 import java.math.BigDecimal;

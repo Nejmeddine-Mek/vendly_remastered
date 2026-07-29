@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.controls.LoginViewController;
 import org.example.vendly_remastered.repository.impl.UserSQLiteImpl;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.DatabaseManager;
 
 import java.io.IOException;

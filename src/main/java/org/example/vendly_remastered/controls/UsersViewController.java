@@ -13,7 +13,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IUserRepository;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;

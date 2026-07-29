@@ -16,12 +16,10 @@ import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
 import org.example.vendly_remastered.security.UserSession;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
-import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.ResourceBundle;
 

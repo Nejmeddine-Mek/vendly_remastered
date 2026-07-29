@@ -1,4 +1,4 @@
-package org.example.vendly_remastered.utils;
+package org.example.vendly_remastered.security;
 
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
@@ -19,11 +19,24 @@ import java.util.ResourceBundle;
 public class Config {
     private static final String CONFIG_FILE = "config.txt";
     private static final String DEFAULT_LANGUAGE = "ar";
-    private static Config instance;
 
     private String language;
     private ResourceBundle languageBundle;
     private Locale currentLocale;
+
+    private boolean trackStock = false;
+    private boolean updateStockOnSale = false;
+    private boolean allowNegativeStock = false;
+
+    private boolean lowStockPOSAlert = false;
+    private boolean batchExpiryAlerts = false;
+
+    private boolean trackClientsDebts = false;
+    private boolean trackSupplierDebts = false;
+
+    private static Config instance;
+
+
 
     private Config() {
         // Load language from config.txt or create default if missing
@@ -60,6 +73,13 @@ public class Config {
     public void saveLanguageToConfigFile(String langCode) {
         Properties props = new Properties();
         props.setProperty("language", langCode);
+        props.setProperty("trackStock", String.valueOf(this.trackStock));
+        props.setProperty("updateStockOnSale", String.valueOf(this.updateStockOnSale));
+        props.setProperty("allowNegativeStock", String.valueOf(this.allowNegativeStock));
+        props.setProperty("lowStockPOSAlert", String.valueOf(this.lowStockPOSAlert));
+        props.setProperty("batchExpiryAlerts", String.valueOf(this.batchExpiryAlerts));
+        props.setProperty("trackClientsDebts", String.valueOf(this.trackClientsDebts));
+        props.setProperty("trackSupplierDebts", String.valueOf(this.trackSupplierDebts));
 
         try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
             props.store(out, "Vendly Remastered Configuration");
@@ -68,6 +88,26 @@ public class Config {
         }
     }
 
+    public void saveConfigToFile(String langCode, boolean trackStock, boolean updateStockOnSale,
+                                 boolean allowNegativeStock, boolean lowStockPOSAlert,
+                                 boolean batchExpiryAlerts, boolean trackClientsDebts,
+                                 boolean trackSupplierDebts) {
+        Properties props = new Properties();
+        props.setProperty("language", langCode);
+        props.setProperty("trackStock", String.valueOf(trackStock));
+        props.setProperty("updateStockOnSale", String.valueOf(updateStockOnSale));
+        props.setProperty("allowNegativeStock", String.valueOf(allowNegativeStock));
+        props.setProperty("lowStockPOSAlert", String.valueOf(lowStockPOSAlert));
+        props.setProperty("batchExpiryAlerts", String.valueOf(batchExpiryAlerts));
+        props.setProperty("trackClientsDebts", String.valueOf(trackClientsDebts));
+        props.setProperty("trackSupplierDebts", String.valueOf(trackSupplierDebts));
+
+        try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
+            props.store(out, "Vendly Remastered Configuration");
+        } catch (IOException e) {
+            System.err.println("[Config] Failed to save " + CONFIG_FILE + ": " + e.getMessage());
+        }
+    }
     public String getLanguage() {
         return language;
     }
@@ -112,5 +152,61 @@ public class Config {
         } else {
             rootNode.setNodeOrientation(NodeOrientation.LEFT_TO_RIGHT);
         }
+    }
+
+    public boolean isTrackStock() {
+        return trackStock;
+    }
+
+    public void setTrackStock(boolean trackStock) {
+        this.trackStock = trackStock;
+    }
+
+    public boolean isUpdateStockOnSale() {
+        return updateStockOnSale;
+    }
+
+    public void setUpdateStockOnSale(boolean updateStockOnSale) {
+        this.updateStockOnSale = updateStockOnSale;
+    }
+
+    public boolean isAllowNegativeStock() {
+        return allowNegativeStock;
+    }
+
+    public void setAllowNegativeStock(boolean allowNegativeStock) {
+        this.allowNegativeStock = allowNegativeStock;
+    }
+
+    public boolean isLowStockPOSAlert() {
+        return lowStockPOSAlert;
+    }
+
+    public void setLowStockPOSAlert(boolean lowStockPOSAlert) {
+        this.lowStockPOSAlert = lowStockPOSAlert;
+    }
+
+    public boolean isBatchExpiryAlerts() {
+        return batchExpiryAlerts;
+    }
+
+    public void setBatchExpiryAlerts(boolean batchExpiryAlerts) {
+        this.batchExpiryAlerts = batchExpiryAlerts;
+    }
+
+    public boolean isTrackClientsDebts() {
+        return trackClientsDebts;
+    }
+
+    public void setTrackClientsDebts(boolean trackClientsDebts) {
+        this.trackClientsDebts = trackClientsDebts;
+    }
+
+    public boolean isTrackSupplierDebts() {
+        return trackSupplierDebts;
+    }
+
+    public void setTrackSupplierDebts(boolean trackSupplierDebts) {
+        this.trackSupplierDebts = trackSupplierDebts;
     }
 }

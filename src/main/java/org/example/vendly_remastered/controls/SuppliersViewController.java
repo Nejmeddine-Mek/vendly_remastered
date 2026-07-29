@@ -14,11 +14,10 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
 import org.example.vendly_remastered.security.UserSession;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;

@@ -11,7 +11,7 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.repository.IUserRepository;
-import org.example.vendly_remastered.utils.Config;
+import org.example.vendly_remastered.security.Config;
 
 import java.io.IOException;
 import java.net.URL;
