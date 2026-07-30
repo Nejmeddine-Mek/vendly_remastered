@@ -1,13 +1,20 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 
+import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.ProductsCache;
+import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.models.dto.CartItem;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.models.entity.Product;
@@ -20,11 +27,15 @@ import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.service.AuditLogsService;
 import org.example.vendly_remastered.service.SalesServices;
-import org.example.vendly_remastered.utils.DatabaseManager;
+
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URL;
+
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,9 +62,10 @@ public class SalesViewController implements Initializable {
     @FXML private TableColumn<CartItem, BigDecimal> colUnitPrice;
     @FXML private TableColumn<CartItem, BigDecimal> colSubTotal;
 
+    @FXML private CheckBox lossCheckBox;
+    @FXML private CheckBox returnCheckBox;
 
-    @FXML private Label transactionSummaryLabel;
-    @FXML private Label totalAmountLabel;
+    @FXML private Button queueButton;
     @FXML private Label totalLabel;
     @FXML private Button confirmButton;
 
@@ -92,6 +104,50 @@ public class SalesViewController implements Initializable {
         setColumnsBehaviour();
         setConfirmButtonBehaviour();
         setClientNameFieldBehaviour();
+
+        // Helper method or inline logic to enforce mutual exclusion
+        ChangeListener<Boolean> mutualExclusionListener = (obs, _, newVal) -> {
+            if (newVal) {
+                if (obs == returnCheckBox.selectedProperty()) {
+                    lossCheckBox.setSelected(false);
+                } else if (obs == lossCheckBox.selectedProperty()) {
+                    returnCheckBox.setSelected(false);
+                }
+            }
+        };
+
+        returnCheckBox.selectedProperty().addListener(mutualExclusionListener);
+        lossCheckBox.selectedProperty().addListener(mutualExclusionListener);
+        queueButton.setOnAction(_ -> {
+            try {
+                // 1. Load a fresh instance of the sales window FXML
+                FXMLLoader loader = new FXMLLoader(getClass().getResource(Constants.getViewPath(Constants.SALES_VIEW)));
+
+                Config config = Config.getInstance();
+                loader.setResources(config.getLanguageBundle());
+
+                Parent root = loader.load();
+
+                config.applyOrientation(root);
+                Object controller = loader.getController();
+                if(controller != null)
+                    ControllerDispatcher.execute(controller);
+
+                // 2. Create and show a new Stage (Window)
+                Stage queueStage = new Stage();
+                queueStage.setTitle("Queued Sale - " + java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
+                queueStage.setScene(new Scene(root));
+                queueStage.show();
+
+                // 3. Reset the current active sale view so it starts fresh
+                // resetCurrentSale(); // Uncomment when ready to clear current window
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private void setConfirmButtonBehaviour(){
@@ -108,17 +164,16 @@ public class SalesViewController implements Initializable {
         quantityField.setOnKeyPressed(key -> {
             if (quantityField.isFocused() && key.isAltDown()) {
                 commitQuantityAndReset();
-                quantityField.setEditable(false);
             }
         });
-        quantityField.setOnAction(event -> {
+        quantityField.setOnAction(_ -> {
             commitQuantityAndReset();
-            quantityField.setEditable(false);
         });
         // Basically this works as follows
         // read a product then press enter
         // focus on the quantity field, we add it after all defaults are ready
     }
+
     private void commitQuantityAndReset(){
         String rawText = quantityField.getText();
         BigDecimal validatedQty;
@@ -137,6 +192,10 @@ public class SalesViewController implements Initializable {
         quantityField.setText(String.format("%.2f", validatedQty));
 
         CartItem selectedItem = saleItemsTable.getSelectionModel().getSelectedItem();
+        if(selectedItem == null && !saleItems.isEmpty()){
+            selectedItem = saleItems.getFirst();
+        }
+
         if (selectedItem != null) {
             selectedItem.setQuantity(validatedQty);
             // Explicitly refresh the table viewport to force recalculations if needed
@@ -159,7 +218,7 @@ public class SalesViewController implements Initializable {
 
     private void setPriceBehaviour(double price){
         priceField.setEditable(false);
-        priceField.setText(String.valueOf(price));
+        priceField.setText(String.format("%.2f", price));
         setBarcodeFieldBehaviour();
     }
     private void setClientCheckBoxBehaviour(){
@@ -199,6 +258,30 @@ public class SalesViewController implements Initializable {
     private void setTableBehaviour(){
         saleItems = FXCollections.observableArrayList();
         saleItemsTable.setItems(saleItems);
+
+        saleItemsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newItem) -> {
+            if(newItem == null){
+                String lastQuantity = "1.00";
+                if(!saleItems.isEmpty()){
+                    lastQuantity = String.format("%.2f", saleItems.getFirst().getQuantity());
+                }
+                priceField.setText("0.00");
+                quantityField.setText(lastQuantity);
+            } else {
+                priceField.setText(String.format("%.2f", newItem.getUnitPrice()));
+                quantityField.setText(String.format("%.2f", newItem.getQuantity()));
+            }
+        });
+
+        saleItemsTable.setOnMouseClicked(click -> {
+            if(click.getClickCount() == 2){
+                CartItem selectedItem = saleItemsTable.getSelectionModel().getSelectedItem();
+                if (selectedItem != null) {
+                    saleItems.remove(selectedItem);
+                    updateTransactionTotal();
+                }
+            }
+        });
     }
     private void setColumnsBehaviour(){
         colBarcode.setCellValueFactory(cellData -> cellData.getValue().barCodeProperty());
@@ -215,6 +298,9 @@ public class SalesViewController implements Initializable {
 
         // 1. Switch focus to quantity field using ALT key
         barcodeField.setOnKeyPressed(key -> {
+            if(barcodeField.isFocused() && key.getCode() == KeyCode.SPACE){
+                saveSale();
+            }
             if (barcodeField.isFocused() && key.isAltDown()) {
                 quantityField.setEditable(true);
                 quantityField.requestFocus();
@@ -237,6 +323,8 @@ public class SalesViewController implements Initializable {
         barcodeField.setOnAction(_ -> {
             String inputBarcode = barcodeField.getText();
             if (inputBarcode == null || inputBarcode.trim().isEmpty()) {
+                quantityField.setEditable(true);
+                quantityField.requestFocus();
                 return;
             }
 
@@ -295,7 +383,7 @@ public class SalesViewController implements Initializable {
                     newItem.setPromotionPrice(targetProduct.getPromotionPrice());
                     newItem.setPromotionQuantity(targetProduct.getPromotionQuantity());
                 }
-                saleItems.add(newItem);
+                saleItems.addFirst(newItem);
             }
 
             updateTransactionTotal();
@@ -417,6 +505,20 @@ public class SalesViewController implements Initializable {
             }
         }
 
+        if(returnCheckBox.isSelected()){
+            header.setPaidAmount(header.getPaidAmount().negate());
+            header.setSaleProfit(header.getSaleProfit().negate());
+            header.setSaleTotal(header.getSaleTotal().negate());
+            header.setSaleNote("return");
+            returnCheckBox.setSelected(false);
+        }
+        if(lossCheckBox.isSelected()){
+            header.setPaidAmount(BigDecimal.ZERO);
+            header.setSaleProfit(header.getSaleTotal().negate());
+            header.setSaleTotal(header.getSaleTotal().negate());
+            header.setSaleNote("expired");
+            lossCheckBox.setSelected(false);
+        }
         //main ui first saves header
         int saleId = saleHeaderRepository.saveSaleHeader(header);
         if(saleId == -1){

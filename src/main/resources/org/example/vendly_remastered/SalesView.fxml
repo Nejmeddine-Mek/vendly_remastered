@@ -120,8 +120,9 @@
                         <!-- Action Buttons Stack -->
                         <VBox spacing="8.0">
                            <children>
-                              <Button fx:id="queueButton" maxWidth="Infinity" styleClass="action-btn-secondary" text="%sales.queue" />
-                              <Button fx:id="returnLossButton" maxWidth="Infinity" styleClass="action-btn-secondary" text="%sales.returnLoss" />
+                              <CheckBox fx:id="returnCheckBox" styleClass="form-checkbox" text="%sale.type.return" />
+                              <CheckBox fx:id="lossCheckBox" styleClass="form-checkbox" text="%sale.type.loss" />
+                              <Button fx:id="queueButton" maxWidth="Infinity" styleClass="btn-action-finance" text="%sales.queue" />
                               <Button fx:id="confirmButton" maxWidth="Infinity" styleClass="action-btn-primary" text="%sales.confirm" />
                            </children>
                         </VBox>

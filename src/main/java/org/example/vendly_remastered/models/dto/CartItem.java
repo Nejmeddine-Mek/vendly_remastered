@@ -44,7 +44,8 @@ public class CartItem {
     public void setQuantity(BigDecimal quantity) {
         this.quantity.set(quantity);
         // now we need to the real value of the subtotal
-        if(promotion.getQuantity().compareTo(BigDecimal.ZERO) == 0)
+
+        if(promotion.getQuantity() == null || promotion.getPrice() == null)
             this.subTotal.set(this.getUnitPrice().multiply(quantity));
         else{
             BigDecimal[] split = quantity.divideAndRemainder(promotion.getQuantity());
