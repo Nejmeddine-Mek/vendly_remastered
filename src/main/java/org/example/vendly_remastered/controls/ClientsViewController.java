@@ -37,6 +37,8 @@ public class ClientsViewController implements Initializable {
     @FXML private Button clientDetailsButton;
     @FXML private Button processPaymentButton;
 
+    @FXML private Button refreshButton;
+
     @FXML private TableView<Client> clientTableView;
 
     @FXML private TableColumn<Client, Integer> colId;
@@ -58,6 +60,9 @@ public class ClientsViewController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
+        refreshButton.setOnAction( _ ->{
+            initializeTable();
+        });
         ObservableBooleanValue showPaymentButton = Bindings.and(
                 (ObservableBooleanValue) Config.getInstance().trackClientsDebtsProperty(),
                 processPaymentButton.visibleProperty()
