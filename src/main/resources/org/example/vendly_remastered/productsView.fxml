@@ -49,6 +49,7 @@
                                 <Button fx:id="addProductButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="%products.addNewProdButton" />
                                 <Button fx:id="productDetailsButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="%products.viewModifyItem" />
                                 <Button fx:id="adjustStockButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="%products.adjustInventory" />
+                                <Button fx:id="refreshButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-secondary" text="%products.refresh" />
                             </children>
                         </VBox>
                     </children>

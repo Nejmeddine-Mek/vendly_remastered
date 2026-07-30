@@ -37,6 +37,7 @@ public class ProductsViewController implements Initializable {
     @FXML private Button addProductButton;
     @FXML private Button productDetailsButton;
     @FXML private Button adjustStockButton;
+    @FXML private Button refreshButton;
     @FXML private TableView<Product> productTableView; // Replace ? with your real Product model object
 
     @FXML private TableColumn<Product, String> colSku;
@@ -61,6 +62,9 @@ public class ProductsViewController implements Initializable {
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        refreshButton.setOnAction(_ -> {
+            initializeTable();
+        });
         // hide these for now
         adjustStockButton.managedProperty().bind(adjustStockButton.visibleProperty());
         adjustStockButton.setVisible(false);
