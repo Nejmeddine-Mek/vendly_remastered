@@ -36,6 +36,7 @@ public class SuppliersViewController implements Initializable {
     @FXML private Button addSupplierButton;
     @FXML private Button supplierDetailsButton;
     @FXML private Button processOrderButton;
+    @FXML private Button refreshButton;
     @FXML private TableView<Supplier> supplierTableView; // Replace ? with your Supplier model data entity
 
     @FXML private TableColumn<Supplier, Integer> colId;
@@ -54,6 +55,9 @@ public class SuppliersViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        refreshButton.setOnAction(_ -> {
+            initializeTable();
+        });
         BooleanBinding showProcessOrder = Bindings.and(
                 // Add any other visibility conditions here, or just your config flag:
                 (ObservableBooleanValue) Config.getInstance().trackSupplierDebtsProperty(),

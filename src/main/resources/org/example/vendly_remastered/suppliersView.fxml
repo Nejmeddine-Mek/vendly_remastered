@@ -43,10 +43,9 @@
                         <VBox alignment="TOP_CENTER" minWidth="210.0" prefWidth="210.0" spacing="10.0" styleClass="form-card">
                             <children>
                                 <Button fx:id="addSupplierButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-primary" text="%supplier.addSupplier" />
-
                                 <Button fx:id="supplierDetailsButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-manage" text="%supplier.viewModifySupplier" />
-
                                 <Button fx:id="processOrderButton" mnemonicParsing="false" prefWidth="190.0" styleClass="btn-action-finance" text="%supplier.clearDebts" />
+                                <Button fx:id="refreshButton" mnemonicParsing="false" prefWidth="190.0" styleClass="action-btn-secondary" text="%supplier.refresh" />
                             </children>
                         </VBox>
                     </children>
