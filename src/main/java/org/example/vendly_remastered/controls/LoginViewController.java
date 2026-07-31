@@ -51,7 +51,7 @@ public class LoginViewController implements Initializable {
     private int handleLogin(String username, String plainPassword){
         if (username.isEmpty() || plainPassword.isEmpty()) {
             // Let's assume you have an @FXML private Label errorLabel;
-            errorLabel.setText("Please fill in all fields.");
+            errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.emptyFields"));
             errorLabel.setStyle("-fx-text-fill: #ff4d4d;"); // Turn text red
             return 1;
         }
@@ -76,13 +76,13 @@ public class LoginViewController implements Initializable {
 
             } catch (IOException e) {
                 e.printStackTrace();
-                errorLabel.setText("Failed to load dashboard screen.");
+                errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.connectionFailed"));
             }
         } else {
         this.passwordField.setText("");      // Clear bad password
         this.passwordField.requestFocus();  // Pop cursor back in there instantly
 
-        errorLabel.setText("Invalid username or password.");
+            errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.invalidCredentials"));
         errorLabel.setStyle("-fx-text-fill: #ff4d4d;");
         return 2;
     }

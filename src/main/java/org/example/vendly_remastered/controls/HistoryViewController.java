@@ -118,6 +118,15 @@ public class HistoryViewController implements Initializable {
         String note = sale.getSaleNote() != null ? sale.getSaleNote().toUpperCase() : "SALE";
         transactionSummary.setText(String.format("TX #%d — %s", sale.getSaleId(), note));
 
+
+        if(sale.getSaleNote().compareToIgnoreCase("return") == 0 || sale.getSaleNote().compareToIgnoreCase("loss") == 0){
+            String redStyle = "-fx-text-fill: #DC2626; -fx-font-weight: bold;";
+            txtSelectedDebt.setStyle(redStyle);
+            txtSelectedProfit.setStyle(redStyle);
+        } else{
+            String greenStyle = "-fx-text-fill: #16A34A; -fx-font-weight: bold;";
+
+        }
         if ("SALE".equalsIgnoreCase(note)) {
             transactionSummary.setStyle("-fx-text-fill: #2e7d32; -fx-font-weight: bold;");
         } else {

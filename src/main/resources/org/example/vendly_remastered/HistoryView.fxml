@@ -155,7 +155,7 @@
                             <children>
                                 <VBox spacing="2.0" GridPane.columnIndex="0">
                                     <Label styleClass="form-label" text="%history.profitLabel" textFill="#757575" />
-                                    <TextField fx:id="txtSelectedProfit" editable="false" focusTraversable="false" promptText="0.00" style="-fx-text-fill: #16A34A; -fx-font-weight: bold;" styleClass="form-field" />
+                                    <TextField fx:id="txtSelectedProfit" editable="false" focusTraversable="false" promptText="0.00" style="-fx-text-fill: #16A34A; -fx-font-weight: bold;" styleClass="form-field"/>
                                 </VBox>
                                 <VBox spacing="2.0" GridPane.columnIndex="1">
                                     <Label styleClass="form-label" text="%history.unpaidBalance" textFill="#757575" />

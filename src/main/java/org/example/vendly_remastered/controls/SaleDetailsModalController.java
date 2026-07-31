@@ -67,6 +67,14 @@ public class SaleDetailsModalController implements Initializable {
             txtHeaderClient.setText(sale.getClientName() == null || sale.getClientName().isBlank() ? "Walk-in Customer" : sale.getClientName());
             txtHeaderCashier.setText(sale.getSaleUsername());
             txtHeaderTotal.setText(String.format("%.2f DA", sale.getSaleTotal() != null ? sale.getSaleTotal() : BigDecimal.ZERO));
+
+            if (sale.getSaleNote() != null && (sale.getSaleNote().trim().equalsIgnoreCase("return") || sale.getSaleNote().trim().equalsIgnoreCase("loss"))) {
+                String redStyle = "-fx-text-fill: #DC2626 !important; -fx-font-weight: bold;";
+                txtHeaderTotal.setStyle(redStyle);
+                modalTitle.setStyle(redStyle);
+                txtHeaderSaleId.setStyle(redStyle);
+            }
+
         }
 
         if (items != null) {
