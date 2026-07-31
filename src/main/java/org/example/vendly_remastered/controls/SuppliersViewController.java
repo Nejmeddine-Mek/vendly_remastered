@@ -50,6 +50,7 @@ public class SuppliersViewController implements Initializable {
     ISuppliersRepository suppliersRepository;
 
     private boolean READ_ONLY = false;
+    private boolean isOpenModal = false;
     private final ObservableList<Supplier> supplierList = FXCollections.observableArrayList();
     public void setSuppliersRepository(ISuppliersRepository suppliersRepository){ this.suppliersRepository = suppliersRepository; }
 
@@ -109,6 +110,25 @@ public class SuppliersViewController implements Initializable {
     }
 
     public void initializeTable() {
+        supplierTableView.setOnMouseClicked(click -> {
+            if(click.getClickCount() == 2){
+                if(isOpenModal)
+                    return;
+                Supplier selectedSupplier = supplierTableView.getSelectionModel().getSelectedItem();
+                if(selectedSupplier == null)
+                    return;
+
+                READ_ONLY = true;
+                isOpenModal = true;
+                openModal(selectedSupplier);
+
+                READ_ONLY = false;
+                isOpenModal = false;
+
+                supplierTableView.getSelectionModel().clearSelection();
+            }
+        });
+
         if (suppliersRepository == null) {
             System.out.println("repo is null");
             return;

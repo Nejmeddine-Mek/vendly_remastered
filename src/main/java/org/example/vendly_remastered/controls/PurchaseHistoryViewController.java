@@ -63,6 +63,7 @@ public class PurchaseHistoryViewController implements Initializable {
     @FXML private Button btnOpenDetails;
     @FXML private Button btnAddPurchase;
 
+    private boolean isOpenModal = false;
     private IPurchaseDetailsRepository purchaseDetailsRepository;
     private IPurchaseHeaderRepository purchaseHeaderRepository;
 
@@ -84,7 +85,8 @@ public class PurchaseHistoryViewController implements Initializable {
         btnAddPurchase.setOnAction(_ -> {
             openModal(null);
         });
-        //setPurchaseDetailsButton();
+        setPurchaseDetailsButton();
+
         setDomainSearchButton();
     }
 
@@ -105,6 +107,15 @@ public class PurchaseHistoryViewController implements Initializable {
     }
 
     private void setTableViewBehaviour() {
+        purchasesTable.setOnMouseClicked(click -> {
+            if(isOpenModal)
+                return;
+            if(click.getClickCount() == 2){
+                isOpenModal = true;
+                btnOpenDetails.fire();
+                isOpenModal = false;
+            }
+        });
         purchasesTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 updateUIWithSelectedPurchase(newSelection);

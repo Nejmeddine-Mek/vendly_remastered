@@ -50,6 +50,7 @@ public class ClientsViewController implements Initializable {
     @FXML private TableColumn<Client, Double> colDebts;
 
     private boolean READ_ONLY = false;
+    private boolean isOpenModal = false;
     private IClientsRepository clientsRepository;
     private ObservableList<Client> clientMasterList = FXCollections.observableArrayList();
 
@@ -111,6 +112,22 @@ public class ClientsViewController implements Initializable {
     }
 
     public void initializeTable() {
+        clientTableView.setOnMouseClicked(click -> {
+            if(click.getClickCount() == 2){
+                if(isOpenModal)
+                    return;
+                Client selectedClient = clientTableView.getSelectionModel().getSelectedItem();
+                if(selectedClient == null)
+                    return;
+                isOpenModal = true;
+                READ_ONLY = true;
+                openClientModal(selectedClient);
+                isOpenModal = false;
+                READ_ONLY = false;
+
+                clientTableView.getSelectionModel().clearSelection();
+            }
+        });
         if (clientsRepository == null){
             System.out.println("repo is null");
             return;

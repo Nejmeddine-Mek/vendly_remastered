@@ -65,6 +65,8 @@ public class HistoryViewController implements Initializable {
     private ObservableList<SaleHeader> salesList;
     private FilteredList<SaleHeader> filteredSales;
 
+    private boolean isOpneModal = false;
+
     public void setSaleDetailsRepository(ISaleDetailsRepository sdr) {
         this.saleDetailsRepository = sdr;
     }
@@ -98,6 +100,16 @@ public class HistoryViewController implements Initializable {
     }
 
     public void setTableViewBehaviour() {
+        salesTable.setOnMouseClicked(click -> {
+            if(click.getClickCount() == 2){
+                if(isOpneModal)
+                    return;
+
+                isOpneModal = true;
+                btnOpenDetails.fire();
+                isOpneModal = false;
+            }
+        });
         salesTable.getSelectionModel().selectedItemProperty().addListener((observable, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 updateUIWithSelectedSale(newSelection);

@@ -225,4 +225,27 @@ public class SettingsController implements Initializable {
             txtNewCategoryName.clear();
         }
     }
+
+    private void handleAddRole(){
+        // the addRole button will have two functions
+        // if the field is empty and there is a selection, we update the permissions of the selection
+        // if the field is empty and there is no selection, no action
+
+        String newRole = txtNewRoleName.getText().trim();
+
+        if (newRole.isEmpty()) {
+            txtNewCategoryName.clear();
+            return;
+        }
+
+        // Check for existing category case-insensitively
+        for (Role role : roleListView.getItems()) {
+            if (role.getRoleName().equalsIgnoreCase(newRole)) {
+                txtNewRoleName.clear();
+                return;
+            }
+        }
+        Role role = new Role();
+
+    }
 }

@@ -550,6 +550,7 @@ public class SalesViewController implements Initializable {
         barcodeField.clear();
         clientNameField.clear();
         paidAmountField.clear();
+        totalLabel.setText("0.00 DA");
     }
     private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
         if (textVal == null || !textVal.startsWith("@")) {

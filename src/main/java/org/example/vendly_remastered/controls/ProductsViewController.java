@@ -56,7 +56,8 @@ public class ProductsViewController implements Initializable {
     private FilteredList<Product> filteredData;
     private SortedList<Product> sortedData;
 
-    boolean READ_ONLY = false;
+    private boolean READ_ONLY = false;
+    private boolean isOpenModal = false;
     public void setCategoryRepository(ICategoryRepository categoryRepository){ this.categoryRepository = categoryRepository; }
     public void setProductRepository(IProductRepository productRepository){ this.productRepository = productRepository; }
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
@@ -110,7 +111,25 @@ public class ProductsViewController implements Initializable {
         });
     }
 
-    private void setTableBehaviour(){}
+    private void setTableBehaviour(){
+        productTableView.setOnMouseClicked(click -> {
+            if(click.getClickCount() == 2){
+                if (isOpenModal)
+                    return;
+
+                Product selectedProduct = productTableView.getSelectionModel().getSelectedItem();
+                if(selectedProduct == null)
+                    return;
+                READ_ONLY = true;
+                isOpenModal = true;
+                openProductModal(selectedProduct);
+                READ_ONLY = false;
+                isOpenModal = false;
+
+                productTableView.getSelectionModel().clearSelection();
+            }
+        });
+    }
     public void initializeTable() {
         loadProductData();
 
