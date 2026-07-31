@@ -134,7 +134,7 @@
                 <Separator />
 
                 <!-- Section 4: Category Management -->
-                <VBox spacing="12.0">
+                <VBox fx:id="categoryPanel" spacing="12.0">
                     <children>
                         <Label styleClass="section-title" text="%settings.section.categories">
                             <font>
@@ -145,7 +145,7 @@
                         <HBox alignment="CENTER_LEFT" spacing="12.0">
                             <children>
                                 <TextField fx:id="txtNewCategoryName" prefWidth="250.0" promptText="%settings.prompt.new_category" styleClass="form-field" />
-                                <Button fx:id="btnAddCategory" onAction="#handleSaveCategory" styleClass="action-btn-primary" text="%settings.btn.add_category" />
+                                <Button fx:id="btnAddCategory" styleClass="action-btn-primary" text="%settings.btn.add_category" />
                             </children>
                         </HBox>
 
@@ -167,7 +167,7 @@
                 <Separator />
 
                 <!-- Section 5: Roles & Permission Matrix -->
-                <VBox spacing="12.0">
+                <VBox fx:id="rolesPanel" spacing="12.0">
                     <children>
                         <Label styleClass="section-title" text="%settings.section.roles">
                             <font>
@@ -176,12 +176,38 @@
                         </Label>
 
                         <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <VBox spacing="12.0">
+                                <children>
+                                    <HBox alignment="CENTER_LEFT" spacing="12.0">
+                                        <children>
+                                            <TextField fx:id="txtNewRoleName" prefWidth="250.0" promptText="%settings.prompt.new_role" styleClass="form-field" />
+                                            <Button fx:id="btnAddRole" styleClass="action-btn-primary" text="%settings.btn.add_role" />
+                                        </children>
+                                    </HBox>
+
+                                    <HBox spacing="20.0">
+                                        <children>
+                                            <ListView fx:id="roleListView" prefHeight="130.0" prefWidth="300.0" styleClass="custom-list-view" />
+                                            <VBox spacing="8.0">
+                                                <children>
+                                                    <Label styleClass="field-label" text="%settings.label.existing_roles" />
+                                                    <Label prefWidth="280.0" text="%settings.info.role_no_delete" textFill="#888888" wrapText="true" />
+                                                    <Label prefWidth="280.0" text="%settings.info.role_permissions" textFill="#888888" wrapText="true" />
+                                                </children>
+                                            </VBox>
+                                        </children>
+                                    </HBox>
+                                </children>
+                            </VBox>
+                            <!--
                             <children>
                                 <Label prefWidth="180.0" text="%settings.label.select_role" />
                                 <ComboBox fx:id="rolesComboBox" prefWidth="220.0" promptText="%settings.prompt.choose_role" styleClass="custom-combo-box" />
                                 <Button fx:id="btnNewRole" styleClass="action-btn-secondary" text="%settings.btn.create_role" />
                             </children>
+                            -->
                         </HBox>
+
 
                         <!-- In-place Permission Matrix Panel -->
                         <VBox fx:id="permissionsPanel" spacing="10.0" style="-fx-background-color: #f8f9fa; -fx-padding: 15; -fx-background-radius: 6; -fx-border-color: #e2e8f0; -fx-border-radius: 6;">
@@ -196,16 +222,23 @@
                                     <children>
                                         <VBox spacing="8.0">
                                             <children>
-                                                <CheckBox fx:id="permAccessPOS" styleClass="form-checkbox" text="%settings.perm.pos" />
-                                                <CheckBox fx:id="permManagePurchases" styleClass="form-checkbox" text="%settings.perm.purchases" />
-                                                <CheckBox fx:id="permManageProducts" styleClass="form-checkbox" text="%settings.perm.products" />
+                                                <CheckBox fx:id="permCanSell" styleClass="form-checkbox" text="%settings.perm.can_sell" />
+                                                <CheckBox fx:id="permCanSeeClients" styleClass="form-checkbox" text="%settings.perm.can_see_clients" />
+                                                <CheckBox fx:id="permCanEditClients" styleClass="form-checkbox" text="%settings.perm.can_edit_clients" />
+                                                <CheckBox fx:id="permCanSeeProducts" styleClass="form-checkbox" text="%settings.perm.can_see_products" />
+                                                <CheckBox fx:id="permCanEditProducts" styleClass="form-checkbox" text="%settings.perm.can_edit_products" />
+                                                <CheckBox fx:id="permCanSeeSuppliers" styleClass="form-checkbox" text="%settings.perm.can_see_suppliers" />
+                                                <CheckBox fx:id="permCanEditSuppliers" styleClass="form-checkbox" text="%settings.perm.can_edit_suppliers" />
                                             </children>
                                         </VBox>
                                         <VBox spacing="8.0">
                                             <children>
-                                                <CheckBox fx:id="permViewReports" styleClass="form-checkbox" text="%settings.perm.reports" />
-                                                <CheckBox fx:id="permManageUsers" styleClass="form-checkbox" text="%settings.perm.users" />
-                                                <CheckBox fx:id="permApplyDiscounts" styleClass="form-checkbox" text="%settings.perm.discounts" />
+                                                <CheckBox fx:id="permCanSeeHistory" styleClass="form-checkbox" text="%settings.perm.can_see_history" />
+                                                <CheckBox fx:id="permCanSeeDashboard" styleClass="form-checkbox" text="%settings.perm.can_see_dashboard" />
+                                                <CheckBox fx:id="permCanSeeSettings" styleClass="form-checkbox" text="%settings.perm.can_see_settings" />
+                                                <CheckBox fx:id="permCanSeeUsers" styleClass="form-checkbox" text="%settings.perm.can_see_users" />
+                                                <CheckBox fx:id="permCanSeePurchases" styleClass="form-checkbox" text="%settings.perm.can_see_purchases" />
+                                                <CheckBox fx:id="permCanEditPurchases" styleClass="form-checkbox" text="%settings.perm.can_edit_purchases" />
                                             </children>
                                         </VBox>
                                     </children>

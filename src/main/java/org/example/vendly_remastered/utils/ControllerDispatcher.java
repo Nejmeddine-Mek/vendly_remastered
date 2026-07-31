@@ -108,6 +108,13 @@ public class ControllerDispatcher {
             dc.setDashBoardRepository(new DashboardSQLiteImpl(connection));
             dc.initializeContent();
         });
+        registry.put(SettingsController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            SettingsController sc = (SettingsController) controller;
+            sc.setRoleRepository(new RoleSQLiteImpl(connection));
+            sc.setCategoryRepository(new CategorySQLiteImpl(connection));
+            sc.initializeTables();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

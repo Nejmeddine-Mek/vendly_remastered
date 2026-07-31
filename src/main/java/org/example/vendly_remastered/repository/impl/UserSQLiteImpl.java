@@ -41,6 +41,10 @@ public class UserSQLiteImpl implements IUserRepository {
                         privileges.put("can_edit_suppliers", rs.getInt("can_edit_suppliers") == 1);
                         privileges.put("can_see_history", rs.getInt("can_see_history") == 1);
                         privileges.put("can_see_dashboard", rs.getInt("can_see_dashboard") == 1);
+                        privileges.put("can_see_settings", rs.getInt("can_see_settings") == 1);
+                        privileges.put("can_see_users", rs.getInt("can_see_users") == 1);
+                        privileges.put("can_see_purchases", rs.getInt("can_see_purchases") == 1);
+                        privileges.put("can_edit_purchases", rs.getInt("can_edit_purchases") == 1);
 
                         //create a session now!
                         UserSession.startSession(

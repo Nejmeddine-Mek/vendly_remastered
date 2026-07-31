@@ -22,8 +22,9 @@ public class RoleSQLiteImpl implements IRoleRepository {
         String sql = "INSERT INTO roles (" +
                 "role_id, role_name, can_sell, can_see_clients, can_edit_clients, " +
                 "can_see_products, can_edit_products, can_see_suppliers, can_edit_suppliers, " +
-                "can_see_history, can_see_dashboard) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "can_see_history, can_see_dashboard, can_see_settings, can_see_users, " +
+                "can_see_purchases, can_edit_purchases) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
             // 1. Bind core identity fields
@@ -40,6 +41,10 @@ public class RoleSQLiteImpl implements IRoleRepository {
             pstmt.setInt(9, role.hasPermission("can_edit_suppliers") ? 1 : 0);
             pstmt.setInt(10, role.hasPermission("can_see_history") ? 1 : 0);
             pstmt.setInt(11, role.hasPermission("can_see_dashboard") ? 1 : 0);
+            pstmt.setInt(12, role.hasPermission("can_see_settings") ? 1 : 0);
+            pstmt.setInt(13, role.hasPermission("can_see_users") ? 1 : 0);
+            pstmt.setInt(14, role.hasPermission("can_see_purchases") ? 1 : 0);
+            pstmt.setInt(15, role.hasPermission("can_edit_purchases") ? 1 : 0);
 
             // Execute transaction payload safely
             int affectedRows = pstmt.executeUpdate();
@@ -49,7 +54,6 @@ public class RoleSQLiteImpl implements IRoleRepository {
             e.printStackTrace();
             return false;
         }
-
     }
 
     @Override
@@ -57,7 +61,8 @@ public class RoleSQLiteImpl implements IRoleRepository {
         String sql = "UPDATE roles SET " +
                 "role_name = ?, can_sell = ?, can_see_clients = ?, can_edit_clients = ?, " +
                 "can_see_products = ?, can_edit_products = ?, can_see_suppliers = ?, can_edit_suppliers = ?, " +
-                "can_see_history = ?, can_see_dashboard = ? " +
+                "can_see_history = ?, can_see_dashboard = ?, can_see_settings = ?, can_see_users = ?, " +
+                "can_see_purchases = ?, can_edit_purchases = ? " +
                 "WHERE role_id = ?";
 
         try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
@@ -74,9 +79,13 @@ public class RoleSQLiteImpl implements IRoleRepository {
             pstmt.setInt(8, role.hasPermission("can_edit_suppliers") ? 1 : 0);
             pstmt.setInt(9, role.hasPermission("can_see_history") ? 1 : 0);
             pstmt.setInt(10, role.hasPermission("can_see_dashboard") ? 1 : 0);
+            pstmt.setInt(11, role.hasPermission("can_see_settings") ? 1 : 0);
+            pstmt.setInt(12, role.hasPermission("can_see_users") ? 1 : 0);
+            pstmt.setInt(13, role.hasPermission("can_see_purchases") ? 1 : 0);
+            pstmt.setInt(14, role.hasPermission("can_edit_purchases") ? 1 : 0);
 
             // 3. Bind the trailing primary target ID criteria key to the WHERE clause parameter
-            pstmt.setShort(11, role.getRoleId());
+            pstmt.setShort(15, role.getRoleId());
 
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
@@ -112,7 +121,9 @@ public class RoleSQLiteImpl implements IRoleRepository {
         String[] permissionColumns = {
                 "can_sell", "can_see_clients", "can_edit_clients",
                 "can_see_products", "can_edit_products", "can_see_suppliers",
-                "can_edit_suppliers", "can_see_history", "can_see_dashboard"
+                "can_edit_suppliers", "can_see_history", "can_see_dashboard",
+                "can_see_settings", "can_see_users", "can_see_purchases",
+                "can_edit_purchases"
         };
 
         try (PreparedStatement pstmt = this.connection.prepareStatement(sql);

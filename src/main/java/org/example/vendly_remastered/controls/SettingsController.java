@@ -4,16 +4,18 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import org.example.vendly_remastered.models.entity.Category;
+import org.example.vendly_remastered.models.entity.Role;
+import org.example.vendly_remastered.repository.ICategoryRepository;
+import org.example.vendly_remastered.repository.IRoleRepository;
 import org.example.vendly_remastered.security.AppConfig;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.security.UserSession;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class SettingsController implements Initializable {
@@ -39,28 +41,62 @@ public class SettingsController implements Initializable {
     @FXML private ListView<String> categoryListView;
 
     // --- Section 5: Roles & Security Permissions ---
-    @FXML private ComboBox<String> rolesComboBox;
+    @FXML private ListView<Role> roleListView;
+    @FXML private TextField txtNewRoleName;
+    @FXML private Button btnAddRole;
     @FXML private Button btnNewRole;
-    @FXML private VBox permissionsPanel;
-    @FXML private CheckBox permAccessPOS;
-    @FXML private CheckBox permManagePurchases;
-    @FXML private CheckBox permManageProducts;
-    @FXML private CheckBox permViewReports;
-    @FXML private CheckBox permManageUsers;
-    @FXML private CheckBox permApplyDiscounts;
+
+    @FXML private VBox rolesPanel;
+    @FXML private VBox categoryPanel;
+    @FXML private CheckBox permCanSell;
+    @FXML private CheckBox permCanSeeClients;
+    @FXML private CheckBox permCanEditClients;
+    @FXML private CheckBox permCanSeeProducts;
+    @FXML private CheckBox permCanEditProducts;
+    @FXML private CheckBox permCanSeeSuppliers;
+    @FXML private CheckBox permCanEditSuppliers;
+    @FXML private CheckBox permCanSeeHistory;
+    @FXML private CheckBox permCanSeeDashboard;
+    @FXML private CheckBox permCanSeeSettings;
+    @FXML private CheckBox permCanSeeUsers;
+    @FXML private CheckBox permCanSeePurchases;
+    @FXML private CheckBox permCanEditPurchases;
 
     // --- Bottom Action Bar ---
     @FXML private Button cancelButton;
     @FXML private Button saveButton;
 
+    private IRoleRepository roleRepository;
+    private ICategoryRepository categoryRepository;
+
+    public void setRoleRepository(IRoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
+
+    public void setCategoryRepository(ICategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
+        if(!UserSession.getInstance().hasPrivilege("can_edit_products")){
+            categoryPanel.managedProperty().bind(categoryPanel.visibleProperty());
+            categoryPanel.setVisible(false);
+        }
+        if(!UserSession.getInstance().hasPrivilege("can_see_users")){
+            rolesPanel.managedProperty().bind(rolesPanel.visibleProperty());
+            rolesPanel.setVisible(false);
+        }
         // 1. Populate Language Dropdown
         languageComboBox.setItems(FXCollections.observableArrayList("English", "Français", "العربية"));
+        setRolesListBehaviour();
 
         // 2. Load configurations from AppConfig singleton instance
         loadConfigValues();
+
+        // 3. set button behaviour
+        btnAddCategory.setOnAction(_ -> handleAddCategory() );
+
     }
     private void loadConfigValues() {
         // hide this for now
@@ -88,10 +124,7 @@ public class SettingsController implements Initializable {
         trackSupplierDebtsCheckBox.setSelected(config.isTrackSupplierDebts());
     }
 
-    @FXML
-    private void handleSaveCategory(ActionEvent event) {
-        // Pending category repository integration
-    }
+
 
     @FXML
     private void handleSaveSettings(ActionEvent event) {
@@ -115,5 +148,81 @@ public class SettingsController implements Initializable {
     }
 
 
+    private void loadCategories(){
+        List<Category> categories = categoryRepository.findAll();
+        for (Category category : categories) {
+            if (category.getCategoryName() != null && !category.getCategoryName().trim().isEmpty()) {
+                categoryListView.getItems().add(category.getCategoryName());
+            }
+        }
+    }
+    private void loadRoles(){
 
+        List<Role> rolesList = roleRepository.findAll();
+        for(Role role : rolesList){
+            roleListView.getItems().add(role);
+        }
+    }
+
+    private void setRolesListBehaviour(){
+        roleListView.setCellFactory(param -> new ListCell<Role>() {
+            @Override
+            protected void updateItem(Role role, boolean empty) {
+                super.updateItem(role, empty);
+                if (empty || role == null || role.getRoleName() == null) {
+                    setText(null);
+                } else {
+                    setText(role.getRoleName());
+                }
+            }
+        });
+
+        roleListView.getSelectionModel().selectedItemProperty().addListener(_ -> {
+            Role selectedRole = roleListView.getSelectionModel().getSelectedItem();
+            if(selectedRole == null)
+                return;
+
+            permCanSell.setSelected(selectedRole.hasPermission("can_sell"));
+            permCanSeeClients.setSelected(selectedRole.hasPermission("can_see_clients"));
+            permCanEditClients.setSelected(selectedRole.hasPermission("can_edit_clients"));
+            permCanSeeProducts.setSelected(selectedRole.hasPermission("can_see_products"));
+            permCanEditProducts.setSelected(selectedRole.hasPermission("can_edit_products"));
+            permCanSeeSuppliers.setSelected(selectedRole.hasPermission("can_see_suppliers"));
+            permCanEditSuppliers.setSelected(selectedRole.hasPermission("can_edit_suppliers"));
+            permCanSeeHistory.setSelected(selectedRole.hasPermission("can_see_history"));
+            permCanSeeDashboard.setSelected(selectedRole.hasPermission("can_see_dashboard"));
+            permCanSeeSettings.setSelected(selectedRole.hasPermission("can_see_settings"));
+            permCanSeeUsers.setSelected(selectedRole.hasPermission("can_see_users"));
+            permCanSeePurchases.setSelected(selectedRole.hasPermission("can_see_purchases"));
+            permCanEditPurchases.setSelected(selectedRole.hasPermission("can_edit_purchases"));
+        });
+    }
+
+    public void initializeTables(){
+        loadCategories();
+        loadRoles();
+    }
+
+    private void handleAddCategory() {
+        String newCategory = txtNewCategoryName.getText().trim();
+
+        if (newCategory.isEmpty()) {
+            txtNewCategoryName.clear();
+            return;
+        }
+
+        // Check for existing category case-insensitively
+        for (String categoryName : categoryListView.getItems()) {
+            if (categoryName.equalsIgnoreCase(newCategory)) {
+                txtNewCategoryName.clear();
+                return;
+            }
+        }
+
+        int newId = categoryRepository.addCategory(newCategory);
+        if (newId > 0) {
+            categoryListView.getItems().add(newCategory);
+            txtNewCategoryName.clear();
+        }
+    }
 }

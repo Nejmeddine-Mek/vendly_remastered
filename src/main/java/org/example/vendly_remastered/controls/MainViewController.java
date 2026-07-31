@@ -87,6 +87,9 @@ public class MainViewController implements Initializable {
                 case "can_see_users":
                     usersButton.setVisible(entry.getValue());
                     break;
+                case "can_see_purchases":
+                    purchasesButton.setVisible(entry.getValue());
+                    break;
             }
         }
 
