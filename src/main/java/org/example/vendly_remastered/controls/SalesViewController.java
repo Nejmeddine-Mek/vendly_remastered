@@ -1,5 +1,6 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,6 +69,7 @@ public class SalesViewController implements Initializable {
     @FXML private Button queueButton;
     @FXML private Label totalLabel;
     @FXML private Button confirmButton;
+    @FXML private Button noBarCodeButton;
 
     private final ContextMenu suggestionPopup = new ContextMenu();
     ObservableList<CartItem> saleItems;
@@ -284,12 +286,15 @@ public class SalesViewController implements Initializable {
         });
     }
     private void setColumnsBehaviour(){
-        colBarcode.setCellValueFactory(cellData -> cellData.getValue().barCodeProperty());
+        colBarcode.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
+                String.valueOf(saleItemsTable.getItems().indexOf(cellData.getValue()) + 1)
+        ));
         colProduct.setCellValueFactory(cellData -> cellData.getValue().productNameProperty());
         colQuantity.setCellValueFactory(cellData -> cellData.getValue().quantityProperty());
         colUnitPrice.setCellValueFactory(cellData -> cellData.getValue().unitPriceProperty());
         colSubTotal.setCellValueFactory(cellData -> cellData.getValue().subtotalProperty());
     }
+
     private void setBarcodeFieldBehaviour() {
         // Ensure you have a single ContextMenu instance accessible in this scope
         // ContextMenu suggestionPopup = new ContextMenu(); // If not declared at class level
@@ -298,12 +303,24 @@ public class SalesViewController implements Initializable {
 
         // 1. Switch focus to quantity field using ALT key
         barcodeField.setOnKeyPressed(key -> {
-            if(barcodeField.isFocused() && key.getCode() == KeyCode.SPACE){
+            if (barcodeField.isFocused() && key.getCode() == KeyCode.SPACE) {
                 saveSale();
+                key.consume();
+            }
+            if (barcodeField.isFocused() && (key.getCode() == KeyCode.PLUS || key.getCode() == KeyCode.ADD)) {
+                increment();
+                Platform.runLater(barcodeField::clear);
+                key.consume();
+            }
+            if (barcodeField.isFocused() && (key.getCode() == KeyCode.MINUS || key.getCode() == KeyCode.SUBTRACT)) {
+                decrement();
+                Platform.runLater(barcodeField::clear);
+                key.consume();
             }
             if (barcodeField.isFocused() && key.isAltDown()) {
                 quantityField.setEditable(true);
                 quantityField.requestFocus();
+                key.consume();
             }
         });
 
@@ -389,6 +406,35 @@ public class SalesViewController implements Initializable {
             updateTransactionTotal();
             barcodeField.clear();
         });
+    }
+
+    private void decrement() {
+        CartItem selectedItem = saleItemsTable.getSelectionModel().getSelectedItem();
+        if(selectedItem == null && !saleItems.isEmpty())
+            selectedItem = saleItems.getFirst();
+
+        if(selectedItem != null) {
+            BigDecimal qty = selectedItem.getQuantity();
+            qty = qty.subtract(BigDecimal.ONE);
+            if(qty.compareTo(BigDecimal.ZERO) == 0)
+                saleItems.remove(selectedItem);
+            else
+                selectedItem.setQuantity(qty);
+            updateTransactionTotal();
+            saleItemsTable.refresh();
+        }
+    }
+
+    private void increment() {
+        CartItem selectedItem = saleItemsTable.getSelectionModel().getSelectedItem();
+        if(selectedItem == null && !saleItems.isEmpty())
+            selectedItem = saleItems.getFirst();
+
+        if(selectedItem != null) {
+            selectedItem.setQuantity(selectedItem.getQuantity().add(BigDecimal.ONE));
+            updateTransactionTotal();
+            saleItemsTable.refresh();
+        }
     }
 
 

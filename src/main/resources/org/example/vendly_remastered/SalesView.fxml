@@ -22,7 +22,19 @@
                   <!-- LEFT SECTION: Item Entry Form Elements -->
                   <VBox spacing="10.0" HBox.hgrow="ALWAYS">
                      <children>
-                        <!-- Line 1: Quantity and Price Inputs -->
+                        <!-- Line 1: Product Barcode or Search Hook -->
+                        <HBox alignment="CENTER_LEFT" spacing="10.0">
+                           <children>
+                              <Label fx:id="barcodeLabel" minWidth="-Infinity" styleClass="form-label" text="%sales.barcode" />
+                              <TextField fx:id="barcodeField" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="noteLabel" minWidth="-Infinity" style="-fx-text-fill: #64748B; -fx-font-style: italic;" styleClass="form-label-helper" text="%sales.note" />
+                              <Button fx:id="noBarCodeButton" mnemonicParsing="false" prefHeight="39.0" prefWidth="43.0" styleClass="action-btn-secondary" text="+" />
+                           </children>
+                           <padding>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </padding>
+                        </HBox>
+                        <!-- Line 2: Quantity and Price Inputs -->
                         <HBox alignment="CENTER_LEFT" spacing="10.0">
                            <children>
                               <Label fx:id="quantityLabel" minWidth="-Infinity" styleClass="form-label" text="%sales.qty" />
@@ -40,45 +52,15 @@
                            </padding>
                         </HBox>
 
-                        <!-- Line 2: Product Barcode or Search Hook -->
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                           <children>
-                              <Label fx:id="barcodeLabel" minWidth="-Infinity" styleClass="form-label" text="%sales.barcode" />
-                              <TextField fx:id="barcodeField" styleClass="form-field" HBox.hgrow="ALWAYS" />
-                              <Label fx:id="noteLabel" minWidth="-Infinity" style="-fx-text-fill: #64748B; -fx-font-style: italic;" styleClass="form-label-helper" text="%sales.note" />
-                           </children>
-                           <padding>
-                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
-                           </padding>
-                        </HBox>
+
                      </children>
                   </VBox>
 
-                  <!-- RIGHT SECTION: Client Profile & Payment Meta Data -->
-                  <VBox minWidth="300.0" spacing="10.0" HBox.hgrow="SOMETIMES">
+                  <!-- Big Bold Total Readout Display -->
+                  <VBox alignment="CENTER" prefHeight="105.0" prefWidth="351.0" styleClass="total-display-box">
                      <children>
-                        <!-- Line 1: Client Selection Flag -->
-                        <HBox alignment="CENTER_LEFT" minHeight="30.0">
-                           <children>
-                              <CheckBox fx:id="clientCheckBox" mnemonicParsing="false" styleClass="form-checkbox" text="%sales.clientCheckbox" />
-                           </children>
-                        </HBox>
-
-                        <!-- Line 2: Client Profile Identification Query -->
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                           <children>
-                              <Label fx:id="clientNameLabel" minWidth="100.0" styleClass="form-label" text="%sales.clientName" />
-                              <TextField fx:id="clientNameField" promptText="%sales.clientNamePrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
-                           </children>
-                        </HBox>
-
-                        <!-- Line 3: Credit Tracking & Debt Handling Parameters -->
-                        <HBox alignment="CENTER_LEFT" spacing="10.0">
-                           <children>
-                              <Label fx:id="paidAmountLabel" minWidth="100.0" styleClass="form-label" text="%sales.notFullyPaid" />
-                              <TextField fx:id="paidAmountField" promptText="%sales.paymentPrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
-                           </children>
-                        </HBox>
+                        <Label fx:id="totalAmountLabel" styleClass="total-display-label" text="%sales.totalAmount" />
+                        <Label fx:id="totalLabel" styleClass="total-display-value" text="0.00 DA" />
                      </children>
                   </VBox>
 
@@ -90,7 +72,7 @@
                   <!-- Live Checkout Receipt Data Table -->
                   <TableView fx:id="saleItemsTable" styleClass="pos-table" HBox.hgrow="ALWAYS">
                      <columns>
-                        <TableColumn fx:id="colBarcode" text="%sales.barcodeCol" />
+                        <TableColumn fx:id="colBarcode" maxWidth="90.0" minWidth="70.0" prefWidth="80.0" text="%sales.barcodeCol" />
                         <TableColumn fx:id="colProduct" text="%sales.productCol" />
                         <TableColumn fx:id="colQuantity" text="%sales.quantityCol" />
                         <TableColumn fx:id="colUnitPrice" text="%sales.unitPrice" />
@@ -104,14 +86,34 @@
                   <!-- Right Pane: Checkout Actions & Grand Total Summary Panel -->
                   <VBox minWidth="280.0" prefWidth="280.0" styleClass="total-card" HBox.hgrow="SOMETIMES">
                      <children>
-                        <Label fx:id="transactionSummaryLabel" styleClass="total-card-title" text="%sales.transactionSummary" />
+                        <Label styleClass="total-card-title" text="%sales.transactionSummary" />
                         <Region VBox.vgrow="ALWAYS" />
 
-                        <!-- Big Bold Total Readout Display -->
-                        <VBox alignment="CENTER" styleClass="total-display-box">
+                        <!-- RIGHT SECTION: Client Profile & Payment Meta-Data -->
+                        <VBox minWidth="256.0" prefHeight="126.0" prefWidth="256.0" spacing="10.0">
                            <children>
-                              <Label fx:id="totalAmountLabel" styleClass="total-display-label" text="%sales.totalAmount" />
-                              <Label fx:id="totalLabel" styleClass="total-display-value" text="0.00 DA" />
+                              <!-- Line 1: Client Selection Flag -->
+                              <HBox alignment="CENTER_LEFT" minHeight="30.0">
+                                 <children>
+                                    <CheckBox fx:id="clientCheckBox" mnemonicParsing="false" styleClass="form-checkbox" text="%sales.clientCheckbox" />
+                                 </children>
+                              </HBox>
+
+                              <!-- Line 2: Client Profile Identification Query -->
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Label fx:id="clientNameLabel" minWidth="100.0" styleClass="form-label" text="%sales.clientName" />
+                                    <TextField fx:id="clientNameField" promptText="%sales.clientNamePrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
+
+                              <!-- Line 3: Credit Tracking & Debt Handling Parameters -->
+                              <HBox alignment="CENTER_LEFT" spacing="10.0">
+                                 <children>
+                                    <Label fx:id="paidAmountLabel" minWidth="100.0" styleClass="form-label" text="%sales.notFullyPaid" />
+                                    <TextField fx:id="paidAmountField" promptText="%sales.paymentPrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                 </children>
+                              </HBox>
                            </children>
                         </VBox>
 
