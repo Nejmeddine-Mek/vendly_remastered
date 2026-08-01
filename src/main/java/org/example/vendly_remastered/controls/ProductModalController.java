@@ -183,6 +183,9 @@ public class ProductModalController implements Initializable {
         // Case A: Fresh product -> All 4 table slices marked dirty for initial DB write
         ProductCacheLine cacheLine = new ProductCacheLine(newProduct, true, true, true, true, System.currentTimeMillis());
         ProductsCache.getInstance().put(cacheLine);
+        if(newProduct.getProductId() == -1){
+            //TODO: alert product already exists
+        }
     }
 
     private void handleUpdateExistingProduct(String name, BigDecimal costPrice, BigDecimal retailPrice,

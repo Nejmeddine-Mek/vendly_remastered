@@ -248,7 +248,9 @@ public class ProductsCache {
             productRepository.save(prod); // Assigns prod.setProductId(newId) inside repo
 
             int newId = prod.getProductId();
-
+            if(newId == -1){
+                return;
+            }
             // Step 2: Now that we HAVE newId (> 0), insert initial stock / barcodes
             if (line.getDirtyBitStatus(ProductCacheLine.STOCK_BIT) && prod.getStock() != null) {
                 stockRepository.saveStock(newId, prod.getStock());

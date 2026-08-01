@@ -135,6 +135,11 @@ public class ProductSQLiteImpl implements IProductRepository {
                 }
             }
         } catch (SQLException e) {
+            if(e.getSQLState() != null && e.getSQLState().startsWith("23")){
+                // this means the product is duplicated
+                product.setProductId(-1);
+                return;
+            }
             System.err.println("Error inserting new product: " + e.getMessage());
             e.printStackTrace();
         }
