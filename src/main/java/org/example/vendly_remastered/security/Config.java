@@ -81,7 +81,22 @@ public class Config {
         setLanguage(DEFAULT_LANGUAGE);
         saveConfigToFile(DEFAULT_LANGUAGE, false, false, false, false, false, false, false);
     }
+    public void saveConfigToFile(){        Properties props = new Properties();
+        props.setProperty("language", this.language);
+        props.setProperty("trackStock", String.valueOf(trackStock));
+        props.setProperty("updateStockOnSale", String.valueOf(updateStockOnSale));
+        props.setProperty("allowNegativeStock", String.valueOf(allowNegativeStock));
+        props.setProperty("lowStockPOSAlert", String.valueOf(lowStockPOSAlert));
+        props.setProperty("batchExpiryAlerts", String.valueOf(batchExpiryAlerts));
+        props.setProperty("trackClientsDebts", String.valueOf(trackClientsDebts));
+        props.setProperty("trackSupplierDebts", String.valueOf(trackSupplierDebts));
 
+        try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
+            props.store(out, "Vendly Remastered Configuration");
+        } catch (IOException e) {
+            System.err.println("[Config] Failed to save " + CONFIG_FILE + ": " + e.getMessage());
+        }
+    }
     public void saveLanguageToConfigFile(String langCode) {
         saveConfigToFile(
                 langCode,

@@ -243,6 +243,11 @@
                                         </VBox>
                                     </children>
                                 </HBox>
+                        <HBox alignment="CENTER_RIGHT" prefHeight="53.0" prefWidth="568.0">
+                           <children>
+                              <Button fx:id="btnSavePermissions" prefWidth="130.0" styleClass="action-btn-primary" text="%settings.btn.save" />
+                           </children>
+                        </HBox>
                             </children>
                         </VBox>
                     </children>

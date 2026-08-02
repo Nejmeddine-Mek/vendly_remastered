@@ -3,10 +3,7 @@ package org.example.vendly_remastered.repository.impl;
 import org.example.vendly_remastered.models.entity.Role;
 import org.example.vendly_remastered.repository.IRoleRepository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,42 +15,48 @@ public class RoleSQLiteImpl implements IRoleRepository {
     }
 
     @Override
-    public boolean addRole(Role role) {
+    public int addRole(Role role) {
         String sql = "INSERT INTO roles (" +
-                "role_id, role_name, can_sell, can_see_clients, can_edit_clients, " +
+                "role_name, can_sell, can_see_clients, can_edit_clients, " +
                 "can_see_products, can_edit_products, can_see_suppliers, can_edit_suppliers, " +
                 "can_see_history, can_see_dashboard, can_see_settings, can_see_users, " +
                 "can_see_purchases, can_edit_purchases) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
-            // 1. Bind core identity fields
-            pstmt.setShort(1, role.getRoleId());
-            pstmt.setString(2, role.getRoleName());
+        try (PreparedStatement pstmt = this.connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            // 1. Bind core identity field (omitting role_id since it's auto-incremented)
+            pstmt.setString(1, role.getRoleName());
 
-            // 2. Map permissions straight from the map keys
-            pstmt.setInt(3, role.hasPermission("can_sell") ? 1 : 0);
-            pstmt.setInt(4, role.hasPermission("can_see_clients") ? 1 : 0);
-            pstmt.setInt(5, role.hasPermission("can_edit_clients") ? 1 : 0);
-            pstmt.setInt(6, role.hasPermission("can_see_products") ? 1 : 0);
-            pstmt.setInt(7, role.hasPermission("can_edit_products") ? 1 : 0);
-            pstmt.setInt(8, role.hasPermission("can_see_suppliers") ? 1 : 0);
-            pstmt.setInt(9, role.hasPermission("can_edit_suppliers") ? 1 : 0);
-            pstmt.setInt(10, role.hasPermission("can_see_history") ? 1 : 0);
-            pstmt.setInt(11, role.hasPermission("can_see_dashboard") ? 1 : 0);
-            pstmt.setInt(12, role.hasPermission("can_see_settings") ? 1 : 0);
-            pstmt.setInt(13, role.hasPermission("can_see_users") ? 1 : 0);
-            pstmt.setInt(14, role.hasPermission("can_see_purchases") ? 1 : 0);
-            pstmt.setInt(15, role.hasPermission("can_edit_purchases") ? 1 : 0);
+            // 2. Map permissions straight from the map keys (indices shifted by 1)
+            pstmt.setInt(2, role.hasPermission("can_sell") ? 1 : 0);
+            pstmt.setInt(3, role.hasPermission("can_see_clients") ? 1 : 0);
+            pstmt.setInt(4, role.hasPermission("can_edit_clients") ? 1 : 0);
+            pstmt.setInt(5, role.hasPermission("can_see_products") ? 1 : 0);
+            pstmt.setInt(6, role.hasPermission("can_edit_products") ? 1 : 0);
+            pstmt.setInt(7, role.hasPermission("can_see_suppliers") ? 1 : 0);
+            pstmt.setInt(8, role.hasPermission("can_edit_suppliers") ? 1 : 0);
+            pstmt.setInt(9, role.hasPermission("can_see_history") ? 1 : 0);
+            pstmt.setInt(10, role.hasPermission("can_see_dashboard") ? 1 : 0);
+            pstmt.setInt(11, role.hasPermission("can_see_settings") ? 1 : 0);
+            pstmt.setInt(12, role.hasPermission("can_see_users") ? 1 : 0);
+            pstmt.setInt(13, role.hasPermission("can_see_purchases") ? 1 : 0);
+            pstmt.setInt(14, role.hasPermission("can_edit_purchases") ? 1 : 0);
 
             // Execute transaction payload safely
             int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
-
+            if (affectedRows > 0) {
+                try (ResultSet rs = pstmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        short generatedId = rs.getShort(1);
+                        role.setRoleId(generatedId);
+                        return generatedId;
+                    }
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
-            return false;
         }
+        return (short) -1;
     }
 
     @Override

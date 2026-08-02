@@ -5,7 +5,7 @@ import org.example.vendly_remastered.models.entity.Role;
 import java.util.List;
 
 public interface IRoleRepository {
-    public boolean addRole(Role role);
+    public int addRole(Role role);
     public boolean saveRole(Role role);
     public boolean deleteRole(int roleId);
     public List<Role> findAll();

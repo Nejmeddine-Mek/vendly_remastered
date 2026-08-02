@@ -1,5 +1,7 @@
 package org.example.vendly_remastered.controls;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -17,6 +19,8 @@ import org.example.vendly_remastered.security.UserSession;
 import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
+
+import static javafx.beans.binding.Bindings.createBooleanBinding;
 
 public class SettingsController implements Initializable {
 
@@ -63,9 +67,14 @@ public class SettingsController implements Initializable {
     @FXML private CheckBox permCanEditPurchases;
 
     // --- Bottom Action Bar ---
+    @FXML private Button btnSavePermissions;
     @FXML private Button cancelButton;
     @FXML private Button saveButton;
 
+    private boolean isUpdatingStates = false;
+    private final BooleanProperty[] changedPermissions = new BooleanProperty[13];
+    private final boolean[] originalPermissions = new boolean[13];
+    private final BooleanProperty hasChanged = new SimpleBooleanProperty(false);
     private IRoleRepository roleRepository;
     private ICategoryRepository categoryRepository;
 
@@ -79,6 +88,20 @@ public class SettingsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        initializePermissionsBoxes();
+        hasChanged.bind(
+                createBooleanBinding(() -> {
+                    for (int i = 0; i < changedPermissions.length; i++) {
+                        if (changedPermissions[i].get() != originalPermissions[i]) {
+                            return true; // The moment one differs, the whole thing becomes true
+                        }
+                    }
+                    return false;
+                }, changedPermissions) // Pass the array as dependencies so it re-evaluates automatically!
+        );
+        btnSavePermissions.managedProperty().bind(btnSavePermissions.visibleProperty());
+        btnSavePermissions.visibleProperty().bind(hasChanged);
+
         if(!UserSession.getInstance().hasPrivilege("can_edit_products")){
             categoryPanel.managedProperty().bind(categoryPanel.visibleProperty());
             categoryPanel.setVisible(false);
@@ -96,8 +119,12 @@ public class SettingsController implements Initializable {
 
         // 3. set button behaviour
         btnAddCategory.setOnAction(_ -> handleAddCategory() );
+        btnAddRole.setOnAction( _ -> handleAddRole());
+        btnSavePermissions.setOnAction(_ -> handleSavePermissions());
+        saveButton.setOnAction(this::handleSaveSettings);
 
     }
+
     private void loadConfigValues() {
         // hide this for now
         warnOverdueDebtCheckBox.setManaged(false);
@@ -124,27 +151,48 @@ public class SettingsController implements Initializable {
         trackSupplierDebtsCheckBox.setSelected(config.isTrackSupplierDebts());
     }
 
+    private void initializePermissionsBoxes(){
+        CheckBox[] permissionCheckboxes = {
+                permCanSell, permCanSeeClients, permCanEditClients,
+                permCanSeeProducts, permCanEditProducts, permCanSeeSuppliers,
+                permCanEditSuppliers, permCanSeeHistory, permCanSeeDashboard,
+                permCanSeeSettings, permCanSeeUsers, permCanSeePurchases,
+                permCanEditPurchases
+        };
+        for(int i = 0; i < permissionCheckboxes.length; ++i){
+            originalPermissions[i] = permissionCheckboxes[i].isSelected();
+            changedPermissions[i] = new SimpleBooleanProperty(originalPermissions[i]);
+        }
 
+        for(int i =  0; i < permissionCheckboxes.length; ++i){
+            final int index = i;
+            permissionCheckboxes[i].selectedProperty().addListener((_, _, _) -> {
+                if(!isUpdatingStates)
+                    this.changedPermissions[index].setValue(!this.changedPermissions[index].getValue());
+            });
+        }
+    }
 
     @FXML
     private void handleSaveSettings(ActionEvent event) {
-        AppConfig config = AppConfig.getInstance();
+        Config config = Config.getInstance();
         if (config == null) {
             return;
         }
 
         // Persist UI states back into AppConfig
         config.setLanguage(languageComboBox.getValue());
-
         config.setTrackStock(trackStockCheckBox.isSelected());
-        config.setUpdateStockFromPurchases(updateStockFromPurchasesCheckBox.isSelected());
+        config.setUpdateStockOnSale(updateStockFromPurchasesCheckBox.isSelected());
         config.setAllowNegativeStock(allowNegativeStockCheckBox.isSelected());
-        config.setEnableStockAlerts(enableStockAlertsCheckBox.isSelected());
-        config.setEnableExpiryAlerts(enableExpiryAlertsCheckBox.isSelected());
+        config.setLowStockPOSAlert(enableStockAlertsCheckBox.isSelected());
+        config.setBatchExpiryAlerts(enableExpiryAlertsCheckBox.isSelected());
 
-        config.setTrackCustomerDebts(trackCustomerDebtsCheckBox.isSelected());
-        config.setWarnOverdueDebt(warnOverdueDebtCheckBox.isSelected());
+        config.setTrackClientsDebts(trackCustomerDebtsCheckBox.isSelected());
+        config.setTrackSupplierDebts(warnOverdueDebtCheckBox.isSelected());
         config.setTrackSupplierDebts(trackSupplierDebtsCheckBox.isSelected());
+
+        config.saveConfigToFile();
     }
 
 
@@ -164,6 +212,7 @@ public class SettingsController implements Initializable {
         }
     }
 
+
     private void setRolesListBehaviour(){
         roleListView.setCellFactory(param -> new ListCell<Role>() {
             @Override
@@ -181,7 +230,7 @@ public class SettingsController implements Initializable {
             Role selectedRole = roleListView.getSelectionModel().getSelectedItem();
             if(selectedRole == null)
                 return;
-
+            isUpdatingStates = true;
             permCanSell.setSelected(selectedRole.hasPermission("can_sell"));
             permCanSeeClients.setSelected(selectedRole.hasPermission("can_see_clients"));
             permCanEditClients.setSelected(selectedRole.hasPermission("can_edit_clients"));
@@ -195,9 +244,30 @@ public class SettingsController implements Initializable {
             permCanSeeUsers.setSelected(selectedRole.hasPermission("can_see_users"));
             permCanSeePurchases.setSelected(selectedRole.hasPermission("can_see_purchases"));
             permCanEditPurchases.setSelected(selectedRole.hasPermission("can_edit_purchases"));
+            isUpdatingStates = false;
         });
     }
 
+    private void handleSavePermissions(){
+        Role selectedRole = roleListView.getSelectionModel().getSelectedItem();
+        if(selectedRole == null)
+            return;
+        selectedRole.setPermission("can_sell",permCanSell.isSelected());
+        selectedRole.setPermission("can_see_clients",permCanSeeClients.isSelected());
+        selectedRole.setPermission("can_edit_clients",permCanEditClients.isSelected());
+        selectedRole.setPermission("can_see_products",permCanSeeProducts.isSelected());
+        selectedRole.setPermission("can_edit_products",permCanEditProducts.isSelected());
+        selectedRole.setPermission("can_see_suppliers",permCanSeeSuppliers.isSelected());
+        selectedRole.setPermission("can_edit_suppliers",permCanEditSuppliers.isSelected());
+        selectedRole.setPermission("can_see_history",permCanSeeHistory.isSelected());
+        selectedRole.setPermission("can_see_dashboard",permCanSeeDashboard.isSelected());
+        selectedRole.setPermission("can_see_settings",permCanSeeSettings.isSelected());
+        selectedRole.setPermission("can_see_users",permCanSeeUsers.isSelected());
+        selectedRole.setPermission("can_see_purchases",permCanSeePurchases.isSelected());
+        selectedRole.setPermission("can_edit_purchases",permCanEditPurchases.isSelected());
+
+        roleRepository.saveRole(selectedRole);
+    }
     public void initializeTables(){
         loadCategories();
         loadRoles();
@@ -233,7 +303,8 @@ public class SettingsController implements Initializable {
 
         String newRole = txtNewRoleName.getText().trim();
 
-        if (newRole.isEmpty()) {
+        if (newRole.isEmpty()
+        ) {
             txtNewCategoryName.clear();
             return;
         }
@@ -246,6 +317,12 @@ public class SettingsController implements Initializable {
             }
         }
         Role role = new Role();
+        role.setRoleName(txtNewRoleName.getText());
+        int newId = roleRepository.addRole(role);
+        if(newId > 0){
+            role.setRoleId((short)newId);
+            roleListView.getItems().add(role);
+        }
 
     }
 }
