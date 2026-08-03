@@ -11,6 +11,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <AnchorPane minHeight="506.0" minWidth="794.0" styleClass="form-divider" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.SalesViewController">
    <children>
@@ -114,6 +115,13 @@
                                     <TextField fx:id="paidAmountField" promptText="%sales.paymentPrompt" styleClass="form-field" HBox.hgrow="ALWAYS" />
                                  </children>
                               </HBox>
+                              <Label fx:id="debtsLabel" prefHeight="23.0" prefWidth="256.0" text="Label">
+                                 <padding>
+                                    <Insets left="10.0" />
+                                 </padding>
+                                 <font>
+                                    <Font name="System Bold" size="12.0" />
+                                 </font></Label>
                            </children>
                         </VBox>
 

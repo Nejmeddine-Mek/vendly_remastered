@@ -42,18 +42,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class SalesViewController implements Initializable {
-    @FXML private Label quantityLabel;
     @FXML private TextField quantityField;
-    @FXML private Label priceLabel;
     @FXML private TextField priceField;
-    @FXML private Label barcodeLabel;
     @FXML private TextField barcodeField;
-    @FXML private Label noteLabel;
     @FXML private CheckBox clientCheckBox;
     @FXML private TextField clientNameField;
     @FXML private Label paidAmountLabel;
     @FXML private TextField paidAmountField;
     @FXML private Label clientNameLabel;
+    @FXML private Label debtsLabel;
 
     // those are to fix later
     @FXML private TableView<CartItem> saleItemsTable;
@@ -71,6 +68,8 @@ public class SalesViewController implements Initializable {
     @FXML private Button confirmButton;
     @FXML private Button noBarCodeButton;
 
+
+    private final String searchPrefix = ".";
     private final ContextMenu suggestionPopup = new ContextMenu();
     ObservableList<CartItem> saleItems;
 
@@ -96,6 +95,7 @@ public class SalesViewController implements Initializable {
         // tracking clients' debts here
         clientCheckBox.visibleProperty().bind(Config.getInstance().trackClientsDebtsProperty());
         clientCheckBox.managedProperty().bind(clientCheckBox.visibleProperty());
+        debtsLabel.setText("");
 
         setQuantityBehaviour();
         setPriceBehaviour(0.0);
@@ -226,6 +226,8 @@ public class SalesViewController implements Initializable {
     private void setClientCheckBoxBehaviour(){
         clientCheckBox.selectedProperty().addListener((_, _, newValue) ->{
             if(newValue){
+                debtsLabel.setVisible(true);
+                debtsLabel.setManaged(true);
                 clientNameField.setVisible(true);
                 clientNameField.setManaged(true);
                 clientNameLabel.setVisible(true);
@@ -233,6 +235,8 @@ public class SalesViewController implements Initializable {
                 paidAmountField.setManaged(true);
                 paidAmountLabel.setVisible(true);
             } else {
+                debtsLabel.setVisible(false);
+                debtsLabel.setManaged(false);
                 clientNameField.setVisible(false);
                 clientNameField.setManaged(false);
                 clientNameLabel.setVisible(false);
@@ -349,7 +353,7 @@ public class SalesViewController implements Initializable {
             Product targetProduct = null;
 
             // CASE A: Searching by name via '@' prefix
-            if (targetBarcode.startsWith("@")) {
+            if (targetBarcode.startsWith(searchPrefix)) {
                 String query = targetBarcode.substring(1).trim().toLowerCase();
                 System.out.println("Looking for product: " + query);
 
@@ -599,7 +603,7 @@ public class SalesViewController implements Initializable {
         totalLabel.setText("0.00 DA");
     }
     private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
-        if (textVal == null || !textVal.startsWith("@")) {
+        if (textVal == null || !textVal.startsWith(searchPrefix)) {
             suggestionPopup.hide();
             return;
         }
@@ -702,6 +706,7 @@ public class SalesViewController implements Initializable {
             // Handle item selection action
             item.setOnAction(e -> {
                 clientNameField.setText(client.getContactFullName());
+                debtsLabel.setText(" " + client.getCurrentDebts() + " DA");
                 suggestionPopup.hide();
             });
 

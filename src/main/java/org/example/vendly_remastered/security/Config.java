@@ -82,14 +82,20 @@ public class Config {
         saveConfigToFile(DEFAULT_LANGUAGE, false, false, false, false, false, false, false);
     }
     public void saveConfigToFile(){        Properties props = new Properties();
+        String langCode = switch (this.language) {
+            case "English" -> "en";
+            case "Français"-> "fr";
+            case "العربية" -> "ar";
+            default        -> "fr";
+        };
         props.setProperty("language", this.language);
-        props.setProperty("trackStock", String.valueOf(trackStock));
-        props.setProperty("updateStockOnSale", String.valueOf(updateStockOnSale));
-        props.setProperty("allowNegativeStock", String.valueOf(allowNegativeStock));
-        props.setProperty("lowStockPOSAlert", String.valueOf(lowStockPOSAlert));
-        props.setProperty("batchExpiryAlerts", String.valueOf(batchExpiryAlerts));
-        props.setProperty("trackClientsDebts", String.valueOf(trackClientsDebts));
-        props.setProperty("trackSupplierDebts", String.valueOf(trackSupplierDebts));
+        props.setProperty("trackStock", String.valueOf(trackStock.getValue()));
+        props.setProperty("updateStockOnSale", String.valueOf(updateStockOnSale.getValue()));
+        props.setProperty("allowNegativeStock", String.valueOf(allowNegativeStock.getValue()));
+        props.setProperty("lowStockPOSAlert", String.valueOf(lowStockPOSAlert.getValue()));
+        props.setProperty("batchExpiryAlerts", String.valueOf(batchExpiryAlerts.getValue()));
+        props.setProperty("trackClientsDebts", String.valueOf(trackClientsDebts.getValue()));
+        props.setProperty("trackSupplierDebts", String.valueOf(trackSupplierDebts.getValue()));
 
         try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
             props.store(out, "Vendly Remastered Configuration");

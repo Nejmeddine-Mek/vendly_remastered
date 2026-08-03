@@ -157,7 +157,8 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
             SELECT 
                 DATE(SH.sale_date) AS saleDate,
                 COALESCE(SUM(SH.paid_amount), 0.0) AS totalRevenue,
-                COALESCE(COUNT(SH.sale_id), 0) AS totalPurchases
+                COALESCE(COUNT(SH.sale_id), 0) AS totalPurchases,
+                COALESCE(SUM(SH.sale_profit), 0) AS totalProfit
             FROM sale_header SH
             WHERE DATE(SH.sale_date) BETWEEN ? AND ?
             GROUP BY DATE(SH.sale_date)
@@ -179,7 +180,8 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
                     items.add(new RevenueDashboardItem(
                             date,
                             rs.getDouble("totalRevenue"),
-                            rs.getDouble("totalPurchases") // mapped to double in your DTO
+                            rs.getDouble("totalPurchases"),
+                            rs.getDouble("totalProfit")// mapped to double in your DTO
                     ));
                 }
             }

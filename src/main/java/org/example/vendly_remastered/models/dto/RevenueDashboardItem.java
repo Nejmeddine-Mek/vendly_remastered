@@ -5,7 +5,8 @@ import java.time.LocalDate;
 public record RevenueDashboardItem(
         LocalDate date,
         double totalRevenue,
-        double totalPurchases
+        double totalPurchases,
+        double totalProfit
 ) {
     // Helper to format dates nicely for Chart X-Axis (e.g. "2026-07-27")
     public String getDateLabel() {

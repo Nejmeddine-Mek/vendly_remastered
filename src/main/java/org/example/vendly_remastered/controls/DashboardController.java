@@ -14,6 +14,7 @@ import org.example.vendly_remastered.models.dto.RevenueDashboardItem;
 import org.example.vendly_remastered.models.dto.SupplierDashboardItem;
 import org.example.vendly_remastered.repository.IDashBoardRepository;
 
+import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 import java.net.URL;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -209,29 +210,47 @@ public class DashboardController implements Initializable {
         salesLineChart.getData().clear();
 
         XYChart.Series<String, Number> revenueSeries = new XYChart.Series<>();
+        XYChart.Series<String, Number> profitSeries = new XYChart.Series<>();
         revenueSeries.setName("Revenue");
-
+        profitSeries.setName("Profit");
         for (RevenueDashboardItem item : revenueData) {
             if (item.date() != null) {
                 String dateLabel = item.date().toString();
                 XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(dateLabel, item.totalRevenue());
+                XYChart.Data<String, Number> profitDataPoint = new XYChart.Data<>(dateLabel, item.totalProfit());
                 revenueSeries.getData().add(dataPoint);
+                profitSeries.getData().add(profitDataPoint);
             }
         }
 
         salesLineChart.getData().add(revenueSeries);
+        salesLineChart.getData().add(profitSeries);
 
         for (int i = 0; i < revenueData.size(); i++) {
             RevenueDashboardItem item = revenueData.get(i);
             XYChart.Data<String, Number> dataPoint = revenueSeries.getData().get(i);
+            XYChart.Data<String, Number> profitDataPoint = profitSeries.getData().get(i);
+
+            if (profitDataPoint.getNode() != null) {
+                String tooltipText = String.format(
+                        "Date: %s\nProfit: %s DA\n",
+                        item.date(),
+                        currencyFormatter.format(item.totalRevenue())
+                );
+
+                Tooltip tooltip = new Tooltip(tooltipText);
+                tooltip.setShowDelay(javafx.util.Duration.millis(100));
+                Tooltip.install(profitDataPoint.getNode(), tooltip);
+            }
 
             if (dataPoint.getNode() != null) {
                 String tooltipText = String.format(
                         "Date: %s\nRevenue: %s DA\nTransactions: %d",
                         item.date(),
-                        currencyFormatter.format(item.totalRevenue()),
+                        currencyFormatter.format(item.totalProfit()),
                         (int) item.totalPurchases()
                 );
+
 
                 Tooltip tooltip = new Tooltip(tooltipText);
                 tooltip.setShowDelay(javafx.util.Duration.millis(100));
