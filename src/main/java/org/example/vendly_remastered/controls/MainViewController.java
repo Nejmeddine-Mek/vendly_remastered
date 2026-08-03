@@ -53,6 +53,13 @@ public class MainViewController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // here, you can simply just load the batch repo and work on the batches part and expiry alerts
+        // in case the option is true in the config object
+        if(Config.getInstance().isBatchExpiryAlerts()){
+            //TODO: query batches table and create the alerts in a different thread
+        }
+
+        //==========================================================================
         salesButton.managedProperty().bind(salesButton.visibleProperty());
         productsButton.managedProperty().bind(productsButton.visibleProperty());
         clientsButton.managedProperty().bind(clientsButton.visibleProperty());

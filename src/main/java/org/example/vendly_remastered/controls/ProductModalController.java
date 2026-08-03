@@ -1,6 +1,8 @@
 package org.example.vendly_remastered.controls;
 
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableBooleanValue;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -57,8 +59,6 @@ public class ProductModalController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        txtStockQty.editableProperty().bind(Config.getInstance().trackStockProperty());
-        txtMinThreshold.editableProperty().bind(Config.getInstance().trackStockProperty());
         if(!Config.getInstance().isTrackStock()){
             txtStockQty.setText("0.0");
             txtMinThreshold.setText("0.0");
@@ -297,23 +297,24 @@ public class ProductModalController implements Initializable {
     }
 
     public void setMode(Product product, boolean READ_ONLY) {
-        if(READ_ONLY){
-            btnSave.setVisible(false);
-            btnCancel.setVisible(false);
-            txtBarcodeEntry.setVisible(false);
-            btnAddBarcode.setVisible(false);
-            txtName.setEditable(false);
-            txtRetailPrice.setEditable(false);
-            txtPromoPrice.setEditable(false);
-            txtPromoQty.setEditable(false);
-            txtCostPrice.setEditable(false);
-            txtMinThreshold.setEditable(false);
-            txtStockQty.setEditable(false);
-            chkActive.setDisable(true);
-            chkEnablePromotion.setDisable(true);
-            btnRemoveBarcode.setVisible(false);
-            cbCategory.setEditable(false);
-        }
+        // Create a boolean property or flag to represent your modal's read-only state
+        BooleanProperty isReadOnlyProp = new SimpleBooleanProperty(READ_ONLY);
+
+        // Combine stock tracking with the read-only state for stock fields:
+        txtStockQty.editableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> Config.getInstance().trackStockProperty().get() && !isReadOnlyProp.get(),
+                        Config.getInstance().trackStockProperty(), isReadOnlyProp
+                )
+        );
+
+        txtMinThreshold.editableProperty().bind(
+                Bindings.createBooleanBinding(
+                        () -> Config.getInstance().trackStockProperty().get() && !isReadOnlyProp.get(),
+                        Config.getInstance().trackStockProperty(), isReadOnlyProp
+                )
+        );
+
         this.selectedProduct = product;
 
         if (product == null) {
@@ -335,13 +336,13 @@ public class ProductModalController implements Initializable {
             // Populate form values from entity data
             txtName.setText(product.getProductName());
             lstBarcodes.getItems().addAll(product.getBarcodes());
-            //txtBarcode.setText(product.getBarcode());
             txtCostPrice.setText(product.getCostPrice().toString());
             txtRetailPrice.setText(product.getRetailPrice().toString());
             txtStockQty.setText(product.getCurrentQuantity().toString());
             txtMinThreshold.setText(product.getMinStockLevel().toString());
             chkActive.setSelected(product.isActive());
-            if (product != null && product.getCategoryName() != null) {
+
+            if (product.getCategoryName() != null) {
                 cbCategory.getItems().stream()
                         .filter(cat -> cat.getCategoryName().equalsIgnoreCase(product.getCategoryName()))
                         .findFirst()
@@ -352,7 +353,8 @@ public class ProductModalController implements Initializable {
             } else {
                 cbCategory.setValue(null);
             }
-            if(product.hasPromotion()){
+
+            if (product.hasPromotion()) {
                 promoFieldsContainer.setVisible(true);
                 promoFieldsContainer.setManaged(true);
                 chkEnablePromotion.setSelected(true);
@@ -363,8 +365,24 @@ public class ProductModalController implements Initializable {
                 promoFieldsContainer.setManaged(false);
             }
         }
-    }
 
+        // 🔒 Apply READ_ONLY restrictions LAST so they override everything else cleanly
+        if (READ_ONLY) {
+            btnSave.setVisible(false);
+            btnCancel.setVisible(false);
+            txtBarcodeEntry.setVisible(false);
+            btnAddBarcode.setVisible(false);
+            txtName.setEditable(false);
+            txtRetailPrice.setEditable(false);
+            txtPromoPrice.setEditable(false);
+            txtPromoQty.setEditable(false);
+            txtCostPrice.setEditable(false);
+            chkActive.setDisable(true);
+            chkEnablePromotion.setDisable(true);
+            btnRemoveBarcode.setVisible(false);
+            cbCategory.setDisable(true); // Note: ComboBoxes use setDisable(true) better than setEditable(false)
+        }
+    }
     public boolean isSaveClicked() {
         return true;
     }
