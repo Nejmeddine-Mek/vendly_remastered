@@ -213,4 +213,10 @@ public class ClientsCache {
     public synchronized Collection<ClientCacheLine> getCacheMapValues() {
         return this.cacheMap.values();
     }
+
+    public void flushAll(){
+        for(Map.Entry<Integer, ClientCacheLine> entry : cacheMap.entrySet()){
+
+        }
+    }
 }

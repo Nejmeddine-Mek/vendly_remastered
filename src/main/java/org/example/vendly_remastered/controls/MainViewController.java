@@ -129,6 +129,13 @@ public class MainViewController implements Initializable {
         settingsButton.setOnAction(_ -> togglePage(Constants.SETTINGS_VIEW));
         usersButton.setOnAction(_ -> togglePage(Constants.USERS_VIEW));
     }
+    private void handleLogOut(){
+        ProductsCache cache = ProductsCache.getInstance();
+        cache.flushAll();
+
+        ClientsCache cCache = ClientsCache.getInstance();
+        cCache.flushAll();
+    }
 
     private void togglePage(Constants pageName) {
         // 1. Look for the page in your 4-slot cache

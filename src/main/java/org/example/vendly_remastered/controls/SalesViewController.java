@@ -293,10 +293,15 @@ public class SalesViewController implements Initializable {
         colBarcode.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(
                 String.valueOf(saleItemsTable.getItems().indexOf(cellData.getValue()) + 1)
         ));
+        colBarcode.setResizable(true);
         colProduct.setCellValueFactory(cellData -> cellData.getValue().productNameProperty());
+        colProduct.setResizable(true);
         colQuantity.setCellValueFactory(cellData -> cellData.getValue().quantityProperty());
+        colQuantity.setResizable(true);
         colUnitPrice.setCellValueFactory(cellData -> cellData.getValue().unitPriceProperty());
+        colUnitPrice.setResizable(true);
         colSubTotal.setCellValueFactory(cellData -> cellData.getValue().subtotalProperty());
+        colSubTotal.setResizable(true);
     }
 
     private void setBarcodeFieldBehaviour() {
