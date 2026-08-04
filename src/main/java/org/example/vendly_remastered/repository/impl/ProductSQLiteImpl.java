@@ -257,9 +257,35 @@ public class ProductSQLiteImpl implements IProductRepository {
     @Override
     public List<Product> getUncodedProducts() {
         String sql = """
-                
-                """;
-        return List.of();
+            SELECT 
+                P.product_id,
+                P.product_name,
+                P.cost_price,
+                P.retail_price,
+                P.created_on,
+                P.updated_on,
+                P.category AS category_id,
+                P.is_active,
+                C.category_name AS category_name, 
+                PM.*
+            FROM product P
+            JOIN category C ON C.category_id = P.category
+            LEFT JOIN promotion PM ON P.product_id = PM.product_id
+            WHERE P.is_active = 1  
+            AND NOT EXISTS (
+                SELECT 1 FROM product_barcode PB WHERE PB.product_id = P.product_id
+            );
+            """;
+        List<Product> result = new ArrayList<>();
+        try(PreparedStatement pstmt = connection.prepareStatement(sql)){
+            ResultSet rs = pstmt.executeQuery();
+            while(rs.next()){
+                result.add(mapResultSetToProduct(rs));
+            }
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return result;
     }
 
     /**

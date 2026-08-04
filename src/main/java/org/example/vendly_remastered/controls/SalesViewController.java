@@ -12,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 
 import javafx.scene.input.KeyCode;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.ProductsCache;
@@ -149,6 +150,9 @@ public class SalesViewController implements Initializable {
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
+        });
+        noBarCodeButton.setOnAction(_ -> {
+            setShowUncodedProducts();
         });
     }
 
@@ -722,5 +726,39 @@ public class SalesViewController implements Initializable {
         if (!suggestionPopup.isShowing()) {
             suggestionPopup.show(clientNameField, javafx.geometry.Side.BOTTOM, 0, 0);
         }
+    }
+
+    private void setShowUncodedProducts(){
+        try {
+            Config config = Config.getInstance();
+            // 1. Point to your wide layout FXML file
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/NoBarCodeSelection.fxml"));
+            //loader.setResources(config.getLanguageBundle());
+            Parent root = loader.load();
+
+            //config.applyOrientation(root);
+            // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
+            Object controller = loader.getController();
+            ControllerDispatcher.execute(controller);
+
+            // 4. Check if we are editing an existing product or adding a completely fresh item
+
+            // 5. Build and present the window scene configuration
+            Stage modalStage = new Stage();
+            modalStage.initModality(Modality.APPLICATION_MODAL);
+            modalStage.setTitle("Search uncoded Products");
+            modalStage.setScene(new Scene(root));
+
+            // Execution pauses right here until the user clicks Save or Cancel
+            modalStage.showAndWait();
+
+            // 🌟 THE HANDOFF: Execution safely resumes here once the window closes
+
+        } catch (Exception ex) {
+            Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
+            alert.showAndWait();
+            ex.printStackTrace();
+        }
+
     }
 }

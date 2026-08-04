@@ -115,6 +115,12 @@ public class ControllerDispatcher {
             sc.setCategoryRepository(new CategorySQLiteImpl(connection));
             sc.initializeTables();
         });
+        registry.put(NoBarCodeSelectionController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            NoBarCodeSelectionController nbcsc = (NoBarCodeSelectionController) controller;
+            nbcsc.setProductRepository(new ProductSQLiteImpl(connection));
+            nbcsc.initializeLists();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 
