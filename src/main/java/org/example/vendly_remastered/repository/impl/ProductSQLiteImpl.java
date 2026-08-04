@@ -254,6 +254,14 @@ public class ProductSQLiteImpl implements IProductRepository {
         return Optional.empty();
     }
 
+    @Override
+    public List<Product> getUncodedProducts() {
+        String sql = """
+                
+                """;
+        return List.of();
+    }
+
     /**
      * Shared mapping helper to keep mapping DRY and eliminate duplicate JDBC calls.
      */

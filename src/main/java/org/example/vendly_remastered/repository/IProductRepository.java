@@ -15,4 +15,6 @@ public interface IProductRepository {
     public Optional<Product> findProduct(int productId);
     public List<Product> findByName(String productName);
     public Optional<Product> findByBarCode(String barcode);
+
+    public List<Product> getUncodedProducts();
 }
