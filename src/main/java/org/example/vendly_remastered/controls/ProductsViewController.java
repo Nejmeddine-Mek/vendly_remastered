@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Category;
@@ -26,10 +27,7 @@ import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
+import java.util.*;
 
 public class ProductsViewController implements Initializable {
     @FXML private TextField searchField;
@@ -264,6 +262,12 @@ public class ProductsViewController implements Initializable {
 
             // 5. Build and present the window scene configuration
             Stage modalStage = new Stage();
+
+            Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+            if(appIcon != null)
+                modalStage.getIcons().add(
+                        appIcon
+                );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle(isEditMode ? "Edit Product Specifications" : "Register New Product Asset");
             modalStage.setScene(new Scene(root));

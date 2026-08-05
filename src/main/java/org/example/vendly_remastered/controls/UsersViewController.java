@@ -9,6 +9,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.User;
@@ -20,6 +21,7 @@ import java.net.URL;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class UsersViewController implements Initializable {
@@ -190,6 +192,11 @@ public class UsersViewController implements Initializable {
             modalController.setMode(user);
 
             Stage modalStage = new Stage();
+            Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+            if(appIcon != null)
+                modalStage.getIcons().add(
+                        appIcon
+                );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setScene(new Scene(root));
 

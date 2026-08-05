@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
@@ -29,6 +30,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
@@ -266,7 +268,11 @@ public class PurchaseHistoryViewController implements Initializable {
             }
             else
                 modalStage.setTitle(String.format("Purchase Order Details — #%d", selectedPurchase.getPurchaseId()));
-
+            Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+            if(appIcon != null)
+                modalStage.getIcons().add(
+                        appIcon
+                );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.initOwner(purchasesTable.getScene().getWindow());
             modalStage.setScene(new Scene(modalRoot));

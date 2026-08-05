@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.SaleDetailItem;
@@ -26,6 +27,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
@@ -265,6 +267,12 @@ public class HistoryViewController implements Initializable {
                 controller.populateModalData(selectedSale, boughtItems);
 
                 Stage modalStage = new Stage();
+
+                Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+                if(appIcon != null)
+                    modalStage.getIcons().add(
+                            appIcon
+                    );
                 modalStage.setTitle(String.format("Sale Details — Invoice #%d", selectedSale.getSaleId()));
                 modalStage.initModality(Modality.APPLICATION_MODAL);
                 modalStage.initOwner(salesTable.getScene().getWindow());

@@ -14,6 +14,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Client;
@@ -24,6 +25,7 @@ import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;
 import java.util.List;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
@@ -183,6 +185,12 @@ public class ClientsViewController implements Initializable {
             modalController.setMode(client, READ_ONLY);
 
             Stage modalStage = new Stage();
+
+            Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+            if(appIcon != null)
+                modalStage.getIcons().add(
+                        appIcon
+                );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle(isEditMode ? "Edit Client Profile" : "Register New Client");
             modalStage.setScene(new Scene(root));

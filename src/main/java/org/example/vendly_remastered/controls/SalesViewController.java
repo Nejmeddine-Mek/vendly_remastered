@@ -11,6 +11,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 
+import javafx.scene.image.Image;
 import javafx.scene.input.KeyCode;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -413,6 +414,10 @@ public class SalesViewController implements Initializable {
                     newItem.setPromotionPrice(targetProduct.getPromotionPrice());
                     newItem.setPromotionQuantity(targetProduct.getPromotionQuantity());
                 }
+                quantityField.setText(String.format("%.2f", newItem.getQuantity()));
+                priceField.setText(String.format("%.2f",newItem.getUnitPrice()));
+                // this helps becuase when a new product is added, we want to shift focus directly to it
+                saleItemsTable.getSelectionModel().clearSelection();
                 saleItems.addFirst(newItem);
             }
 
@@ -609,6 +614,7 @@ public class SalesViewController implements Initializable {
         barcodeField.clear();
         clientNameField.clear();
         paidAmountField.clear();
+        debtsLabel.setText("");
         totalLabel.setText("0.00 DA");
     }
     private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
@@ -639,7 +645,7 @@ public class SalesViewController implements Initializable {
             MenuItem item = new MenuItem(prod.getProductName());
             item.setOnAction(e -> {
                 // Fill with structural name and fire selection
-                barcodeField.setText("@" + prod.getProductName());
+                barcodeField.setText("." + prod.getProductName());
                 suggestionPopup.hide();
                 barcodeField.fireEvent(new javafx.event.ActionEvent()); // Re-trigger ActionEvent to add to cart
             });
@@ -745,6 +751,11 @@ public class SalesViewController implements Initializable {
 
             // 5. Build and present the window scene configuration
             Stage modalStage = new Stage();
+            Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+            if(appIcon != null)
+                modalStage.getIcons().add(
+                        appIcon
+                );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle("Search uncoded Products");
             modalStage.setScene(new Scene(root));
