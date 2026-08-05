@@ -756,6 +756,7 @@ public class SalesViewController implements Initializable {
                 modalStage.getIcons().add(
                         appIcon
                 );
+            // test commit here
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle("Search uncoded Products");
             modalStage.setScene(new Scene(root));
