@@ -1,21 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="600.0" stylesheets="@MainViewStyles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1">
+<ScrollPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="430.0" prefWidth="600.0" stylesheets="@MainViewStyles.css" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/23.0.1" fx:controller="org.example.vendly_remastered.controls.NoBarCodeSelectionController">
    <content>
-      <VBox  fx:id="contentContainer" prefHeight="90.0" prefWidth="590.0">
+      <VBox fx:id="mainContainer" prefWidth="585.0" spacing="15.0">
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
          <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0">
+            <!-- Search bar stays safe here -->
+            <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="565.0" spacing="10.0">
                <children>
-                  <Label alignment="CENTER" prefHeight="19.0" prefWidth="251.0" styleClass="form-label" text="Search Product Name / Category:" />
-                  <TextField fx:id="searchBar" prefHeight="37.0" prefWidth="251.0" styleClass="form-field" />
+                  <Label prefHeight="19.0" prefWidth="230.0" styleClass="form-label" text="Search Product Name / Category:" />
+                  <TextField fx:id="searchBar" prefHeight="37.0" prefWidth="300.0" styleClass="form-field" />
                </children>
             </HBox>
+
+            <!-- Dynamic categories container -->
+            <VBox fx:id="categoryRowsContainer" prefWidth="565.0" spacing="10.0" />
          </children>
       </VBox>
    </content>

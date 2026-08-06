@@ -738,39 +738,48 @@ public class SalesViewController implements Initializable {
         try {
             Config config = Config.getInstance();
             // 1. Point to your wide layout FXML file
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/NoBarCodeSelection.fxml"));
+            FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/org/example/vendly_remastered/NoBarCodeSelection.fxml")));
             //loader.setResources(config.getLanguageBundle());
             Parent root = loader.load();
 
             //config.applyOrientation(root);
-            // 2. Dispatch dependencies (injects category repos, services, etc., via your framework dispatcher)
-            Object controller = loader.getController();
+
+            // 2. Get controller and inject dependencies
+            NoBarCodeSelectionController controller = loader.getController();
             ControllerDispatcher.execute(controller);
 
-            // 4. Check if we are editing an existing product or adding a completely fresh item
+            // 3. 🌟 THE HANDOFF: Pass the callback to handle the selected product
+            controller.setOnClientSelected( selectedProduct -> {
+                if(selectedProduct != null){
+                    CartItem prod = new CartItem(
+                            selectedProduct.getProductId(),
+                            "",
+                            selectedProduct.getProductName(),
+                            selectedProduct.getRetailPrice(),
+                            BigDecimal.ONE
+                    );
+                    saleItems.addFirst(prod);
+                }
+            });
 
-            // 5. Build and present the window scene configuration
+            // 4. Build and present the window scene configuration
             Stage modalStage = new Stage();
             Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-            if(appIcon != null)
-                modalStage.getIcons().add(
-                        appIcon
-                );
-            // test commit here
+            modalStage.getIcons().add(appIcon);
+
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle("Search uncoded Products");
             modalStage.setScene(new Scene(root));
 
-            // Execution pauses right here until the user clicks Save or Cancel
+            // Execution pauses right here until the user double-clicks a product (which calls closeModal)
             modalStage.showAndWait();
 
-            // 🌟 THE HANDOFF: Execution safely resumes here once the window closes
+            // Execution safely resumes here once the window closes
 
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
             alert.showAndWait();
             ex.printStackTrace();
         }
-
     }
 }
