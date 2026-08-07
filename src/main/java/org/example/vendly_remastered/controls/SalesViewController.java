@@ -749,7 +749,7 @@ public class SalesViewController implements Initializable {
             ControllerDispatcher.execute(controller);
 
             // 3. 🌟 THE HANDOFF: Pass the callback to handle the selected product
-            controller.setOnClientSelected( selectedProduct -> {
+            controller.setOnProductSelected( selectedProduct -> {
                 if(selectedProduct != null){
                     CartItem prod = new CartItem(
                             selectedProduct.getProductId(),
@@ -759,6 +759,10 @@ public class SalesViewController implements Initializable {
                             BigDecimal.ONE
                     );
                     saleItems.addFirst(prod);
+                    priceField.setText(String.valueOf(prod.getUnitPrice()));
+                    updateTransactionTotal();
+                    saleItemsTable.refresh();
+                    barcodeField.requestFocus();
                 }
             });
 

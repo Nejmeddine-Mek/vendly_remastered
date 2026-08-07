@@ -19,7 +19,7 @@ import java.util.*;
 import java.util.function.Consumer;
 
 public class NoBarCodeSelectionController implements Initializable {
-    @FXML private VBox contentContainer;
+
     @FXML private TextField searchBar;
     @FXML private VBox categoryRowsContainer;
 
@@ -32,12 +32,12 @@ public class NoBarCodeSelectionController implements Initializable {
     private IProductRepository productRepository;
 
     public void setProductRepository(IProductRepository productRepository){ this.productRepository = productRepository; }
-    private Consumer<Product> onProductSelectedCallback;
+
 
     // Setter so whoever opens this view can pass a handler to it
     private Consumer<Product> onProductSelected;
 
-    public void setOnClientSelected(Consumer<Product> onSupplierSaved) {
+    public void setOnProductSelected(Consumer<Product> onSupplierSaved) {
         this.onProductSelected = onSupplierSaved;
     }
 
@@ -90,8 +90,9 @@ public class NoBarCodeSelectionController implements Initializable {
             categoryList.setOnMouseClicked(event -> {
                 if (event.getClickCount() == 2) {
                     Product selectedProduct = categoryList.getSelectionModel().getSelectedItem();
-                    if (selectedProduct != null && onProductSelectedCallback != null) {
-                        onProductSelectedCallback.accept(selectedProduct);
+
+                    if (selectedProduct != null && onProductSelected != null) {
+                        onProductSelected.accept(selectedProduct);
                         closeModal();
                     }
                 }

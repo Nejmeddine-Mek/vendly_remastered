@@ -12,7 +12,7 @@
    <children>
       <HBox minHeight="576.0" minWidth="1024.0" styleClass="sidebar" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <children>
-            <VBox minHeight="576.0" minWidth="230.0">
+            <VBox minHeight="576.0" minWidth="207.0" prefHeight="578.0" prefWidth="207.0">
                <children>
                   <VBox minHeight="141.0" minWidth="230.0" />
                   <VBox alignment="CENTER" prefHeight="436.0" prefWidth="230.0">

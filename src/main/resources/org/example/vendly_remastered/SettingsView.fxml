@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.control.DatePicker?>
 <ScrollPane fitToWidth="true" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.SettingsController">
     <content>
         <VBox spacing="20.0">
@@ -165,7 +166,48 @@
                 </VBox>
 
                 <Separator />
+                <!-- Section: Archive Sales -->
+                <VBox spacing="12.0">
+                    <children>
+                        <Label styleClass="section-title" text="%settings.section.archive">
+                            <font>
+                                <Font name="System Bold" size="16.0" />
+                            </font>
+                        </Label>
 
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <Label prefWidth="180.0" text="%settings.label.archive_from" />
+                                <DatePicker fx:id="archiveStartDatePicker" prefWidth="220.0" promptText="%settings.prompt.start_date" styleClass="form-field" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <Label prefWidth="180.0" text="%settings.label.archive_to" />
+                                <DatePicker fx:id="archiveEndDatePicker" prefWidth="220.0" promptText="%settings.prompt.end_date" styleClass="form-field" />
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_LEFT" spacing="20.0">
+                            <children>
+                                <Label prefWidth="180.0" text="%settings.label.archive_path" />
+                                <HBox spacing="10.0" HBox.hgrow="ALWAYS">
+                                    <children>
+                                        <TextField fx:id="txtArchivePath" prefWidth="300.0" promptText="%settings.prompt.select_path" styleClass="form-field" HBox.hgrow="ALWAYS" />
+                                        <Button fx:id="btnBrowseArchive" prefWidth="90.0" styleClass="action-btn-secondary" text="%settings.btn.browse" />
+                                    </children>
+                                </HBox>
+                            </children>
+                        </HBox>
+
+                        <HBox alignment="CENTER_RIGHT" spacing="12.0">
+                            <children>
+                                <Button fx:id="btnRunArchive" prefWidth="130.0" styleClass="action-btn-primary" text="%settings.btn.archive_now" />
+                            </children>
+                        </HBox>
+                    </children>
+                </VBox>
                 <!-- Section 5: Roles & Permission Matrix -->
                 <VBox fx:id="rolesPanel" spacing="12.0">
                     <children>

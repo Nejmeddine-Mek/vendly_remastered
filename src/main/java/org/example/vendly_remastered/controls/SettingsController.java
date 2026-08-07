@@ -3,21 +3,28 @@ package org.example.vendly_remastered.controls;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
+import javafx.stage.DirectoryChooser;
+import javafx.stage.Window;
 import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.models.entity.Role;
+import org.example.vendly_remastered.repository.IArchiveRepository;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 import org.example.vendly_remastered.repository.IRoleRepository;
 import org.example.vendly_remastered.security.AppConfig;
 import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 
+import java.io.File;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;
@@ -44,7 +51,14 @@ public class SettingsController implements Initializable {
     @FXML private Button btnAddCategory;
     @FXML private ListView<String> categoryListView;
 
-    // --- Section 5: Roles & Security Permissions ---
+    // -- Section 5: Archive sales ---
+    @FXML private DatePicker archiveStartDatePicker;
+    @FXML private DatePicker archiveEndDatePicker;
+    @FXML private TextField txtArchivePath;
+    @FXML private Button btnBrowseArchive;
+    @FXML private Button btnRunArchive;
+
+    // --- Section 6: Roles & Security Permissions ---
     @FXML private ListView<Role> roleListView;
     @FXML private TextField txtNewRoleName;
     @FXML private Button btnAddRole;
@@ -77,11 +91,14 @@ public class SettingsController implements Initializable {
     private final BooleanProperty hasChanged = new SimpleBooleanProperty(false);
     private IRoleRepository roleRepository;
     private ICategoryRepository categoryRepository;
+    private IArchiveRepository archiveRepository;
 
     public void setRoleRepository(IRoleRepository roleRepository) {
         this.roleRepository = roleRepository;
     }
-
+    public void setArchiveRepository(IArchiveRepository archiveRepository) {
+        this.archiveRepository = archiveRepository;
+    }
     public void setCategoryRepository(ICategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
@@ -122,7 +139,12 @@ public class SettingsController implements Initializable {
         btnAddRole.setOnAction( _ -> handleAddRole());
         btnSavePermissions.setOnAction(_ -> handleSavePermissions());
         saveButton.setOnAction(this::handleSaveSettings);
-
+        btnBrowseArchive.setOnAction(_ -> {
+            handleBrowse();
+        });
+        btnRunArchive.setOnAction(_ -> {
+            handleArchive();
+        });
     }
 
     private void loadConfigValues() {
@@ -325,4 +347,87 @@ public class SettingsController implements Initializable {
         }
 
     }
+
+    @FXML
+    private void handleBrowse() {
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        //directoryChooser.setTitle(Config.getInstance().().getString("settings.prompt.select_path"));
+
+        // Optional: Set initial directory to user's home or current working directory
+        directoryChooser.setInitialDirectory(new File(System.getProperty("user.home")));
+
+        // Get the window from one of your UI nodes to serve as the owner for the dialog
+        Window window = txtArchivePath.getScene().getWindow();
+        File selectedDirectory = directoryChooser.showDialog(window);
+
+        if (selectedDirectory != null) {
+            txtArchivePath.setText(selectedDirectory.getAbsolutePath());
+        }
+    }
+    @FXML
+    private void handleArchive() {
+        LocalDate beginningDate = archiveStartDatePicker.getValue();
+        LocalDate endDate = archiveEndDatePicker.getValue();
+        String path = txtArchivePath.getText();
+
+        // 1. Sanity Checks
+        if (beginningDate == null || endDate == null) {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", "Please select both a start date and an end date.");
+            return;
+        }
+
+        if (beginningDate.isAfter(endDate)) {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", "Start date cannot be after the end date.");
+            return;
+        }
+
+        if (path == null || path.isBlank()) {
+            showAlert(Alert.AlertType.WARNING, "Validation Error", "Please select a valid destination folder path.");
+            return;
+        }
+
+        // Optional: Disable the button or show a loading indicator here if desired
+
+        // 2. Create a separate background thread using JavaFX Task
+        Task<Integer> archiveTask = new Task<>() {
+            @Override
+            protected Integer call() {
+                // Execute the archiving repository logic safely off the JavaFX Application Thread
+                return archiveRepository.ArchiveSales(path, beginningDate, endDate);
+            }
+        };
+
+        // 3. Handle completion on the JavaFX Application Thread
+        archiveTask.setOnSucceeded(event -> {
+            int result = archiveTask.getValue();
+            if (result > 0) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Sales data was successfully archived!");
+                // Optionally clear fields or refresh your views here
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Archive Failed", "An error occurred during the archiving process. Check console logs.");
+            }
+        });
+
+        archiveTask.setOnFailed(event -> {
+            Throwable ex = archiveTask.getException();
+            if (ex != null) {
+                ex.printStackTrace();
+            }
+            showAlert(Alert.AlertType.ERROR, "Archive Failed", "A critical error occurred while executing the archive task.");
+        });
+
+        // 4. Start the thread
+        Thread thread = new Thread(archiveTask);
+        thread.setDaemon(true); // Ensures the thread won't block application shutdown
+        thread.start();
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String message) {
+        Alert alert = new Alert(type, message);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.showAndWait();
+    }
+
+
 }

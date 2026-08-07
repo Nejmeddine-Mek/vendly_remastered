@@ -113,6 +113,7 @@ public class ControllerDispatcher {
             SettingsController sc = (SettingsController) controller;
             sc.setRoleRepository(new RoleSQLiteImpl(connection));
             sc.setCategoryRepository(new CategorySQLiteImpl(connection));
+            sc.setArchiveRepository(new ArchiveSQLiteImpl(connection));
             sc.initializeTables();
         });
         registry.put(NoBarCodeSelectionController.class, controller -> {
