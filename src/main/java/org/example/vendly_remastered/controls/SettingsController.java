@@ -148,6 +148,9 @@ public class SettingsController implements Initializable {
         btnRunArchive.setOnAction(_ -> {
             handleArchive();
         });
+        cancelButton.setOnAction(_ -> {
+            handleCancel();
+        });
     }
 
     private void loadConfigValues() {
@@ -220,6 +223,10 @@ public class SettingsController implements Initializable {
         config.saveConfigToFile();
     }
 
+
+    private void handleCancel(){
+        loadConfigValues();
+    }
 
     private void loadCategories(){
         List<Category> categories = categoryRepository.findAll();
