@@ -238,7 +238,7 @@ public class ClientsViewController implements Initializable {
 
                 // Execution pauses right here until the user clicks Save or Cancel
                 modalStage.showAndWait();
-
+                clientTableView.refresh();
 
             } catch (Exception ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());

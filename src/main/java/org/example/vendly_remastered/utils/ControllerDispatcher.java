@@ -70,7 +70,11 @@ public class ControllerDispatcher {
         registry.put(ClientDetailsModalController.class, controller -> {
 
         });
-        registry.put(ClearDebtsController.class, controller -> {});
+        registry.put(ClearDebtsController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            ClearDebtsController cdc = (ClearDebtsController) controller;
+            cdc.setSalesHeaderRepository(new SaleHeaderSQLiteImpl(connection));
+        });
         registry.put(SuppliersViewController.class, controller -> {
             Connection conn = DatabaseManager.getConnection();
             SuppliersViewController svc = (SuppliersViewController) controller;

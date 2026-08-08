@@ -98,7 +98,7 @@ public class SalesViewController implements Initializable {
         clientCheckBox.visibleProperty().bind(Config.getInstance().trackClientsDebtsProperty());
         clientCheckBox.managedProperty().bind(clientCheckBox.visibleProperty());
         debtsLabel.setText("");
-
+        paidAmountField.setText("0.0");
         setQuantityBehaviour();
         setPriceBehaviour(0.0);
         setDefaultClientFields();
@@ -613,9 +613,10 @@ public class SalesViewController implements Initializable {
         saleItems.clear();       // Wipe the checkout table
         barcodeField.clear();
         clientNameField.clear();
-        paidAmountField.clear();
+        paidAmountField.setText("0.0");
         debtsLabel.setText("");
         totalLabel.setText("0.00 DA");
+
     }
     private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
         if (textVal == null || !textVal.startsWith(searchPrefix)) {

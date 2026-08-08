@@ -113,7 +113,14 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
     @Override
     public List<SaleHeader> getUnpaidSales(int clientId) {
         String sql = """
-            SELECT * FROM sale_header 
+            SELECT 
+                S.*, 
+                U.username AS sale_username,
+                C.company_name, 
+                C.contact_full_name
+            FROM sale_header S
+            JOIN users U ON U.userId = S.sale_user
+            LEFT JOIN clients C ON S.sale_client = C.client_id
             WHERE paid_amount < sale_total
             AND sale_client = ?
             ORDER BY sale_id ASC;

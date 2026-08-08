@@ -18,7 +18,8 @@ public class ClientsSQLiteImpl implements IClientsRepository {
             SELECT C.*, U.username, U.userId
             FROM clients C
             LEFT JOIN users U ON C.created_by = U.userId
-            WHERE LOWER(C.contact_full_name) like ?;
+            WHERE c.is_active = 1
+            AND LOWER(C.contact_full_name) like ?;
             """;
         List<Client> clientMatches = new ArrayList<>();
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -211,7 +212,8 @@ public class ClientsSQLiteImpl implements IClientsRepository {
             email = ?, 
             phone = ?, 
             address = ?, 
-            current_debt = ? 
+            current_debt = ?,
+            is_active = ?
         WHERE client_id = ?;
         """;
 
@@ -246,9 +248,9 @@ public class ClientsSQLiteImpl implements IClientsRepository {
             } else {
                 pstmt.setBigDecimal(6, client.getCurrentDebts());
             }
-
+            pstmt.setInt(7,client.isActive() ? 1:0);
             // 2. Identify target row via Primary Key ID
-            pstmt.setInt(7, client.getClientId());
+            pstmt.setInt(8, client.getClientId());
 
             // 3. Execute update statement
             int affectedRows = pstmt.executeUpdate();
@@ -288,7 +290,7 @@ public class ClientsSQLiteImpl implements IClientsRepository {
                 client.setEmail(rs.getString("email") == null ? "":rs.getString("email"));
                 client.setPhone(rs.getString("phone"));
                 client.setAddress(rs.getString("address") == null ? "":rs.getString("address"));
-//              client.setActive(rs.getBoolean("is_active"));admin
+                client.setActive(rs.getBoolean("is_active"));
                 client.setCreatedBy(rs.getInt("created_by"));
                 client.setCreatedByUsername(rs.getString("created_by_username"));
                 client.setCreatedBy(rs.getInt("created_by_id"));

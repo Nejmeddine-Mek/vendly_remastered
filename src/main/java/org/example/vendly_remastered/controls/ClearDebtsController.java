@@ -8,6 +8,8 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.models.entity.Client;
+import org.example.vendly_remastered.repository.ISalesHeaderRepository;
+import org.example.vendly_remastered.service.SalesServices;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
@@ -21,6 +23,7 @@ public class ClearDebtsController implements Initializable {
     @FXML private Button saveButton;
     @FXML private Button cancelButton;
     Client selectedClient;
+    private ISalesHeaderRepository salesHeaderRepository;
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         paymentAmountField.setTextFormatter(TextFormatterUtils.createDecimalFormatter());
@@ -37,6 +40,8 @@ public class ClearDebtsController implements Initializable {
         if(remaining.compareTo(BigDecimal.ZERO) < 0)
             remaining = BigDecimal.ZERO;
         selectedClient.setCurrentDebts(remaining);
+        SalesServices ss = new SalesServices(salesHeaderRepository);
+        ss.resolveDebts(paidValue, selectedClient.getClientId());
         ClientsCache cache = ClientsCache.getInstance();
         cache.put(selectedClient,ClientsCache.UPDATE_INDEX);
         closeWindow();
@@ -62,5 +67,9 @@ public class ClearDebtsController implements Initializable {
 
             currentDebtLabel.setText(String.format("%.2f DA", currentDebt));
         }
+    }
+
+    public void setSalesHeaderRepository(ISalesHeaderRepository salesHeaderRepository) {
+        this.salesHeaderRepository = salesHeaderRepository;
     }
 }

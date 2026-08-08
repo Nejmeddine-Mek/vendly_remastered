@@ -130,6 +130,10 @@ public class ClientsCache {
                     System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
                     return;
                 }
+                if(!client.isActive()){
+                    cacheMap.remove(client.getClientId());
+                    clientNameIdIndex.remove(client.getContactFullName());
+                }
             }
 
             // Sync successfully written record back into cache mapping layers
