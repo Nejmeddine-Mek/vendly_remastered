@@ -1,6 +1,7 @@
 package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.repository.IBarcodeRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -44,12 +45,17 @@ public class BarcodeSQLImpl implements IBarcodeRepository {
             } catch (SQLException rollbackEx) {
                 e.addSuppressed(rollbackEx);
             }
-            throw new RuntimeException("Failed to batch insert/replace barcodes", e);
+            String message = "Failed to Barcode insert/replace barcodes";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
+            throw new RuntimeException(message, e);
         } finally {
             try {
                 connection.setAutoCommit(originalAutoCommit);
             } catch (SQLException e) {
-                // Log or handle auto-commit reset failure
+                String message = "Failed to reset auto-commit state BarcodeSQLiteImpl";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             }
         }
     }
@@ -85,12 +91,17 @@ public class BarcodeSQLImpl implements IBarcodeRepository {
             } catch (SQLException rollbackEx) {
                 e.addSuppressed(rollbackEx);
             }
-            throw new RuntimeException("Failed to batch delete barcodes", e);
+            String message = "Failed to barcode delete barcodes";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
+            throw new RuntimeException(message, e);
         } finally {
             try {
                 connection.setAutoCommit(originalAutoCommit);
             } catch (SQLException e) {
-                // Log or handle auto-commit reset failure
+                String message = "Failed to reset auto-commit state BarcodeSQLiteImpl";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             }
         }
     }

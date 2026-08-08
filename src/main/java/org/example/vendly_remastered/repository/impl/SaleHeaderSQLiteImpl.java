@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -47,9 +48,10 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
                     }
                 }
             }
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL: Failed to insert sale header record.");
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL: Failed to insert sale header record.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return -1; // Indicates failure
@@ -73,8 +75,10 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
             }
             return salesList; // Returns the fully loaded list populated with DB data
 
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to retrieve all sale headers";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
         return new ArrayList<>(); // Return empty mutable list instead of List.of() to avoid immutable crashes down the line
     }
@@ -104,8 +108,10 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
                     salesList.add(mapRowToSaleHeader(rs));
                 }
             }
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to retrieve sale headers by date";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
         return salesList;
     }
@@ -140,9 +146,10 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
                     }
                 }
             }
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL ERROR: Failed to retrieve unpaid sales for client ID [" + clientId + "]");
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to retrieve unpaid sales for client ID [" + clientId + "]";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return unpaidSales;
@@ -180,7 +187,7 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
                 connection.commit();
                 System.out.println("[SalesRepo] Batch update successfully processed " + results.length + " headers.");
 
-            } catch (SQLException e) {
+            }catch (SQLException e) {
                 // Roll back changes if any single statement inside the batch fails
                 connection.rollback();
                 throw e;
@@ -190,8 +197,9 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
             }
 
         } catch (SQLException sqle) {
-            System.err.println("CRITICAL ERROR: Failed to execute batch update for historical sale headers.");
-            sqle.printStackTrace();
+            String message = "CRITICAL ERROR: Failed to execute batch update for historical sale headers.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
     }
 
@@ -223,9 +231,10 @@ public class SaleHeaderSQLiteImpl implements ISalesHeaderRepository {
                     sales.add(mapRowToSaleHeader(rs));
                 }
             }
-        } catch (SQLException e) {
-            // Log or handle appropriately for Vendly
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve records by date range";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return sales;

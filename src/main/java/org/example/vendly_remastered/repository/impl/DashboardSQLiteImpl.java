@@ -5,6 +5,7 @@ import org.example.vendly_remastered.models.dto.ProductDashboardItem;
 import org.example.vendly_remastered.models.dto.RevenueDashboardItem;
 import org.example.vendly_remastered.models.dto.SupplierDashboardItem;
 import org.example.vendly_remastered.repository.IDashBoardRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -71,8 +72,10 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
                     ));
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace(); // or log with logger
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve top clients for dashboard";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return items;
@@ -131,8 +134,10 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
                     ));
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve top suppliers for dashboard";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return items;
@@ -186,7 +191,9 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            String message = "CRITICAL ERROR: Failed to retrieve revenue metrics";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return items;
@@ -247,7 +254,9 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            String message = "CRITICAL ERROR: Failed to retrieve top products for dashboard";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return items;
@@ -264,8 +273,10 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
             if (rs.next()) {
                 return rs.getInt("lowStock");
             }
-        }catch (SQLException e){
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve low stock count for dashboard";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return 0;
     }
@@ -281,8 +292,10 @@ public class DashboardSQLiteImpl implements IDashBoardRepository {
             if (rs.next()) {
                 return rs.getInt("expiring");
             }
-        }catch (SQLException e){
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve expiring products for dashboard";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return 0;
     }

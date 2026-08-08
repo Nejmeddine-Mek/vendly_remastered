@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -62,9 +63,10 @@ public class ClientsSQLiteImpl implements IClientsRepository {
                     clientMatches.add(c);
                 }
             }
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL: Failed to query client profile with Name like: " + name);
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL: Failed to query client profile with Name like: " + name;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return clientMatches;
@@ -119,8 +121,9 @@ public class ClientsSQLiteImpl implements IClientsRepository {
                 }
             }
         } catch (SQLException sqle) {
-            System.err.println("CRITICAL: Failed to query client profile with ID: " + clientId);
-            sqle.printStackTrace();
+            String message = "CRITICAL: Failed to query client profile with ID: " + clientId;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return Optional.empty();
@@ -191,9 +194,10 @@ public class ClientsSQLiteImpl implements IClientsRepository {
                 }
             }
 
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL ERROR: Failed to add new client record: " + client.getContactFullName());
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to add new client record: " + client.getContactFullName();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return false;
@@ -256,14 +260,16 @@ public class ClientsSQLiteImpl implements IClientsRepository {
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
 
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL ERROR: Failed to update client record ID [" + client.getClientId() + "]: " + client.getContactFullName());
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to update client record ID [" + client.getClientId() + "]: " + client.getContactFullName();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return false;
     }
 
+    @Deprecated
     @Override
     public boolean delete(int clientId) {
         return false;
@@ -303,9 +309,10 @@ public class ClientsSQLiteImpl implements IClientsRepository {
                 clients.add(client);
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
-            // Log or throw custom repository exception
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve all client records";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return clients;

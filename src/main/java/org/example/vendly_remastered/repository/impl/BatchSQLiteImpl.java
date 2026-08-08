@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Batch;
 import org.example.vendly_remastered.repository.IBatchRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -83,7 +84,9 @@ public class BatchSQLiteImpl implements IBatchRepository {
                 resultList.add(e);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            String message = "Database execution error occurred BatchSQLiteImpl";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return resultList;
     }

@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Product;
 import org.example.vendly_remastered.repository.IProductRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -84,8 +85,10 @@ public class ProductSQLiteImpl implements IProductRepository {
                     }
                 }
             }
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to retrieve all product records";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
             // Depending on your architecture, you might want to rethrow this as a runtime exception
         }
 
@@ -93,6 +96,7 @@ public class ProductSQLiteImpl implements IProductRepository {
         return new ArrayList<>(productMap.values());
     }
 
+    @Deprecated
     @Override
     public void update(Product processedProduct) {
 
@@ -134,14 +138,15 @@ public class ProductSQLiteImpl implements IProductRepository {
                     }
                 }
             }
-        } catch (SQLException e) {
-            if(e.getSQLState() != null && e.getSQLState().startsWith("23")){
+        }catch (SQLException e) {
+            if (e.getSQLState() != null && e.getSQLState().startsWith("23")) {
                 // this means the product is duplicated
                 product.setProductId(-1);
                 return;
             }
-            System.err.println("Error inserting new product: " + e.getMessage());
-            e.printStackTrace();
+            String message = "Error inserting new product: " + e.getMessage();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 
@@ -168,12 +173,14 @@ public class ProductSQLiteImpl implements IProductRepository {
 
             pstmt.executeUpdate();
 
-        } catch (SQLException e) {
-            System.err.println("Error updating product ID " + product.getProductId() + ": " + e.getMessage());
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "Error updating product ID " + product.getProductId() + ": " + e.getMessage();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 
+    @Deprecated
     @Override
     public Optional<Product> findProduct(int productId) {
         return Optional.empty();
@@ -211,9 +218,10 @@ public class ProductSQLiteImpl implements IProductRepository {
                     matches.add(product);
                 }
             }
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL: Segmented name query failed for query text: " + productName);
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL: Segmented name query failed for query text: " + productName;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return matches;
@@ -248,9 +256,10 @@ public class ProductSQLiteImpl implements IProductRepository {
                     return Optional.of(product);
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Failed to query barcode index registry for: " + barcode);
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Failed to query barcode index registry for: " + barcode;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return Optional.empty();
@@ -286,8 +295,10 @@ public class ProductSQLiteImpl implements IProductRepository {
             while(rs.next()){
                 result.add(mapResultSetToProduct(rs));
             }
-        } catch (SQLException e){
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve uncoded products";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return result;
     }

@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.PurchaseHeader;
 import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -65,9 +66,10 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
                     }
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Failed to save purchase header");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Failed to save purchase header";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return -1;
     }
@@ -83,9 +85,10 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
             while (rs.next()) {
                 list.add(mapResultSetToPurchaseHeader(rs));
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error fetching all purchase headers");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error fetching all purchase headers";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return list;
     }
@@ -103,9 +106,10 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
                     list.add(mapResultSetToPurchaseHeader(rs));
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error fetching purchase headers by date: " + date);
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error fetching purchase headers by date: " + date;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return list;
     }
@@ -124,9 +128,10 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
                     list.add(mapResultSetToPurchaseHeader(rs));
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error fetching purchases by date range");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error fetching purchases by date range";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return list;
     }
@@ -144,9 +149,10 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
                     list.add(mapResultSetToPurchaseHeader(rs));
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error fetching unpaid purchases for supplier ID: " + supplierId);
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error fetching unpaid purchases for supplier ID: " + supplierId;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return list;
     }
@@ -179,9 +185,10 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Batch update failed for purchase headers");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Batch update failed for purchase headers";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 

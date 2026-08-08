@@ -4,6 +4,7 @@ import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IUserRepository;
 import org.example.vendly_remastered.security.PasswordHasher;
 import org.example.vendly_remastered.security.UserSession;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -57,9 +58,10 @@ public class UserSQLiteImpl implements IUserRepository {
                         try (PreparedStatement updatePstmt = connection.prepareStatement(updateSql)) {
                             updatePstmt.setString(1, username);
                             updatePstmt.executeUpdate();
-                        } catch (SQLException e) {
-                            System.err.println("Failed to update last_login timestamp for user: " + username);
-                            e.printStackTrace();
+                        }catch (SQLException e) {
+                            String message = "Failed to update last_login timestamp for user: " + username;
+                            System.err.println(message);
+                            ErrorLogsService.getInstance().log(message, e);
                             // We don't return false here because the user authenticated successfully
                             // and their session started; a logging slip shouldn't lock them out.
                         }
@@ -67,10 +69,15 @@ public class UserSQLiteImpl implements IUserRepository {
                     }
                 }
             }catch(Exception e){
-                e.printStackTrace();
+                String message = "CRITICAL: Error processing authentication result set for user: " + username;
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             }
         }catch (SQLException sqle){
-            sqle.printStackTrace();
+            String message = "CRITICAL: Failed to execute authentication query for user: " + username;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
+
         }
         return false;
     }
@@ -127,8 +134,10 @@ public class UserSQLiteImpl implements IUserRepository {
                     return Optional.of(user);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        }catch (Exception e) {
+            String message = "CRITICAL: Failed to search user by username";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return Optional.empty();
     }
@@ -170,8 +179,10 @@ public class UserSQLiteImpl implements IUserRepository {
                 usersList.add(user);
             }
 
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL: Failed to retrieve all records";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return usersList;
@@ -225,12 +236,15 @@ public class UserSQLiteImpl implements IUserRepository {
             // 6. Execute and confirm rows were affected
             return pstmt.executeUpdate() > 0;
 
-        } catch (SQLException sqle) {
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL: Failed to save record";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
         return false;
     }
 
+    @Deprecated
     @Override
     public boolean delete(int userId) {
         String sql = "DELETE FROM users" +
@@ -239,8 +253,10 @@ public class UserSQLiteImpl implements IUserRepository {
             pstmt.setInt(1,userId);
 
             return pstmt.executeUpdate() > 0;
-        }catch(SQLException sqle){
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL: Failed to delete record";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
         return false;
     }

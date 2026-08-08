@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Role;
 import org.example.vendly_remastered.repository.IRoleRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -53,8 +54,10 @@ public class RoleSQLiteImpl implements IRoleRepository {
                     }
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to add role";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return (short) -1;
     }
@@ -93,8 +96,10 @@ public class RoleSQLiteImpl implements IRoleRepository {
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to save role";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
             return false;
         }
     }
@@ -110,8 +115,10 @@ public class RoleSQLiteImpl implements IRoleRepository {
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to delete role";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
             return false;
         }
     }
@@ -145,8 +152,10 @@ public class RoleSQLiteImpl implements IRoleRepository {
                 rolesList.add(role);
             }
 
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve all roles";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return rolesList;

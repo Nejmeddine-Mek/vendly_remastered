@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.math.BigDecimal;
 import java.sql.*;
@@ -56,14 +57,16 @@ public class SupplierSQLiteImpl implements ISuppliersRepository {
                 suppliers.add(supplier);
             }
 
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error executing findAll in SuppliersDAO");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error executing findAll in SuppliersDAO";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return suppliers;
     }
 
+    @Deprecated
     @Override
     public List<Supplier> findByName(String name) {
         return List.of();
@@ -104,9 +107,10 @@ public class SupplierSQLiteImpl implements ISuppliersRepository {
                     }
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error inserting supplier into DB");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error inserting supplier into DB";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return -1; // Failure fallback
@@ -143,9 +147,10 @@ public class SupplierSQLiteImpl implements ISuppliersRepository {
                 System.out.printf("No supplier was updated. Check if supplier_id (" + supplier.getSupplierId() + ") exists.");
             }
 
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Error updating supplier ID: " + supplier.getSupplierId());
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Error updating supplier ID: " + supplier.getSupplierId();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 }

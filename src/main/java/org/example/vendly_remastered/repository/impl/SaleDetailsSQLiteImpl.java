@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.SaleDetailItem;
 import org.example.vendly_remastered.repository.ISaleDetailsRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -40,9 +41,10 @@ public class SaleDetailsSQLiteImpl implements ISaleDetailsRepository {
             int[] result = pstmt.executeBatch();
             System.out.println("Database batch execution completed. Rows affected: " + result.length);
 
-        } catch (SQLException sqle) {
-            System.err.println("CRITICAL ERROR: Failed to execute batch insert for sale detail line items.");
-            sqle.printStackTrace();
+        }catch (SQLException sqle) {
+            String message = "CRITICAL ERROR: Failed to execute batch insert for sale detail line items.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
     }
 
@@ -64,8 +66,10 @@ public class SaleDetailsSQLiteImpl implements ISaleDetailsRepository {
                     details.add(mapRowToSaleDetailItem(rs));
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL ERROR: Failed to retrieve sale details";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return details;

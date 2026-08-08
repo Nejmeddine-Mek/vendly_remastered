@@ -1,6 +1,7 @@
 package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.repository.IArchiveRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.io.File;
 import java.sql.*;
@@ -112,17 +113,26 @@ public class ArchiveSQLiteImpl implements IArchiveRepository {
                 try {
                     archiveConnection.rollback();
                 } catch (SQLException rbEx) {
-                    rbEx.printStackTrace();
+                    String rbMessage = "Failed to rollback archive database transaction";
+                    System.err.println(rbMessage);
+                    ErrorLogsService.getInstance().log(rbMessage, rbEx);
                 }
                 try {
                     connection.rollback();
                 } catch (SQLException rbEx) {
-                    rbEx.printStackTrace();
+                    String rbMessage = "Failed to rollback primary database transaction ArchiveSQliteImpl";
+                    System.err.println(rbMessage);
+                    ErrorLogsService.getInstance().log(rbMessage, rbEx);
                 }
-                ex.printStackTrace();
+
+                String mainMessage = "Critical failure during multi-database transaction execution";
+                System.err.println(mainMessage);
+                ErrorLogsService.getInstance().log(mainMessage, ex);
             }
-        } catch (SQLException e){
-            e.printStackTrace();
+        } catch (SQLException e) {
+            String message = "Database execution error occurred ArchiveSQliteImpl";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return 0;
     }

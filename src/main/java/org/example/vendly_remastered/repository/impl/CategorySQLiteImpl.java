@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Category;
 import org.example.vendly_remastered.repository.ICategoryRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -28,7 +29,9 @@ public class CategorySQLiteImpl implements ICategoryRepository {
             }
 
         } catch (SQLException sqle) {
-            sqle.printStackTrace();
+            String message = "Database error occurred in CategorySQLiteImpl operation";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
 
         return categories;
@@ -47,8 +50,10 @@ public class CategorySQLiteImpl implements ICategoryRepository {
                     }
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLException sqle) {
+            String message = "Database error occurred in CategorySQLiteImpl operation";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, sqle);
         }
         return -1;
     }

@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.Stock;
 import org.example.vendly_remastered.repository.IStockRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.math.BigDecimal;
 import java.sql.Connection;
@@ -39,9 +40,10 @@ public class StockSQLiteImpl implements IStockRepository {
 
                 stockMap.put(productId, stock);
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Failed to sweep complete inventory baseline map allocations.");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Failed to sweep complete inventory baseline map allocations.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return stockMap;
     }
@@ -65,9 +67,10 @@ public class StockSQLiteImpl implements IStockRepository {
                     );
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Failed to pull individual stock allocation line for product ID: " + productId);
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Failed to pull individual stock allocation line for product ID: " + productId;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
         return null; // Safe fallback cache miss signifier
     }
@@ -106,14 +109,16 @@ public class StockSQLiteImpl implements IStockRepository {
                     updatedBalances.put(id, rawStock != null ? new BigDecimal(rawStock) : BigDecimal.ZERO);
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Bulk batch stock mutation sequence failed.");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Bulk batch stock mutation sequence failed.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return updatedBalances; // Map of productIds and their final absolute balances on disk
     }
 
+    @Deprecated
     @Override
     public void addStock(int productId, Stock stock) {
 
@@ -149,9 +154,10 @@ public class StockSQLiteImpl implements IStockRepository {
             // 2. Stream the data matrix to SQLite in a single transaction round-trip block
             pstmt.executeBatch();
 
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: High-performance bulk inventory counter adjustment sequence failed.");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: High-performance bulk inventory counter adjustment sequence failed.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
             // Propagate upstream to force transactional rollback on the shared database connection context
             throw new RuntimeException(e);
         }
@@ -180,9 +186,10 @@ public class StockSQLiteImpl implements IStockRepository {
 
             pstmt.executeUpdate();
 
-        } catch (SQLException e) {
-            System.err.println("Error saving stock record for product ID " + productId + ": " + e.getMessage());
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "Error saving stock record for product ID " + productId + ": " + e.getMessage();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 

@@ -2,6 +2,7 @@ package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
 import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.sql.Connection;
 import java.util.List;
@@ -51,9 +52,10 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailsRepository {
                     items.add(item);
                 }
             }
-        } catch (SQLException e) {
-            System.err.println("CRITICAL: Failed to fetch purchase items for purchase_id: " + purchaseId);
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL: Failed to fetch purchase items for purchase_id: " + purchaseId;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
 
         return items;
@@ -86,16 +88,19 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailsRepository {
 
                 pstmt.executeBatch();
                 connection.commit();
-            } catch (SQLException e) {
+            }catch (SQLException e) {
                 connection.rollback();
-                System.err.println("CRITICAL: Transaction rolled back during purchase details insert.");
+                String message = "CRITICAL: Transaction rolled back during purchase details insert.";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
                 throw e;
             } finally {
                 connection.setAutoCommit(originalAutoCommit);
             }
         } catch (SQLException e) {
-            System.err.println("CRITICAL: Failed to batch save purchase detail items.");
-            e.printStackTrace();
+            String message = "CRITICAL: Failed to batch save purchase detail items.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 
