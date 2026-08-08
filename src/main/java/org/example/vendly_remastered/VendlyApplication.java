@@ -42,7 +42,7 @@ public class VendlyApplication extends Application {
             );
         // 4. Set the scene and display the window
         stage.setScene(new Scene(root));
-        stage.setTitle("Vendly ERP - Login");
+        stage.setTitle(Config.getInstance().getLanguageBundle().getString("common.loginWindowTitle"));
         stage.show();
     }
 }

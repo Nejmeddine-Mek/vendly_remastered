@@ -13,6 +13,7 @@ import org.example.vendly_remastered.models.dto.ProductDashboardItem;
 import org.example.vendly_remastered.models.dto.RevenueDashboardItem;
 import org.example.vendly_remastered.models.dto.SupplierDashboardItem;
 import org.example.vendly_remastered.repository.IDashBoardRepository;
+import org.example.vendly_remastered.security.Config;
 
 import javax.xml.crypto.dsig.spec.XSLTTransformParameterSpec;
 import java.net.URL;
@@ -83,9 +84,13 @@ public class DashboardController implements Initializable {
         if (cmbDatePreset == null) return;
 
         cmbDatePreset.setItems(FXCollections.observableArrayList(
-                "All Time", "Today", "Last 10 Days", "Last 30 Days", "This Month"
+                Config.getInstance().getLanguageBundle().getString("common.timeAllTime"),
+                Config.getInstance().getLanguageBundle().getString("common.timeToday"),
+                Config.getInstance().getLanguageBundle().getString("common.timeLast10Days"),
+                Config.getInstance().getLanguageBundle().getString("common.timeLast30Days"),
+                Config.getInstance().getLanguageBundle().getString("common.timeThisMonth")
         ));
-        cmbDatePreset.getSelectionModel().select("Last 10 Days");
+        cmbDatePreset.getSelectionModel().select(Config.getInstance().getLanguageBundle().getString("common.timeLast10Days"));
 
         cmbDatePreset.setOnAction(e -> handlePresetSelection(cmbDatePreset.getValue()));
     }
@@ -96,13 +101,15 @@ public class DashboardController implements Initializable {
         LocalDate today = LocalDate.now();
         LocalDate startDate = null;
         LocalDate endDate = today;
+        ResourceBundle bundle = Config.getInstance().getLanguageBundle();
 
         switch (preset) {
-            case "Today" -> startDate = today;
-            case "Last 10 Days" -> startDate = today.minusDays(9);
-            case "Last 30 Days" -> startDate = today.minusDays(29);
-            case "This Month" -> startDate = today.withDayOfMonth(1);
-            case "All Time" -> endDate = null;
+            case String s when s.equals(bundle.getString("common.timeToday")) -> startDate = today;
+            case String s when s.equals(bundle.getString("common.timeLast10Days")) -> startDate = today.minusDays(9);
+            case String s when s.equals(bundle.getString("common.timeLast30Days")) -> startDate = today.minusDays(29);
+            case String s when s.equals(bundle.getString("common.timeThisMonth")) -> startDate = today.withDayOfMonth(1);
+            case String s when s.equals(bundle.getString("common.timeAllTime")) -> endDate = null;
+            default -> {}
         }
 
         if (dpStartDate != null) dpStartDate.setValue(startDate);
@@ -190,7 +197,7 @@ public class DashboardController implements Initializable {
             }
         });
 
-        tblTopSuppliers.setPlaceholder(new Label("No supplier records found for this period."));
+        tblTopSuppliers.setPlaceholder(new Label(Config.getInstance().getLanguageBundle().getString("common.noSupplierRecords")));
         tblTopSuppliers.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
 
@@ -211,8 +218,8 @@ public class DashboardController implements Initializable {
 
         XYChart.Series<String, Number> revenueSeries = new XYChart.Series<>();
         XYChart.Series<String, Number> profitSeries = new XYChart.Series<>();
-        revenueSeries.setName("Revenue");
-        profitSeries.setName("Profit");
+        revenueSeries.setName(Config.getInstance().getLanguageBundle().getString("common.revenue"));
+        profitSeries.setName(Config.getInstance().getLanguageBundle().getString("common.profit"));
         for (RevenueDashboardItem item : revenueData) {
             if (item.date() != null) {
                 String dateLabel = item.date().toString();
@@ -233,7 +240,7 @@ public class DashboardController implements Initializable {
 
             if (profitDataPoint.getNode() != null) {
                 String tooltipText = String.format(
-                        "Date: %s\nProfit: %s DA\n",
+                        Config.getInstance().getLanguageBundle().getString("common.tooltipDateProfit"),
                         item.date(),
                         currencyFormatter.format(item.totalRevenue())
                 );
@@ -245,7 +252,7 @@ public class DashboardController implements Initializable {
 
             if (dataPoint.getNode() != null) {
                 String tooltipText = String.format(
-                        "Date: %s\nRevenue: %s DA\nTransactions: %d",
+                        Config.getInstance().getLanguageBundle().getString("common.tooltipFinancialSummary"),
                         item.date(),
                         currencyFormatter.format(item.totalProfit()),
                         (int) item.totalPurchases()
@@ -265,7 +272,7 @@ public class DashboardController implements Initializable {
         topProductsChart.getData().clear();
 
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.setName("Units Sold");
+        series.setName(Config.getInstance().getLanguageBundle().getString("common.unitsSold"));
 
         for (ProductDashboardItem item : topProducts) {
             XYChart.Data<String, Number> dataPoint = new XYChart.Data<>(item.productName(), item.unitsSold());
@@ -280,7 +287,7 @@ public class DashboardController implements Initializable {
 
             if (dataPoint.getNode() != null) {
                 String tooltipText = String.format(
-                        "Product: %s\nUnits Sold: %d\nTotal Revenue: %s DA",
+                        Config.getInstance().getLanguageBundle().getString("common.tooltipProductSummary"),
                         item.productName(),
                         item.unitsSold(),
                         currencyFormatter.format(item.totalRevenue())

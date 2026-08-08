@@ -78,7 +78,7 @@ public class LoginViewController implements Initializable {
 
                 // 3. Switch the scene smoothly
                 stage.setScene(new Scene(root));
-                stage.setTitle("Vendly ERP");
+                stage.setTitle(config.getLanguageBundle().getString("common.appName"));
                 stage.centerOnScreen(); // Center the new larger ERP layout
                 stage.show();
 

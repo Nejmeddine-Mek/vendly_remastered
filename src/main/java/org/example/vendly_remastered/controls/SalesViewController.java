@@ -256,15 +256,16 @@ public class SalesViewController implements Initializable {
         });
     }
     private void setDefaultClientFields(){
-        clientNameField.setPromptText("Client Name...");
+        clientNameField.setPromptText(Config.getInstance().getLanguageBundle().getString("common.clientNamePrompt"));
         clientNameField.setVisible(false);
         clientNameField.setManaged(false);
         clientNameLabel.setVisible(false);
-        paidAmountField.setPromptText("Paid Amount here...");
+        paidAmountField.setPromptText(Config.getInstance().getLanguageBundle().getString("common.paidAmountPrompt"));
         paidAmountField.setVisible(false);
         paidAmountField.setManaged(false);
         paidAmountLabel.setVisible(false);
     }
+
     private void setTextFormatting(){
         quantityField.setTextFormatter(TextFormatterUtils.createDecimalFormatter());
         priceField.setTextFormatter(TextFormatterUtils.createDecimalFormatter());
@@ -734,7 +735,7 @@ public class SalesViewController implements Initializable {
             // Handle item selection action
             item.setOnAction(e -> {
                 clientNameField.setText(client.getContactFullName());
-                debtsLabel.setText(" " + client.getCurrentDebts() + " DA");
+                debtsLabel.setText(java.text.MessageFormat.format(Config.getInstance().getLanguageBundle().getString("common.currentDebts"), client.getCurrentDebts()));
                 suggestionPopup.hide();
             });
 
@@ -785,7 +786,7 @@ public class SalesViewController implements Initializable {
             modalStage.getIcons().add(appIcon);
 
             modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle("Search uncoded Products");
+            modalStage.setTitle(Config.getInstance().getLanguageBundle().getString("common.searchUncodedProducts"));
             modalStage.setScene(new Scene(root));
 
             // Execution pauses right here until the user double-clicks a product (which calls closeModal)

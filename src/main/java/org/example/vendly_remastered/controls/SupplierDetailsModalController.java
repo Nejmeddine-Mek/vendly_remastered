@@ -59,7 +59,7 @@ public class SupplierDetailsModalController implements Initializable {
         if (supplier == null) {
             // --- CREATE MODE ---
             if (lblModalTitle != null) {
-                lblModalTitle.setText("Register New Supplier");
+                lblModalTitle.setText(Config.getInstance().getLanguageBundle().getString("common.registerNewSupplier"));
             }
 
             // Reset all fields to clean initial state
@@ -74,7 +74,10 @@ public class SupplierDetailsModalController implements Initializable {
         } else {
             // --- EDIT MODE ---
             if (lblModalTitle != null) {
-                lblModalTitle.setText("Edit Supplier: " + (supplier.getSupplierCompany() != null ? supplier.getSupplierCompany() : ""));
+                lblModalTitle.setText(java.text.MessageFormat.format(
+                        Config.getInstance().getLanguageBundle().getString("common.editSupplier"),
+                        supplier.getSupplierCompany() != null ? supplier.getSupplierCompany() : ""
+                ));
             }
 
             // Safely populate text controls (handling potential null values)
@@ -123,26 +126,26 @@ public class SupplierDetailsModalController implements Initializable {
 
         // 2. Validate required fields
         if (companyName.isEmpty()) {
-            showAlert("Validation Error", "Company Name is required.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.companyNameRequired"));
             txtSupplierCompany.requestFocus();
             return;
         }
 
         if (contactName.isEmpty()) {
-            showAlert("Validation Error", "Contact Person Name is required.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.contactPersonRequired"));
             txtSupplierFullName.requestFocus();
             return;
         }
 
         if (phone.isEmpty()) {
-            showAlert("Validation Error", "Phone Number is required.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.phoneNumber"));
             txtPhoneNumber.requestFocus();
             return;
         }
 
         // 3. Format/Pattern validations
         if (!email.isEmpty() && !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            showAlert("Validation Error", "Please enter a valid email address.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.validEmailRequired"));
             txtEmail.requestFocus();
             return;
         }
@@ -154,7 +157,7 @@ public class SupplierDetailsModalController implements Initializable {
                     debts = new BigDecimal(debtInput);
                 }
             } catch (NumberFormatException e) {
-                showAlert("Validation Error", "Invalid numeric format for debts.");
+                showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.invalidNumericDebts"));
                 txtDebts.requestFocus();
                 return;
             }

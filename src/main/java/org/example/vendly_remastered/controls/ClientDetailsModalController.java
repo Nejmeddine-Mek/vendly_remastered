@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.models.entity.Client;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 
 import java.net.URL;
@@ -49,7 +50,7 @@ public class ClientDetailsModalController implements Initializable {
         if (client == null) {
             // --- CREATE MODE ---
             if (lblModalTitle != null) {
-                lblModalTitle.setText("Register New Client");
+                lblModalTitle.setText(Config.getInstance().getLanguageBundle().getString("common.registerNewClient"));
             }
 
             // Reset all fields to clean initial state
@@ -63,7 +64,10 @@ public class ClientDetailsModalController implements Initializable {
         } else {
             // --- EDIT MODE ---
             if (lblModalTitle != null) {
-                lblModalTitle.setText("Edit Client: " + (client.getCompanyName() != null ? client.getCompanyName() : ""));
+                lblModalTitle.setText(java.text.MessageFormat.format(
+                        Config.getInstance().getLanguageBundle().getString("common.editClient"),
+                        client.getCompanyName() != null ? client.getCompanyName() : ""
+                ));
             }
 
             // Safely populate text controls (handling potential null values)
@@ -99,15 +103,20 @@ public class ClientDetailsModalController implements Initializable {
             return;
         }*/
 
+        if(phone.isEmpty()){
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.phoneNumber"));
+            txtContactFullName.requestFocus();
+            return;
+        }
         if (contactName.isEmpty()) {
-            showAlert("Validation Error", "Contact Person Name is required.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.contactPersonRequired"));
             txtContactFullName.requestFocus();
             return;
         }
 
         // 3. Format/Pattern validations (Optional basic checks)
         if (!email.isEmpty() && !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
-            showAlert("Validation Error", "Please enter a valid email address.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.validationError"), Config.getInstance().getLanguageBundle().getString("common.validEmailRequired"));
             txtEmail.requestFocus();
             return;
         }
