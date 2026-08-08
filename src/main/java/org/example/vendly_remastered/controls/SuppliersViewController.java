@@ -22,6 +22,7 @@ import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
@@ -31,9 +32,6 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class SuppliersViewController implements Initializable {
-    @FXML private Label supplierInfo;
-    @FXML private TextArea supplierDetailsArea;
-    @FXML private Label searchSuppliersLabel;
     @FXML private TextField searchField;
     @FXML private Button addSupplierButton;
     @FXML private Button supplierDetailsButton;
@@ -224,7 +222,9 @@ public class SuppliersViewController implements Initializable {
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
             alert.showAndWait();
-            ex.printStackTrace();
+            String message = "Failed to load layout view component: Supplier Details View";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, ex);
         }
     }
 

@@ -21,6 +21,7 @@ import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;
@@ -204,7 +205,11 @@ public class ClientsViewController implements Initializable {
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load client modal panel: " + ex.getMessage());
             alert.showAndWait();
-            ex.printStackTrace();
+
+            String message = "Failed to load layout view component: Client Modal View";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, ex);
+
         }
     }
     private void setClearDebtButtonBehaviour() {
@@ -243,7 +248,9 @@ public class ClientsViewController implements Initializable {
             } catch (Exception ex) {
                 Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
                 alert.showAndWait();
-                ex.printStackTrace();
+                String message = "Failed to load layout view component: Clear Debts";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, ex);
             }
         });
     }

@@ -19,6 +19,7 @@ import org.example.vendly_remastered.models.entity.PurchaseHeader;
 import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
 import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
@@ -284,7 +285,9 @@ public class PurchaseHistoryViewController implements Initializable {
             modalStage.showAndWait();
 
         } catch (IOException e) {
-            e.printStackTrace();
+            String message = "Failed to load layout view component: Purchase Entry View";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
             showAlert("UI Error", "Failed to load the purchase order details modal: " + e.getMessage());
         } catch (SQLException e) {
             throw new RuntimeException(e);

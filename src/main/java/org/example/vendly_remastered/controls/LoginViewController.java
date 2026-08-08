@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.repository.IUserRepository;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
@@ -82,7 +83,9 @@ public class LoginViewController implements Initializable {
                 stage.show();
 
             } catch (IOException e) {
-                e.printStackTrace();
+                String message = "Failed to load layout view component: Main View";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
                 errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.connectionFailed"));
             } catch (SQLException e) {
                 throw new RuntimeException(e);
@@ -91,7 +94,7 @@ public class LoginViewController implements Initializable {
         this.passwordField.setText("");      // Clear bad password
         this.passwordField.requestFocus();  // Pop cursor back in there instantly
 
-            errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.invalidCredentials"));
+        errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.invalidCredentials"));
         errorLabel.setStyle("-fx-text-fill: #ff4d4d;");
         return 2;
     }

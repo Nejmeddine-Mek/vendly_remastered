@@ -23,6 +23,7 @@ import org.example.vendly_remastered.repository.IProductRepository;
 import org.example.vendly_remastered.repository.IStockRepository;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.math.BigDecimal;
@@ -284,7 +285,9 @@ public class ProductsViewController implements Initializable {
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
             alert.showAndWait();
-            ex.printStackTrace();
+            String message = "Failed to load layout view component: Product Modal View";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, ex);
         }
     }
 

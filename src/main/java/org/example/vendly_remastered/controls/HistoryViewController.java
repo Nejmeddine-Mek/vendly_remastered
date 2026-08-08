@@ -19,6 +19,7 @@ import org.example.vendly_remastered.models.entity.SaleHeader;
 import org.example.vendly_remastered.repository.ISaleDetailsRepository;
 import org.example.vendly_remastered.repository.ISalesHeaderRepository;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -283,6 +284,9 @@ public class HistoryViewController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
                 showAlert("UI Error", "Failed to load the invoice details modal: " + e.getMessage());
+                String message = "Failed to load layout view component: Sale Details View";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             }
         });
     }

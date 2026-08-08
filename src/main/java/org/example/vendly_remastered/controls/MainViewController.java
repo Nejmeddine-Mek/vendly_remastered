@@ -25,6 +25,7 @@ import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.StockSQLiteImpl;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 import org.example.vendly_remastered.utils.DatabaseManager;
 
@@ -236,11 +237,14 @@ public class MainViewController implements Initializable {
             // Return the perfectly scaled layout root so togglePage can cache it
             return targetNode;
 
-        } catch (IOException e) {
-            System.err.println("Failed to load layout view component: " + fxmlPath);
-            e.printStackTrace();
+        }catch (IOException e) {
+            String message = "Failed to load layout view component: " + fxmlPath;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
             throw new RuntimeException(e);
         } catch (SQLException e) {
+            String message = "Database error occurred during layout operation";
+            ErrorLogsService.getInstance().log(message, e);
             throw new RuntimeException(e);
         }
     }

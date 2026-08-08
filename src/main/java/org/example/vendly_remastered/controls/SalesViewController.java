@@ -29,6 +29,7 @@ import org.example.vendly_remastered.repository.IStockRepository;
 import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 import org.example.vendly_remastered.service.AuditLogsService;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.service.SalesServices;
 
 import org.example.vendly_remastered.utils.ControllerDispatcher;
@@ -82,6 +83,7 @@ public class SalesViewController implements Initializable {
     IStockRepository stockRepository;
 
     public void setStockRepository(IStockRepository stockRepository){ this.stockRepository = stockRepository; }
+
     public void setSaleDetailsRepository(ISaleDetailsRepository saleDetailsRepository){
         this.saleDetailsRepository = saleDetailsRepository;
     }
@@ -147,7 +149,9 @@ public class SalesViewController implements Initializable {
                 // resetCurrentSale(); // Uncomment when ready to clear current window
 
             } catch (IOException e) {
-                e.printStackTrace();
+                String message = "Failed to load layout view component: Sale View [Queue]";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -784,7 +788,9 @@ public class SalesViewController implements Initializable {
         } catch (Exception ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR, "Failed to load product modal UI panel: " + ex.getMessage());
             alert.showAndWait();
-            ex.printStackTrace();
+            String message = "Failed to load layout view component: Uncoded Products View";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, ex);
         }
     }
 }

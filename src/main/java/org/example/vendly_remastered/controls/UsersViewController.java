@@ -15,6 +15,7 @@ import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IUserRepository;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.net.URL;
@@ -25,9 +26,7 @@ import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class UsersViewController implements Initializable {
-    @FXML private Label userDetailsLabel;
     @FXML private TextArea userDetailsArea;
-    @FXML private Label userSearchLabel;
     @FXML private TextField searchField;
 
     @FXML private TableView<User> userTableView;
@@ -100,16 +99,15 @@ public class UsersViewController implements Initializable {
         userTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 // Populate the multi-line details area for viewing
-                StringBuilder details = new StringBuilder();
-                details.append("User ID: ").append(newSelection.getUserId()).append("\n")
-                        .append("Username: ").append(newSelection.getUsername()).append("\n")
-                        .append("Full Name: ").append(newSelection.getFullName()).append("\n")
-                        .append("Role: ").append(newSelection.getRoleName()).append("\n")
-                        .append("Status: ").append(newSelection.isIsActive() ? "Active" : "Inactive").append("\n")
-                        .append("Created At: ").append(newSelection.getCreatedAt()).append("\n")
-                        .append("Last Login: ").append(newSelection.getLastLogin() != null ? newSelection.getLastLogin() : "Never");
+                String details = "User ID: " + newSelection.getUserId() + "\n" +
+                        "Username: " + newSelection.getUsername() + "\n" +
+                        "Full Name: " + newSelection.getFullName() + "\n" +
+                        "Role: " + newSelection.getRoleName() + "\n" +
+                        "Status: " + (newSelection.isIsActive() ? "Active" : "Inactive") + "\n" +
+                        "Created At: " + newSelection.getCreatedAt() + "\n" +
+                        "Last Login: " + (newSelection.getLastLogin() != null ? newSelection.getLastLogin() : "Never");
 
-                userDetailsArea.setText(details.toString());
+                userDetailsArea.setText(details);
                 userDetailsArea.setEditable(false); // Keep it read-only by default
 
                 // Dynamically change the text of the toggle button based on selected user status
@@ -193,10 +191,9 @@ public class UsersViewController implements Initializable {
 
             Stage modalStage = new Stage();
             Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-            if(appIcon != null)
-                modalStage.getIcons().add(
-                        appIcon
-                );
+            modalStage.getIcons().add(
+                    appIcon
+            );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setScene(new Scene(root));
 
@@ -217,7 +214,9 @@ public class UsersViewController implements Initializable {
             }
 
         } catch (Exception ex) {
-            ex.printStackTrace();
+            String message = "Failed to load layout view component: User Details Modal View";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, ex);
         }
     }
 
