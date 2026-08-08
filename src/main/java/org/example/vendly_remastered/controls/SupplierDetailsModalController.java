@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import org.example.vendly_remastered.models.entity.Supplier;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.security.UserSession;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -170,10 +171,11 @@ public class SupplierDetailsModalController implements Initializable {
             newSupplier.setEmail(email);
             newSupplier.setDebts(debts);
             newSupplier.setActive(isActive);
+            newSupplier.setCreatedBy(UserSession.getInstance().getUserId());
+            newSupplier.setCreatedByUsername(UserSession.getInstance().getUsername());
 
-            // TODO: Write-Through: Insert new supplier into DB & update in-memory cache
-            // SuppliersCache.getInstance().put(newSupplier, SuppliersCache.UPDATE_INDEX);
             int supplierId = suppliersRepository.AddSupplier(newSupplier);
+
             newSupplier.setSupplierId((long)supplierId);
             if (onSupplierSaved != null) {
                 onSupplierSaved.accept(newSupplier);

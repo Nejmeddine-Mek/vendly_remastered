@@ -199,6 +199,7 @@ public class PurchaseEntryViewController implements Initializable {
 
         setupTableBindings();
         setupFieldListeners();
+        cbTvaRate.getItems().addAll("0%","9%", "19%");
         btnAddRow.setOnAction(_ -> {
             handleAddRow();
         });

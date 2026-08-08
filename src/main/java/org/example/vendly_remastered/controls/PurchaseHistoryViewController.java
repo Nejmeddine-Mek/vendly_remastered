@@ -37,8 +37,8 @@ import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
 
 public class PurchaseHistoryViewController implements Initializable {
 
-    @FXML private Label pageTitle;
     @FXML private TextField searchField;
+    @FXML private Button btnRefresh;
     @FXML private TableView<PurchaseHeader> purchasesTable;
     @FXML private TableColumn<PurchaseHeader, Long> colPurchaseId;
     @FXML private TableColumn<PurchaseHeader, String> colDate;
@@ -56,6 +56,7 @@ public class PurchaseHistoryViewController implements Initializable {
     @FXML private TextField txtTotalPurchasesCount;
     @FXML private TextField txtTotalProcurementCost;
     @FXML private TextField txtTotalUnpaidDebts;
+
 
     @FXML private Label transactionSummary;
     @FXML private DatePicker dpStartDate;
@@ -90,6 +91,9 @@ public class PurchaseHistoryViewController implements Initializable {
         setPurchaseDetailsButton();
 
         setDomainSearchButton();
+        btnRefresh.setOnAction(_ -> {
+            loadInitialPurchaseTableData();
+        });
     }
 
     private void setTableColumnsBehaviour() {

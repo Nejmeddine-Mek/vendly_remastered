@@ -185,7 +185,7 @@
                                 <VBox spacing="4.0">
                                     <children>
                                         <Label style="-fx-font-size: 11px; -fx-text-fill: #666666;" text="%purchase_entry.label.tva_rate" />
-                                        <ComboBox fx:id="cbTvaRate" prefWidth="90.0" promptText="19%" styleClass="custom-combo-box" />
+                                        <ComboBox fx:id="cbTvaRate" prefWidth="90.0" promptText="%purchase.entry.tva.prompt" styleClass="custom-combo-box" />
                                     </children>
                                 </VBox>
                                 <VBox spacing="4.0">

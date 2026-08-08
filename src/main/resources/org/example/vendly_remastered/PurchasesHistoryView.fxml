@@ -28,6 +28,7 @@
                     </font>
                 </Label>
                 <HBox HBox.hgrow="ALWAYS" />
+                <Button fx:id="btnRefresh" mnemonicParsing="false" styleClass="action-btn-secondary" text="%purchase.history.btn.refresh" />
                 <TextField fx:id="searchField" prefWidth="250.0" promptText="%purchase.history.search.prompt" styleClass="form-field" />
             </children>
         </HBox>
