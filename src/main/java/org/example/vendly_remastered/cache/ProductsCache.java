@@ -167,6 +167,7 @@ public class ProductsCache {
     /**
      * In-memory or database lookup matching exact name string.
      */
+    @Deprecated
     public synchronized Product getByName(String name) {
         if (name == null || name.isBlank()) return null;
 
@@ -268,6 +269,11 @@ public class ProductsCache {
         } else {
             // Existing Product: Execute selective write-through updates
             persistSelectiveToDisk(line);
+            if(!line.getProduct().isActive()){
+                cacheMap.remove(line.getProduct().getProductId());
+                nameToIdIndex.remove(line.getProduct().getProductName());
+                line.getProduct().getBarcodes().forEach( barcode -> barcodeToIdIndex.remove(barcode) );
+            }
         }
 
         // Step 3: Cache in memory using the guaranteed valid prod.getProductId() (> 0)
@@ -339,6 +345,7 @@ public class ProductsCache {
     /**
      * Evicts data explicitly out of cache tracking.
      */
+    @Deprecated
     public synchronized void invalidate(int productId) {
         ProductCacheLine line = cacheMap.remove(productId);
         if (line == null) return;

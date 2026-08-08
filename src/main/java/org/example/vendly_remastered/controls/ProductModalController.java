@@ -58,6 +58,10 @@ public class ProductModalController implements Initializable {
     public void setBarcodeRepository(IBarcodeRepository repository){ barcodeRepository = repository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        txtPromoPrice.managedProperty().bind(chkEnablePromotion.selectedProperty());
+        txtPromoPrice.visibleProperty().bind(chkEnablePromotion.selectedProperty());
+        txtPromoQty.managedProperty().bind(chkEnablePromotion.selectedProperty());
+        txtPromoQty.visibleProperty().bind(chkEnablePromotion.selectedProperty());
 
         if(!Config.getInstance().isTrackStock()){
             txtStockQty.setText("0.0");
@@ -65,10 +69,7 @@ public class ProductModalController implements Initializable {
         }
         setDeleteBarcodeBehaviour();
         setBarcodeAddingBehaviour();
-        chkEnablePromotion.setOnAction(_ -> {
-            promoFieldsContainer.setVisible(!promoFieldsContainer.isVisible());
-            promoFieldsContainer.setManaged(!promoFieldsContainer.isManaged());
-        });
+
         btnSave.setOnAction(e -> handleSaveAction());
         btnCancel.setOnAction(e -> closeWindow());
     }
@@ -200,7 +201,7 @@ public class ProductModalController implements Initializable {
         if (!selectedProduct.getProductName().equals(name)
                 || selectedProduct.getCostPrice().compareTo(costPrice) != 0
                 || selectedProduct.getRetailPrice().compareTo(retailPrice) != 0
-                || !selectedProduct.getCategoryName().equals(cbCategory.getValue())
+                || !selectedProduct.getCategoryName().equals(cbCategory.getValue().getCategoryName())
                 || selectedProduct.isActive() != chkActive.isSelected()) {
 
             selectedProduct.setProductName(name);
@@ -243,6 +244,7 @@ public class ProductModalController implements Initializable {
 
         // Push update if at least one bit changed
         if (cacheLine.isDirtyBit()) {
+            cacheLine.setProduct(selectedProduct);
             cacheLine.setCacheVersion(cacheLine.getCacheVersion() + 1);
             ProductsCache.getInstance().put(cacheLine);
         }

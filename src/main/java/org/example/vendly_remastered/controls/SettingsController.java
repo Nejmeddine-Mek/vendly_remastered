@@ -16,7 +16,6 @@ import org.example.vendly_remastered.models.entity.Role;
 import org.example.vendly_remastered.repository.IArchiveRepository;
 import org.example.vendly_remastered.repository.ICategoryRepository;
 import org.example.vendly_remastered.repository.IRoleRepository;
-import org.example.vendly_remastered.security.AppConfig;
 import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 
@@ -24,7 +23,6 @@ import java.io.File;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Locale;
 import java.util.ResourceBundle;
 
 import static javafx.beans.binding.Bindings.createBooleanBinding;

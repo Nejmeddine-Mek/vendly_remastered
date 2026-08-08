@@ -184,18 +184,19 @@ public class ProductSQLiteImpl implements IProductRepository {
         if (productName == null || productName.isBlank()) return new ArrayList<>();
 
         String sql = """
-        SELECT DISTINCT 
-            p.product_id, p.product_name, p.cost_price, p.retail_price, 
-            p.category, p.is_active, p.created_on, p.updated_on,
-            c.category_name,
-            s.current_stock, s.min_threshold,
-            pr.promo_quantity, pr.promo_price
+        SELECT DISTINCT
+        p.product_id, p.product_name, p.cost_price, p.retail_price,\s
+        p.category, p.is_active, p.created_on, p.updated_on,
+        c.category_id, c.category_name,
+        s.current_stock, s.min_threshold,
+        pr.promo_quantity, pr.promo_price
         FROM product p
         INNER JOIN category c ON p.category = c.category_id
         INNER JOIN stock s ON p.product_id = s.product_id
         LEFT JOIN product_barcode pb ON p.product_id = pb.product_id
         LEFT JOIN promotion pr ON p.product_id = pr.product_id
-        WHERE lower(p.product_name) LIKE ?;
+        WHERE p.is_active = 1 
+        AND lower(p.product_name) LIKE ?;
         """;
 
         List<Product> matches = new ArrayList<>();
@@ -234,7 +235,8 @@ public class ProductSQLiteImpl implements IProductRepository {
         INNER JOIN product_barcode pb ON p.product_id = pb.product_id
         INNER JOIN stock s ON p.product_id = s.product_id
         LEFT JOIN promotion pr ON p.product_id = pr.product_id
-        WHERE pb.barcode = ?;
+        WHERE p.is_active = 1
+        AND pb.barcode = ?;
         """;
 
         try (PreparedStatement pstmt = connection.prepareStatement(sql)) {

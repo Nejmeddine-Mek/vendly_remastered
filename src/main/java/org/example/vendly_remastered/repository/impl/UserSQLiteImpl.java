@@ -132,6 +132,7 @@ public class UserSQLiteImpl implements IUserRepository {
         }
         return Optional.empty();
     }
+
     @Override
     public List<User> findAll() {
         List<User> usersList = new ArrayList<>();

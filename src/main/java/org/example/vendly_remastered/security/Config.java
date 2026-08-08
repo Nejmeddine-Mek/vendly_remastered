@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
+import org.example.vendly_remastered.utils.DatabaseManager;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -74,7 +75,13 @@ public class Config {
                 return;
             } catch (IOException e) {
                 System.err.println("[Config] Error reading " + CONFIG_FILE + ". Recreating default file.");
+
             }
+        } else {
+            System.out.println("[Database] Tables Creation initialization");
+            DatabaseManager.initializeDatabase();
+            System.out.println("[Database] Default user creation");
+            DatabaseManager.createAdminAccount();
         }
 
         // File doesn't exist or failed to load: create default file

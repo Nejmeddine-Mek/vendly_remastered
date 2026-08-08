@@ -283,12 +283,12 @@ public class ClientsSQLiteImpl implements IClientsRepository {
             while (rs.next()) {
                 Client client = new Client();
                 client.setClientId(rs.getInt("client_id"));
-                client.setCompanyName(rs.getString("company_name"));
+                client.setCompanyName(rs.getString("company_name") == null ? "":rs.getString("company_name"));
                 client.setContactFullName(rs.getString("contact_full_name"));
-                client.setEmail(rs.getString("email"));
+                client.setEmail(rs.getString("email") == null ? "":rs.getString("email"));
                 client.setPhone(rs.getString("phone"));
-                client.setAddress(rs.getString("address"));
-//                client.setActive(rs.getBoolean("is_active"));
+                client.setAddress(rs.getString("address") == null ? "":rs.getString("address"));
+//              client.setActive(rs.getBoolean("is_active"));admin
                 client.setCreatedBy(rs.getInt("created_by"));
                 client.setCreatedByUsername(rs.getString("created_by_username"));
                 client.setCreatedBy(rs.getInt("created_by_id"));

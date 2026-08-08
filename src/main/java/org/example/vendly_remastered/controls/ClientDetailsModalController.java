@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.models.entity.Client;
+import org.example.vendly_remastered.security.UserSession;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -92,11 +93,11 @@ public class ClientDetailsModalController implements Initializable {
         boolean isActive = chkIsActive.isSelected();
 
         // 2. Validate required fields
-        if (companyName.isEmpty()) {
+       /* if (companyName.isEmpty()) {
             showAlert("Validation Error", "Company Name is required.");
             txtCompanyName.requestFocus();
             return;
-        }
+        }*/
 
         if (contactName.isEmpty()) {
             showAlert("Validation Error", "Contact Person Name is required.");
@@ -120,9 +121,10 @@ public class ClientDetailsModalController implements Initializable {
             newClient.setEmail(email);
             newClient.setAddress(address);
             newClient.setActive(isActive);
-
+            newClient.setCreatedBy(UserSession.getInstance().getUserId());
+            newClient.setCreatedByUsername(UserSession.getInstance().getUsername());
             // Write-Through: Inserts new client into SQLite & updates in-memory cache
-            ClientsCache.getInstance().put(newClient, ClientsCache.UPDATE_INDEX);
+            ClientsCache.getInstance().put(newClient, ClientsCache.ADD_INDEX);
 
         } else {
             // --- UPDATE PATH ---

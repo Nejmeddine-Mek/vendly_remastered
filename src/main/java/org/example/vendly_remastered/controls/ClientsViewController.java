@@ -131,7 +131,7 @@ public class ClientsViewController implements Initializable {
             }
         });
         if (clientsRepository == null){
-            System.out.println("repo is null");
+            System.err.println("[Client repository] NULL reference");
             return;
         }
 
