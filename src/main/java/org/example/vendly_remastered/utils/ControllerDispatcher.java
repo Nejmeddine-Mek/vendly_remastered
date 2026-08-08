@@ -90,11 +90,13 @@ public class ControllerDispatcher {
            Connection connection = DatabaseManager.getConnection();
            ClearSupplierDebtsController csdc = (ClearSupplierDebtsController) controller;
            csdc.setSuppliersRepository(new SupplierSQLiteImpl(connection));
+           csdc.setPurchaseHeaderRepository(new PurchaseHeaderSQLiteImpl(connection));
         });
         registry.put(PurchaseHistoryViewController.class, controller -> {
             Connection connection = DatabaseManager.getConnection();
             PurchaseHistoryViewController phvc = (PurchaseHistoryViewController) controller;
             phvc.setPurchaseHeaderRepository(new PurchaseHeaderSQLiteImpl(connection));
+            phvc.setPurchaseDetailsRepository(new PurchaseDetailsSQLiteImpl(connection));
             phvc.loadInitialPurchaseTableData();
         });
         registry.put(PurchaseEntryViewController.class, controller -> {
@@ -104,6 +106,8 @@ public class ControllerDispatcher {
             pevc.setSuppliersRepository(new SupplierSQLiteImpl(connection));
             pevc.setPurchaseHeaderRepository(new PurchaseHeaderSQLiteImpl(connection));
             pevc.setPurchaseDetailRepository(new PurchaseDetailsSQLiteImpl(connection));
+            pevc.setBatchRepository(new BatchSQLiteImpl(connection));
+            pevc.setStockRepository(new StockSQLiteImpl(connection));
             pevc.initializeComboBoxes();
         });
         registry.put(DashboardController.class, controller -> {

@@ -9,7 +9,10 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.models.entity.Supplier;
+import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
+import org.example.vendly_remastered.repository.IPurchaseHeaderRepository;
 import org.example.vendly_remastered.repository.ISuppliersRepository;
+import org.example.vendly_remastered.service.PurchasesServices;
 import org.example.vendly_remastered.utils.TextFormatterUtils;
 
 import java.math.BigDecimal;
@@ -28,7 +31,7 @@ public class ClearSupplierDebtsController implements Initializable {
     ISuppliersRepository suppliersRepository;
     Supplier selectedSupplier;
     private Consumer<Supplier> onPaymentSaved;
-
+    private IPurchaseHeaderRepository purchaseHeaderRepository;
     public void setOnPaymentSaved(Consumer<Supplier> onPaymentSaved) {
         this.onPaymentSaved = onPaymentSaved;
     }
@@ -66,7 +69,8 @@ public class ClearSupplierDebtsController implements Initializable {
             remaining = BigDecimal.ZERO;
         selectedSupplier.setDebts(remaining);
         suppliersRepository.updateSupplier(selectedSupplier);
-
+        PurchasesServices ps = new PurchasesServices(purchaseHeaderRepository);
+        ps.resolveDebts(paidValue, Math.toIntExact(selectedSupplier.getSupplierId()));
         if (onPaymentSaved != null) {
             onPaymentSaved.accept(selectedSupplier);
         }
@@ -80,5 +84,9 @@ public class ClearSupplierDebtsController implements Initializable {
                 stage.close();
             }
         }
+    }
+
+    public void setPurchaseHeaderRepository(IPurchaseHeaderRepository purchaseHeaderRepository) {
+        this.purchaseHeaderRepository = purchaseHeaderRepository;
     }
 }

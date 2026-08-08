@@ -1,7 +1,7 @@
 package org.example.vendly_remastered.repository.impl;
 
 import org.example.vendly_remastered.models.entity.PurchaseDetailItem;
-import org.example.vendly_remastered.repository.IPurchaseDetailRepository;
+import org.example.vendly_remastered.repository.IPurchaseDetailsRepository;
 
 import java.sql.Connection;
 import java.util.List;
@@ -12,7 +12,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 
-public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailRepository {
+public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailsRepository {
 
     private final Connection connection;
 
@@ -25,14 +25,13 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailRepository {
         String sql = """
                 SELECT pd.purchase_id,
                        pd.product_id,
-                       pd.item_no,
-                       pd.unit_cost,
+                       pd.cost_price,
                        pd.quantity,
-                       p.designation AS product_name
+                       p.product_name AS product_name
                 FROM purchase_details pd
-                LEFT JOIN products p ON pd.product_id = p.product_id
+                LEFT JOIN product p ON pd.product_id = p.product_id
                 WHERE pd.purchase_id = ?
-                ORDER BY pd.item_no ASC;
+                ORDER BY pd.quantity ASC;
                 """;
 
         List<PurchaseDetailItem> items = new ArrayList<>();
@@ -45,8 +44,7 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailRepository {
                     PurchaseDetailItem item = new PurchaseDetailItem();
                     item.setPurchaseId(rs.getLong("purchase_id"));
                     item.setProductId(rs.getInt("product_id"));
-                    item.setItemNumber(rs.getInt("item_no"));
-                    item.setUnitCost(rs.getBigDecimal("unit_cost"));
+                    item.setUnitCost(rs.getBigDecimal("cost_price"));
                     item.setQuantity(rs.getBigDecimal("quantity"));
                     item.setProductName(rs.getString("product_name"));
 
@@ -68,8 +66,8 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailRepository {
         }
 
         String sql = """
-                INSERT INTO purchase_details (purchase_id, product_id, item_no, unit_cost, quantity)
-                VALUES (?, ?, ?, ?, ?);
+                INSERT INTO purchase_details (purchase_id, product_id, cost_price, quantity)
+                VALUES (?, ?, ?, ?);
                 """;
 
         try {
@@ -80,9 +78,8 @@ public class PurchaseDetailsSQLiteImpl implements IPurchaseDetailRepository {
                 for (PurchaseDetailItem item : items) {
                     pstmt.setLong(1, item.getPurchaseId());
                     pstmt.setLong(2, item.getProductId());
-                    pstmt.setInt(3, item.getItemNumber() != null ? item.getItemNumber() : 1);
-                    pstmt.setBigDecimal(4, safe(item.getUnitCost()));
-                    pstmt.setBigDecimal(5, safe(item.getQuantity()));
+                    pstmt.setBigDecimal(3, safe(item.getUnitCost()));
+                    pstmt.setBigDecimal(4, safe(item.getQuantity()));
 
                     pstmt.addBatch();
                 }

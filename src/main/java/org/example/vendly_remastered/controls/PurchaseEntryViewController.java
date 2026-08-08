@@ -8,6 +8,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.stage.Stage;
 import javafx.util.StringConverter;
 import org.example.vendly_remastered.models.entity.*;
 import org.example.vendly_remastered.repository.*;
@@ -82,7 +83,7 @@ public class PurchaseEntryViewController implements Initializable {
     private final ObservableList<PurchaseDetailItem> detailItems = FXCollections.observableArrayList();
 
     private IPurchaseHeaderRepository purchaseHeaderRepository;
-    private IPurchaseDetailRepository purchaseDetailRepository;
+    private IPurchaseDetailsRepository purchaseDetailRepository;
     private IBatchRepository batchRepository;
     private IProductRepository productRepository;
     private ISuppliersRepository suppliersRepository;
@@ -137,17 +138,61 @@ public class PurchaseEntryViewController implements Initializable {
     }
 
     public void populateModalData(PurchaseHeader selectedPurchase, List<PurchaseDetailItem> boughtItems) {
-        if (selectedPurchase != null){
+        if (selectedPurchase != null) {
             setReadOnlyMode(true);
+
+            // 1. Header & ID Info
+            if (txtPurchaseId != null) txtPurchaseId.setText(String.valueOf(selectedPurchase.getPurchaseId()));
+            txtInvoiceNumber.setText(selectedPurchase.getInvoiceNumber());
+            dpPurchaseDate.setValue(selectedPurchase.getPurchaseDate() != null ? selectedPurchase.getPurchaseDate().toLocalDate() : null);
+
+            // Match and set Supplier
+            if (cbSupplier.getItems() != null) {
+                cbSupplier.getItems().stream()
+                        .filter(s -> s.getSupplierId() == selectedPurchase.getSupplierId())
+                        .findFirst()
+                        .ifPresent(cbSupplier::setValue);
+            }
+
+            // 2. Fiscal & Legal Numbers
+            txtRC.setText(selectedPurchase.getRcNumber());
+            txtNIF.setText(selectedPurchase.getNifNumber());
+            txtNIS.setText(selectedPurchase.getNisNumber());
+            txtART.setText(selectedPurchase.getArtNumber());
+            txtCPA.setText(selectedPurchase.getCpaAccount());
+
+            // 3. Fiscal Totals & Footer Fields
+            txtMontantHT.setText(selectedPurchase.getTotalHt() != null ? selectedPurchase.getTotalHt().toPlainString() : "0.00");
+            txtRemise.setText(selectedPurchase.getDiscountAmount() != null ? selectedPurchase.getDiscountAmount().toPlainString() : "0.00");
+
+            if (selectedPurchase.getTvaRate() != null) {
+                cbTvaRate.setValue(selectedPurchase.getTvaRate().toPlainString() + "%");
+            }
+
+            txtMontantTVA.setText(selectedPurchase.getTvaAmount() != null ? selectedPurchase.getTvaAmount().toPlainString() : "0.00");
+            txtTimbre.setText(selectedPurchase.getStampDuty() != null ? selectedPurchase.getStampDuty().toPlainString() : "0.00");
+            txtNetToPay.setText(selectedPurchase.getPurchaseCost() != null ? selectedPurchase.getPurchaseCost().toPlainString() : "0.00");
+            txtAmountPaid.setText(selectedPurchase.getAmountPaid() != null ? selectedPurchase.getAmountPaid().toPlainString() : "0.00");
+            txtNetToPay.setText(String.valueOf(selectedPurchase.getPurchaseCost()));
+            // Calculate remaining debt based on NetToPay and AmountPaid
+            BigDecimal net = selectedPurchase.getPurchaseCost() != null ? selectedPurchase.getPurchaseCost() : BigDecimal.ZERO;
+            BigDecimal paid = selectedPurchase.getAmountPaid() != null ? selectedPurchase.getAmountPaid() : BigDecimal.ZERO;
+            txtRemainingDebt.setText(net.subtract(paid).setScale(2, RoundingMode.HALF_UP).toPlainString());
+
+            // 4. Populate Table Items
+            if (boughtItems != null && !boughtItems.isEmpty()) {
+                detailItems.setAll(boughtItems);
+                reindexTableItems();
+            }
         }
-        //TODO: set the tables and all remaining
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        txtRemainingDebt.editableProperty().bind(Config.getInstance().trackSupplierDebtsProperty());
-        txtAmountPaid.editableProperty().bind(Config.getInstance().trackSupplierDebtsProperty());
+
         if(!Config.getInstance().isTrackSupplierDebts()){
+            txtAmountPaid.setEditable(false);
+            txtRemainingDebt.setEditable(false);
             txtAmountPaid.textProperty().bind(txtNetToPay.textProperty());
             txtRemainingDebt.setText("0.0");
         }
@@ -398,7 +443,21 @@ public class PurchaseEntryViewController implements Initializable {
                 // and stock/batch schemas using generatedId
                 batchRepository.saveAll(batchList);
                 purchaseDetailRepository.savePurchaseItems(detailItems);
-                stockRepository.updateStockBatch(newItemsInStock);
+                supplier.setDebts(supplier.getDebts().add(parseSafe(txtRemainingDebt.getText())));
+                if(Config.getInstance().isTrackSupplierDebts())
+                    suppliersRepository.updateSupplier(supplier);
+                if(Config.getInstance().isTrackStock())
+                    stockRepository.updateStockBatch(newItemsInStock);
+            }
+        }
+        closeModal();
+    }
+
+    private void closeModal() {
+        if (btnSavePurchase != null && btnSavePurchase.getScene() != null) {
+            Stage stage = (Stage) btnSavePurchase.getScene().getWindow();
+            if (stage != null) {
+                stage.close();
             }
         }
     }
@@ -416,7 +475,7 @@ public class PurchaseEntryViewController implements Initializable {
         this.purchaseHeaderRepository = purchaseHeaderRepository;
     }
 
-    public void setPurchaseDetailRepository(IPurchaseDetailRepository purchaseDetailRepository) {
+    public void setPurchaseDetailRepository(IPurchaseDetailsRepository purchaseDetailRepository) {
         this.purchaseDetailRepository = purchaseDetailRepository;
     }
 

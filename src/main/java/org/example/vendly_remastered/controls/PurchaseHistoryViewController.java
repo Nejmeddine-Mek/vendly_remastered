@@ -248,7 +248,7 @@ public class PurchaseHistoryViewController implements Initializable {
     private void openModal(PurchaseHeader selectedPurchase){
         List<PurchaseDetailItem> boughtItems = new ArrayList<>();
         if(selectedPurchase != null)
-            boughtItems = purchaseDetailsRepository.getPurchaseDetails(selectedPurchase.getPurchaseId());
+            boughtItems = purchaseDetailsRepository.getPurchaseItems(Math.toIntExact(selectedPurchase.getPurchaseId()));
 
         try {
             Config config = Config.getInstance();

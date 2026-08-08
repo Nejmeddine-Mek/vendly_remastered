@@ -210,7 +210,7 @@ public class PurchaseHeaderSQLiteImpl implements IPurchaseHeaderRepository {
                        u.full_name AS user_name
                 FROM purchase_header p
                 LEFT JOIN suppliers s ON p.supplier_id = s.supplier_id
-                LEFT JOIN users u ON p.user_id = u.user_id
+                LEFT JOIN users u ON p.user_id = u.userId
                 """;
     }
 
