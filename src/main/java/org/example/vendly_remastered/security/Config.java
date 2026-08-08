@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.NodeOrientation;
 import javafx.scene.Node;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.DatabaseManager;
 
 import java.io.FileInputStream;
@@ -73,9 +74,10 @@ public class Config {
                 trackSupplierDebts.set(Boolean.parseBoolean(props.getProperty("trackSupplierDebts", "false")));
 
                 return;
-            } catch (IOException e) {
-                System.err.println("[Config] Error reading " + CONFIG_FILE + ". Recreating default file.");
-
+            }catch (IOException e) {
+                String message = "[Config] Error reading " + CONFIG_FILE + ". Recreating default file.";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             }
         } else {
             System.out.println("[Database] Tables Creation initialization");
@@ -148,8 +150,10 @@ public class Config {
 
         try (FileOutputStream out = new FileOutputStream(CONFIG_FILE)) {
             props.store(out, "Vendly Remastered Configuration");
-        } catch (IOException e) {
-            System.err.println("[Config] Failed to save " + CONFIG_FILE + ": " + e.getMessage());
+        }catch (IOException e) {
+            String message = "[Config] Failed to save " + CONFIG_FILE + ": " + e.getMessage();
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 
@@ -170,8 +174,10 @@ public class Config {
                 // Fallback to standard bundle loading if stream is null
                 this.languageBundle = ResourceBundle.getBundle("i18n.messages", currentLocale);
             }
-        } catch (Exception e) {
-            System.err.println("[Config] Failed to load bundle for language: " + langCode);
+        }catch (Exception e) {
+            String message = "[Config] Failed to load bundle for language: " + langCode;
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
             this.languageBundle = ResourceBundle.getBundle("i18n.messages", currentLocale);
         }
     }

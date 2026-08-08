@@ -481,7 +481,9 @@ public class SalesViewController implements Initializable {
             Client c = ClientsCache.getInstance().searchByName(clientName);
             if(c == null){
                 // TODO: Handle impossible case where client text doesn't match anything
-                System.out.println("[Checkout Error] Selected client not found in cache.");
+                String message = "[Checkout Error] Selected client not found in cache.";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, new Exception("Selected client not found in cache (impossible state)"));
                 return;
             }
             header.setSaleClient(c.getClientId());
@@ -567,7 +569,9 @@ public class SalesViewController implements Initializable {
                         // Correct check: Is remaining stock less than or equal to the minimum threshold?
                         if (currentStock.compareTo(p.getMinStockLevel()) <= 0) {
                             // TODO: show alert
-                            System.out.println("STOCK ALERT - LOW STOCK");
+                            String message = "STOCK ALERT - LOW STOCK for product ID " + p.getProductId();
+                            System.err.println(message);
+                            ErrorLogsService.getInstance().log(message, new Exception("Low stock threshold breached"));
                         }
                     }
             }
@@ -591,6 +595,9 @@ public class SalesViewController implements Initializable {
         int saleId = saleHeaderRepository.saveSaleHeader(header);
         if(saleId == -1){
             // TODO: fail here, must handle and not save
+            String message = "[Checkout Error] Invalid sale ID (-1) encountered. Aborting save operation.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, new IllegalStateException("Invalid sale ID encountered"));
             return;
         }
         for(SaleDetailItem item : soldItems){
@@ -602,9 +609,10 @@ public class SalesViewController implements Initializable {
                 System.out.println("[Thread A] Starting SQLite write for sale ID: " + saleId);
                 saleDetailsRepository.saveSaleDetails(soldItems);
                 System.out.println("[Thread A] SQLite write completed successfully.");
-            } catch (Exception e) {
-                System.err.println("[Thread A] CRITICAL ERROR: Failed to save details to database!");
-                e.printStackTrace();
+            }catch (Exception e) {
+                String message = "[Thread A] CRITICAL ERROR: Failed to save details to database!";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
             }
         });
         salesThreadPool.submit(() -> {

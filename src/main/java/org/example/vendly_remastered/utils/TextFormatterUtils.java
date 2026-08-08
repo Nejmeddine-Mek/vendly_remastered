@@ -10,6 +10,7 @@ public class TextFormatterUtils {
     private static final Pattern DECIMAL_PATTERN = Pattern.compile("\\d*(\\.\\d*)?");
     private static final Pattern BARCODE_PATTERN = Pattern.compile("[a-zA-Z0-9]*");
 
+
     public static TextFormatter<String> createIntegerFormatter() {
         UnaryOperator<TextFormatter.Change> filter = change -> {
             String newText = change.getControlNewText();

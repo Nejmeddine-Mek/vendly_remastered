@@ -88,7 +88,7 @@ public class UserSQLiteImpl implements IUserRepository {
      * * @param username The username to look up.
      * @return An Optional containing the User if found, or empty otherwise.
      * @deprecated This method is being phased out in favor of lookups that explicitly
-     * leverage unified cache maps or ID-based indexing. Use {@link #findById(int)} if applicable.
+     * leverage unified cache maps or ID-based indexing. Use {@link #findAll()} if applicable.
      */
     @Deprecated(since = "1.1", forRemoval = false)
     public Optional<User> searchByUsername(String username) {

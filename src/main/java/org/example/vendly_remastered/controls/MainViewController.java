@@ -177,8 +177,9 @@ public class MainViewController implements Initializable {
         ProductsCache cache = ProductsCache.getInstance();
         cache.flushAll();
 
-        ClientsCache cCache = ClientsCache.getInstance();
-        cCache.flushAll();
+        // Close the current window
+        Stage stage = (Stage) logoutButton.getScene().getWindow();
+        stage.close();
     }
 
     private void togglePage(Constants pageName) {

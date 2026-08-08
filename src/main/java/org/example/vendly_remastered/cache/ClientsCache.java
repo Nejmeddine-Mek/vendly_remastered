@@ -4,6 +4,7 @@ import org.example.vendly_remastered.cache.model.ClientCacheLine;
 import org.example.vendly_remastered.models.entity.Client;
 import org.example.vendly_remastered.repository.IClientsRepository;
 import org.example.vendly_remastered.repository.impl.ClientsSQLiteImpl;
+import org.example.vendly_remastered.service.ErrorLogsService;
 import org.example.vendly_remastered.utils.DatabaseManager;
 
 import java.sql.SQLException;
@@ -77,8 +78,11 @@ public class ClientsCache {
                 // Fail-safe initialization to prevent runtime startup exceptions if not pre-initialized
                 System.out.println("[ClientsCache] Warning: Auto-initializing default SQLite repository fallback.");
                 instance = new ClientsCache(50, new ClientsSQLiteImpl(DatabaseManager.getConnection()));
-            } catch (SQLException e) {
-                throw new IllegalStateException("Failed to fallback-initialize ClientsCache database handle.", e);
+            }catch (SQLException e) {
+                String message = "Failed to fallback-initialize ClientsCache database handle.";
+                System.err.println(message);
+                ErrorLogsService.getInstance().log(message, e);
+                throw new IllegalStateException(message, e);
             }
         }
         return instance;
@@ -120,14 +124,18 @@ public class ClientsCache {
             if(dbAction == 0){
                 boolean dbSuccess = clientsRepository.add(client);
                 if (!dbSuccess) {
-                    System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
+                    String message = "[ClientsCache] Write-Through aborted: Repository failed database insertion.";
+                    System.err.println(message);
+                    ErrorLogsService.getInstance().log(message, new Exception("Write-Through database insertion failure"));
                     return;
                 }
             } else if( dbAction == 1){
                 //TODO : execute update here
                 boolean dbSuccess = clientsRepository.update(client);
                 if (!dbSuccess) {
-                    System.err.println("[ClientsCache] Write-Through aborted: Repository failed database insertion.");
+                    String message = "[ClientsCache] Write-Through aborted: Repository failed database insertion.";
+                    System.err.println(message);
+                    ErrorLogsService.getInstance().log(message, new Exception("Write-Through database insertion failure"));
                     return;
                 }
                 if(!client.isActive()){
@@ -139,9 +147,10 @@ public class ClientsCache {
             // Sync successfully written record back into cache mapping layers
             this.putQuietly(client);
 
-        } catch (Exception e) {
-            System.err.println("[ClientsCache] CRITICAL: Unexpected error on Write-Through persistence loop.");
-            e.printStackTrace();
+        }catch (Exception e) {
+            String message = "[ClientsCache] CRITICAL: Unexpected error on Write-Through persistence loop.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 
@@ -218,9 +227,4 @@ public class ClientsCache {
         return this.cacheMap.values();
     }
 
-    public void flushAll(){
-        for(Map.Entry<Integer, ClientCacheLine> entry : cacheMap.entrySet()){
-
-        }
-    }
 }

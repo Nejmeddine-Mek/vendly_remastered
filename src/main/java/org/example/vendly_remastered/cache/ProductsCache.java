@@ -372,6 +372,9 @@ public class ProductsCache {
      */
     public synchronized void flushAll() {
         System.out.println("Write-Through Active: All cached entries are already synchronized with disk.");
+        for(Map.Entry<Integer, ProductCacheLine> entry : cacheMap.entrySet()){
+            persistSelectiveToDisk(entry.getValue());
+        }
     }
 
     public long getCacheVersionCounter() {

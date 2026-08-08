@@ -1,5 +1,7 @@
 package org.example.vendly_remastered.utils;
 
+import org.example.vendly_remastered.service.ErrorLogsService;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -230,9 +232,10 @@ public class DatabaseManager {
 
             System.out.println("Vendly Remastered DB Schema initialized safely.");
 
-        } catch (SQLException e) {
-            System.err.println("CRITICAL FAILURE: Schema execution rejected during DB bootstrap.");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "CRITICAL FAILURE: Schema execution rejected during DB bootstrap.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 
@@ -268,9 +271,10 @@ public class DatabaseManager {
             stmt.execute(insertUserSql);
             System.out.println("Default admin role and account initialized successfully.");
 
-        } catch (SQLException e) {
-            System.err.println("Failed to create admin account and role.");
-            e.printStackTrace();
+        }catch (SQLException e) {
+            String message = "Failed to create admin account and role.";
+            System.err.println(message);
+            ErrorLogsService.getInstance().log(message, e);
         }
     }
 }
