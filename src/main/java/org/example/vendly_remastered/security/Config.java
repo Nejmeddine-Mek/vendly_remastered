@@ -97,7 +97,7 @@ public class Config {
             case "العربية" -> "ar";
             default        -> "fr";
         };
-        props.setProperty("language", this.language);
+        props.setProperty("language", langCode);
         props.setProperty("trackStock", String.valueOf(trackStock.getValue()));
         props.setProperty("updateStockOnSale", String.valueOf(updateStockOnSale.getValue()));
         props.setProperty("allowNegativeStock", String.valueOf(allowNegativeStock.getValue()));
