@@ -4,16 +4,21 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.example.vendly_remastered.cache.ClientsCache;
 import org.example.vendly_remastered.cache.PagesCache;
 import org.example.vendly_remastered.cache.ProductsCache;
 import org.example.vendly_remastered.constants.Constants;
 import org.example.vendly_remastered.constants.PagesPriorities;
+import org.example.vendly_remastered.models.entity.Batch;
+import org.example.vendly_remastered.repository.IBatchRepository;
 import org.example.vendly_remastered.repository.impl.BarcodeSQLImpl;
 import org.example.vendly_remastered.repository.impl.ClientsSQLiteImpl;
 import org.example.vendly_remastered.repository.impl.ProductSQLiteImpl;
@@ -28,6 +33,7 @@ import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -49,15 +55,17 @@ public class MainViewController implements Initializable {
 
     // Here we have our Logic control variables
     PagesCache pagesCache = new PagesCache();
+    private IBatchRepository batchRepository;
 
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // here, you can simply just load the batch repo and work on the batches part and expiry alerts
         // in case the option is true in the config object
-        if(Config.getInstance().isBatchExpiryAlerts()){
-            //TODO: query batches table and create the alerts in a different thread
-        }
+
+        logoutButton.setOnAction(_ -> {
+            handleLogOut();
+        });
 
         //==========================================================================
         salesButton.managedProperty().bind(salesButton.visibleProperty());
@@ -116,6 +124,40 @@ public class MainViewController implements Initializable {
         //injectView(Constants.getViewPath(Constants.CLIENTS_VIEW));
 
     }
+    public void checkExpiringBatches(){
+        if (Config.getInstance().isBatchExpiryAlerts()) {
+            new Thread(() -> {
+                if(batchRepository == null)
+                    return;
+                batchRepository.removeExpired();
+                List<Batch> expiringBatches = batchRepository.getExpiringSoon();
+                if (expiringBatches != null && !expiringBatches.isEmpty()) {
+                    javafx.application.Platform.runLater(() -> openModal(expiringBatches));
+                }
+            }).start();
+        }
+    }
+
+    private void openModal(List<Batch> expiringBatches) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/ExpiryAlertModal.fxml"));
+            loader.setResources(Config.getInstance().getLanguageBundle());
+            Parent root = loader.load();
+
+            ExpiryAlertModalController controller = loader.getController();
+            controller.setMode(expiringBatches);
+
+            Config.getInstance().applyOrientation(root);
+
+            Stage stage = new Stage();
+            stage.setTitle(Config.getInstance().getLanguageBundle().getString("expiry.header.title"));
+            stage.setScene(new Scene(root));
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.show();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     private void setupNavigationButtons() {
         // Map each FXML button directly to its corresponding view constant
@@ -129,6 +171,7 @@ public class MainViewController implements Initializable {
         settingsButton.setOnAction(_ -> togglePage(Constants.SETTINGS_VIEW));
         usersButton.setOnAction(_ -> togglePage(Constants.USERS_VIEW));
     }
+
     private void handleLogOut(){
         ProductsCache cache = ProductsCache.getInstance();
         cache.flushAll();
@@ -200,5 +243,9 @@ public class MainViewController implements Initializable {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void setBatchRepository(IBatchRepository batchRepository) {
+        this.batchRepository = batchRepository;
     }
 }

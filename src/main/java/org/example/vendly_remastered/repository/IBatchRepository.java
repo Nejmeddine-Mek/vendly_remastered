@@ -5,5 +5,7 @@ import org.example.vendly_remastered.models.entity.Batch;
 import java.util.List;
 
 public interface IBatchRepository {
-    void saveAll(List<Batch> batches);
+     void saveAll(List<Batch> batches);
+     List<Batch> getExpiringSoon();
+     void removeExpired();
 }

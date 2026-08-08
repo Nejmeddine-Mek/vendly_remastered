@@ -130,6 +130,12 @@ public class ControllerDispatcher {
             nbcsc.setProductRepository(new ProductSQLiteImpl(connection));
             nbcsc.initializeLists();
         });
+        registry.put(MainViewController.class, controller -> {
+            Connection connection = DatabaseManager.getConnection();
+            MainViewController mvc = (MainViewController) controller;
+            mvc.setBatchRepository(new BatchSQLiteImpl(connection));
+            mvc.checkExpiringBatches();
+        });
         // 🌟 Adding a new controller next week? Just drop another registry.put() right here!
     }
 

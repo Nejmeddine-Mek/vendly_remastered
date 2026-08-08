@@ -432,6 +432,7 @@ public class PurchaseEntryViewController implements Initializable {
                     if (item.getExpiryDate() != null) {
                         batchList.add(new Batch(
                                 Math.toIntExact(item.getProductId()),
+                                item.getProductName(),
                                 item.getBatchNumber(),
                                 item.getQuantity(),
                                 item.getExpiryDate()

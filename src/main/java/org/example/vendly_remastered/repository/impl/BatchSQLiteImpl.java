@@ -4,10 +4,8 @@ import org.example.vendly_remastered.models.entity.Batch;
 import org.example.vendly_remastered.repository.IBatchRepository;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -55,6 +53,49 @@ public class BatchSQLiteImpl implements IBatchRepository {
             System.err.println("CRITICAL: Failed to save batch expiry cards to disk.");
             e.printStackTrace();
             throw new RuntimeException("Batch insert failure", e);
+        }
+    }
+
+    @Override
+    public List<Batch> getExpiringSoon() {
+        String sql = """
+        SELECT P.product_name, B.* FROM batch B
+        JOIN product P ON P.product_id = B.product_id
+        WHERE B.expiry_date < date('now', '+10 days')
+        ORDER BY B.expiry_date ASC;
+        """;
+        List<Batch> resultList = new ArrayList<>();
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            ResultSet rs = pstmt.executeQuery();
+
+            while (rs.next()) {
+                Batch e = new Batch();
+                e.setBatchId(rs.getInt("batch_id"));
+                e.setProductId(rs.getInt("product_id"));
+                e.setProductName(rs.getString("product_name"));
+                // Assuming expiry_date is stored as text (YYYY-MM-DD) in SQLite and parsed into LocalDate
+                String expiryDateStr = rs.getString("expiry_date");
+
+                if (expiryDateStr != null) {
+                    e.setExpiryDate(java.time.LocalDate.parse(expiryDateStr));
+                }
+
+                resultList.add(e);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resultList;
+    }
+
+    @Override
+    public void removeExpired() {
+        String sql = "DELETE FROM batch WHERE expiry_date < date('now', '-5 days')";
+        try (PreparedStatement pstmt = connection.prepareStatement(sql)) {
+            int rowsAffected = pstmt.executeUpdate();
+            System.out.println("Removed " + rowsAffected + " expired batches older than 5 days.");
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
     }
 }

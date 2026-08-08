@@ -12,9 +12,11 @@ import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.vendly_remastered.repository.IUserRepository;
 import org.example.vendly_remastered.security.Config;
+import org.example.vendly_remastered.utils.ControllerDispatcher;
 
 import java.io.IOException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class LoginViewController implements Initializable {
@@ -37,7 +39,7 @@ public class LoginViewController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         // firstly, ome must set any language
 
-        //then setup the default behaviour of the login button
+        //then set up the default behavior of the login button
         setLoginButtonBehaviour();
     }
     private void setLoginButtonBehaviour(){
@@ -62,7 +64,12 @@ public class LoginViewController implements Initializable {
                 // 1. Load the Dashboard FXML file
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/org/example/vendly_remastered/MainView.fxml"));
                 loader.setResources(config.getLanguageBundle());
+
                 Parent root = loader.load();
+                Object controller = loader.getController();
+                ControllerDispatcher.execute(controller);
+
+
 
                 config.applyOrientation(root);
                 // 2. Get the current active Window Stage
@@ -77,6 +84,8 @@ public class LoginViewController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
                 errorLabel.setText(Config.getInstance().getLanguageBundle().getString("Login.error.connectionFailed"));
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
             }
         } else {
         this.passwordField.setText("");      // Clear bad password

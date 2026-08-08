@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<AnchorPane styleClass="total-card" stylesheets="@MainViewStyles.css" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.vendly_remastered.controls.ExpiryAlertModalController">
+    <children>
+        <VBox spacing="16.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <padding>
+                <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+            </padding>
+            <children>
+                <!-- Header Section -->
+                <VBox spacing="4.0">
+                    <children>
+                        <Label styleClass="total-card-title" text="%expiry.header.title" />
+                        <Label styleClass="form-label-helper" text="%expiry.header.subtitle" />
+                    </children>
+                </VBox>
+
+                <!-- Table Section -->
+                <TableView fx:id="tableExpiryAlerts" prefHeight="280.0" prefWidth="560.0" styleClass="pos-table" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colProductName" prefWidth="240.0" text="%expiry.col.product_name" />
+                        <TableColumn fx:id="colExpiryDate" prefWidth="160.0" text="%expiry.col.expiry_date" />
+                        <TableColumn fx:id="colDaysRemaining" prefWidth="160.0" text="%expiry.col.days_remaining" />
+                    </columns>
+                    <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                    </columnResizePolicy>
+                </TableView>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

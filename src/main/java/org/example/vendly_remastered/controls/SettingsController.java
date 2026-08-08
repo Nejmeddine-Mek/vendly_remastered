@@ -83,6 +83,8 @@ public class SettingsController implements Initializable {
     @FXML private Button cancelButton;
     @FXML private Button saveButton;
 
+    @FXML private VBox archivingContainer;
+
     private boolean isUpdatingStates = false;
     private final BooleanProperty[] changedPermissions = new BooleanProperty[13];
     private final boolean[] originalPermissions = new boolean[13];
@@ -116,7 +118,10 @@ public class SettingsController implements Initializable {
         );
         btnSavePermissions.managedProperty().bind(btnSavePermissions.visibleProperty());
         btnSavePermissions.visibleProperty().bind(hasChanged);
-
+        archivingContainer.managedProperty().bind(archivingContainer.visibleProperty());
+        if(!UserSession.getInstance().hasPrivilege("can_edit_products")){
+            archivingContainer.setVisible(false);
+        }
         if(!UserSession.getInstance().hasPrivilege("can_edit_products")){
             categoryPanel.managedProperty().bind(categoryPanel.visibleProperty());
             categoryPanel.setVisible(false);

@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 public class Batch {
     private int batchId;
     private int productId;
+    private String productName;
     private String batchNumber;
     private BigDecimal initialReceivedQty;
     private LocalDate expiryDate;
@@ -16,8 +17,9 @@ public class Batch {
     public Batch() {}
 
     // Convenience Constructor for creating new incoming inventory entries
-    public Batch(int productId, String batchNumber, BigDecimal initialReceivedQty, LocalDate expiryDate) {
+    public Batch(int productId,String productName ,String batchNumber, BigDecimal initialReceivedQty, LocalDate expiryDate) {
         this.productId = productId;
+        this.productName = productName;
         this.batchNumber = batchNumber == null ? "GENERIC" : batchNumber;
         this.initialReceivedQty = initialReceivedQty;
         this.expiryDate = expiryDate;
@@ -41,4 +43,12 @@ public class Batch {
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
 }

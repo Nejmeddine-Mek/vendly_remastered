@@ -167,7 +167,7 @@
 
                 <Separator />
                 <!-- Section: Archive Sales -->
-                <VBox spacing="12.0">
+                <VBox spacing="12.0" fx:id="archivingContainer">
                     <children>
                         <Label styleClass="section-title" text="%settings.section.archive">
                             <font>
