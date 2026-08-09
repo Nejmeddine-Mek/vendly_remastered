@@ -36,10 +36,9 @@ public class VendlyApplication extends Application {
         // 3. CALL IT HERE! Pass the implementation into the slot 🎯
         controller.setRepository(new UserSQLiteImpl(dbConnection));
         Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-        if(appIcon != null)
-            stage.getIcons().add(
+        stage.getIcons().add(
                 appIcon
-            );
+        );
         // 4. Set the scene and display the window
         stage.setScene(new Scene(root));
         stage.setTitle(Config.getInstance().getLanguageBundle().getString("common.loginWindowTitle"));

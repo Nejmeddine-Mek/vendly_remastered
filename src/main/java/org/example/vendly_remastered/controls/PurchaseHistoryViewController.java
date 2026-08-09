@@ -274,7 +274,6 @@ public class PurchaseHistoryViewController implements Initializable {
             else
                 modalStage.setTitle(String.format("Purchase Order Details — #%d", selectedPurchase.getPurchaseId()));
             Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-            if(appIcon != null)
                 modalStage.getIcons().add(
                         appIcon
                 );

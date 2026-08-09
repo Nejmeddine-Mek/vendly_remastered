@@ -8,17 +8,17 @@ public enum Constants {
 
     public static String getViewPath(Constants constant) {
         String path = switch (constant) {
-            case SALES_VIEW     -> "salesView.fxml";
+            case SALES_VIEW     -> "SalesView.fxml";
             case CLIENTS_VIEW   -> "ClientsView.fxml";
             case SUPPLIERS_VIEW -> "suppliersView.fxml";
             case PRODUCTS_VIEW  -> "productsView.fxml";
             case HISTORY_VIEW   -> "HistoryView.fxml";
             case MAIN_VIEW      -> "MainView.fxml";
             case LOGIN_VIEW     -> "LoginView.fxml";
-            case SETTINGS_VIEW  -> "settingsView.fxml";
+            case SETTINGS_VIEW  -> "SettingsView.fxml";
             case USERS_VIEW     -> "UsersView.fxml";
-            case DASHBOARD_VIEW -> "dashboardView.fxml";
-            case PURCHASES_VIEW -> "purchasesHistoryView.fxml";
+            case DASHBOARD_VIEW -> "DashboardView.fxml";
+            case PURCHASES_VIEW -> "PurchasesHistoryView.fxml";
         };
 
         return "/org/example/vendly_remastered/" + path;

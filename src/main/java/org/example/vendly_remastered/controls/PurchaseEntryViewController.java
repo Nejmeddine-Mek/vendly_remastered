@@ -27,13 +27,12 @@ public class PurchaseEntryViewController implements Initializable {
     // ==========================================
     // 1. HEADER & METADATA
     // ==========================================
-    @FXML private Label titleLabel;
+
     @FXML private Label lblOrderMode;
     @FXML private TextField txtPurchaseId;
     @FXML private TextField txtInvoiceNumber;
     @FXML private ComboBox<Supplier> cbSupplier; // Replace Supplier with your model
     @FXML private DatePicker dpPurchaseDate;
-    @FXML private TextField txtCreatedBy;
 
     // ==========================================
     // 2. FISCAL & LEGAL NUMBERS

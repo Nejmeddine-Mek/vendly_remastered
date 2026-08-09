@@ -144,7 +144,10 @@ public class SalesViewController implements Initializable {
                 queueStage.setTitle("Queued Sale - " + java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm")));
                 queueStage.setScene(new Scene(root));
                 queueStage.show();
-
+                Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+                queueStage.getIcons().add(
+                        appIcon
+                );
                 // 3. Reset the current active sale view so it starts fresh
                 // resetCurrentSale(); // Uncomment when ready to clear current window
 
@@ -788,6 +791,7 @@ public class SalesViewController implements Initializable {
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle(Config.getInstance().getLanguageBundle().getString("common.searchUncodedProducts"));
             modalStage.setScene(new Scene(root));
+
 
             // Execution pauses right here until the user double-clicks a product (which calls closeModal)
             modalStage.showAndWait();

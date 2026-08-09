@@ -270,10 +270,9 @@ public class HistoryViewController implements Initializable {
                 Stage modalStage = new Stage();
 
                 Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-                if(appIcon != null)
-                    modalStage.getIcons().add(
-                            appIcon
-                    );
+                modalStage.getIcons().add(
+                        appIcon
+                );
                 modalStage.setTitle(String.format("Sale Details — Invoice #%d", selectedSale.getSaleId()));
                 modalStage.initModality(Modality.APPLICATION_MODAL);
                 modalStage.initOwner(salesTable.getScene().getWindow());

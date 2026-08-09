@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import org.example.vendly_remastered.models.entity.Role;
 import org.example.vendly_remastered.models.entity.User;
 import org.example.vendly_remastered.repository.IRoleRepository;
+import org.example.vendly_remastered.security.Config;
 import org.example.vendly_remastered.security.UserSession;
 
 
@@ -57,7 +58,7 @@ public class UserDetailsModalController implements Initializable {
             this.comboRole.getItems().add(role.getRoleName());
         }
         if (selectedUser == null || selectedUser.getRoleName() == null) {
-            this.comboRole.setValue("Choose a role for the user");
+            this.comboRole.setValue(Config.getInstance().getLanguageBundle().getString("users.chooseRole"));
         } else {
             this.comboRole.setValue(selectedUser.getRoleName());
         }

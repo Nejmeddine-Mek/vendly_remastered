@@ -265,10 +265,9 @@ public class ProductsViewController implements Initializable {
             Stage modalStage = new Stage();
 
             Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-            if(appIcon != null)
-                modalStage.getIcons().add(
+             modalStage.getIcons().add(
                         appIcon
-                );
+             );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle(isEditMode ? "Edit Product Specifications" : "Register New Product Asset");
             modalStage.setScene(new Scene(root));

@@ -11,9 +11,11 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import org.example.vendly_remastered.models.entity.SaleDetailItem;
 import org.example.vendly_remastered.models.entity.SaleHeader;
+import org.example.vendly_remastered.security.Config;
 
 import java.math.BigDecimal;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.ResourceBundle;
 
@@ -61,10 +63,16 @@ public class SaleDetailsModalController implements Initializable {
      */
     public void populateModalData(SaleHeader sale, List<SaleDetailItem> items) {
         if (sale != null) {
-            modalTitle.setText("Invoice #" + sale.getSaleId() + " — Line Items");
+            var bundle = Config.getInstance().getLanguageBundle();
+            String title = MessageFormat.format(
+                    bundle.getString("sales.invoiceLineItemsTitle"),
+                    sale.getSaleId()
+            );
+
+            modalTitle.setText(title);
             txtHeaderSaleId.setText("#" + sale.getSaleId());
             txtHeaderDate.setText(String.valueOf(sale.getSaleDate()));
-            txtHeaderClient.setText(sale.getClientName() == null || sale.getClientName().isBlank() ? "Walk-in Customer" : sale.getClientName());
+            txtHeaderClient.setText(sale.getClientName() == null || sale.getClientName().isBlank() ? Config.getInstance().getLanguageBundle().getString("customer.walkIn") : sale.getClientName());
             txtHeaderCashier.setText(sale.getSaleUsername());
             txtHeaderTotal.setText(String.format("%.2f DA", sale.getSaleTotal() != null ? sale.getSaleTotal() : BigDecimal.ZERO));
 

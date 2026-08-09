@@ -17,7 +17,7 @@
             <!-- Search bar stays safe here -->
             <HBox alignment="CENTER_LEFT" prefHeight="40.0" prefWidth="565.0" spacing="10.0">
                <children>
-                  <Label prefHeight="19.0" prefWidth="230.0" styleClass="form-label" text="Search Product Name / Category:" />
+                  <Label prefHeight="19.0" prefWidth="230.0" styleClass="form-label" text="%product.searchPrompt" />
                   <TextField fx:id="searchBar" prefHeight="37.0" prefWidth="300.0" styleClass="form-field" />
                </children>
             </HBox>

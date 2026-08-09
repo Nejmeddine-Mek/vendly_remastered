@@ -7,6 +7,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
@@ -36,6 +37,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 public class MainViewController implements Initializable {
@@ -154,6 +156,10 @@ public class MainViewController implements Initializable {
             stage.setTitle(Config.getInstance().getLanguageBundle().getString("expiry.header.title"));
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
+            Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
+            stage.getIcons().add(
+                    appIcon
+            );
             stage.show();
         } catch (IOException e) {
             e.printStackTrace();

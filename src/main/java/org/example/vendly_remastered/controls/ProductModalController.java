@@ -22,6 +22,7 @@ import org.example.vendly_remastered.utils.TextFormatterUtils;
 import java.math.BigDecimal;
 import java.net.URL;
 import java.sql.Connection;
+import java.text.MessageFormat;
 import java.util.*;
 
 import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
@@ -117,10 +118,17 @@ public class ProductModalController implements Initializable {
         } catch (NumberFormatException e) {
             System.err.println("CRASH CAUSE: " + e.getMessage());
             e.printStackTrace();
-            showAlert("Input Error", "Number parsing failed: " + e.getMessage());
-            showAlert("Input Error", "Please enter valid numbers for prices and stock quantities.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.inputError"), MessageFormat.format(
+                    Config.getInstance().getLanguageBundle().getString("common.numberParsingError"),
+                    e.getMessage()
+            ));
+            showAlert(Config.getInstance().getLanguageBundle().getString("common.inputError"), Config.getInstance().getLanguageBundle().getString("validation.invalidPriceStock"));
         } catch (Exception e) {
-            showAlert("Save Error", "An error occurred while saving: " + e.getMessage());
+            var bundle = Config.getInstance().getLanguageBundle();
+            String title = bundle.getString("error.saveTitle");
+            String message = MessageFormat.format(bundle.getString("error.saveMessage"), e.getMessage());
+
+            showAlert(title, message);
             e.printStackTrace();
         }
     }
@@ -131,13 +139,13 @@ public class ProductModalController implements Initializable {
 
     private boolean validateInputs() {
         if (txtName.getText().trim().isEmpty()) {
-            showAlert("Validation Error", "Product Name is required.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("validation.errorTitle"), Config.getInstance().getLanguageBundle().getString("validation.productNameRequired"));
             txtName.requestFocus();
             return false;
         }
 
         if (cbCategory.getValue() == null) {
-            showAlert("Validation Error", "Please select a Category.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("validation.errorTitle"), Config.getInstance().getLanguageBundle().getString("validation.categoryRequired"));
             cbCategory.requestFocus();
             return false;
         }
@@ -145,7 +153,7 @@ public class ProductModalController implements Initializable {
         // Validate main pricing & stock fields aren't empty
         if (txtCostPrice.getText().trim().isEmpty() || txtRetailPrice.getText().trim().isEmpty()) {
             System.out.println(txtCostPrice.getText() + "  " + txtRetailPrice.getText());
-            showAlert("Validation Error", "Cost Price and Retail Price are required.");
+            showAlert(Config.getInstance().getLanguageBundle().getString("validation.errorTitle"), Config.getInstance().getLanguageBundle().getString("validation.priceRequired"));
             return false;
         }
 
@@ -154,7 +162,7 @@ public class ProductModalController implements Initializable {
             String qty = txtPromoQty.getText().trim();
             String price = txtPromoPrice.getText().trim();
             if (qty.isEmpty() || price.isEmpty()) {
-                showAlert("Validation Error", "Please enter both Quantity and Price for the promotion.");
+                showAlert(Config.getInstance().getLanguageBundle().getString("validation.errorTitle"), Config.getInstance().getLanguageBundle().getString("validation.promoRequired"));
                 return false;
             }
         }
@@ -285,7 +293,7 @@ public class ProductModalController implements Initializable {
         }
 
         // Set prompt text instead of inserting a fake String into a ComboBox<Category>
-        this.cbCategory.setPromptText("Choose a category for the product");
+        //this.cbCategory.setPromptText("Choose a category for the product");
 
         if (selectedProduct != null && selectedProduct.getCategoryName() != null) {
             // Find matching Category object from loaded list
@@ -321,8 +329,8 @@ public class ProductModalController implements Initializable {
 
         if (product == null) {
             // 🌟 CREATION MODE SETUP
-            modalTitleLabel.setText("CREATE NEW PRODUCT ASSET");
-            btnSave.setText("Register New Product");
+            modalTitleLabel.setText(Config.getInstance().getLanguageBundle().getString("product.createNewAsset"));
+            btnSave.setText(Config.getInstance().getLanguageBundle().getString("product.registerNew"));
             chkActive.setSelected(true);
             txtName.clear();
             txtBarcodeEntry.clear();
@@ -332,8 +340,8 @@ public class ProductModalController implements Initializable {
             txtMinThreshold.setText("5");
         } else {
             // 🔒 EDIT MODE SETUP
-            modalTitleLabel.setText("PRODUCT SPECIFICATION PROFILE");
-            btnSave.setText("Save Registry Changes");
+            modalTitleLabel.setText(Config.getInstance().getLanguageBundle().getString("product.specProfile"));
+            btnSave.setText(Config.getInstance().getLanguageBundle().getString("product.saveChanges"));
 
             // Populate form values from entity data
             txtName.setText(product.getProductName());

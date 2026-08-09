@@ -32,9 +32,7 @@ import java.util.ResourceBundle;
 import static org.example.vendly_remastered.service.MessageBoxService.showAlert;
 
 public class ClientsViewController implements Initializable {
-    @FXML private Label clientDetailsLabel;
-    @FXML private TextArea clientDetailsArea;
-    @FXML private Label clientSearchLabel;
+
     @FXML private TextField searchField;
     @FXML private Button addClientButton;
     @FXML private Button clientDetailsButton;
@@ -188,10 +186,9 @@ public class ClientsViewController implements Initializable {
             Stage modalStage = new Stage();
 
             Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-            if(appIcon != null)
-                modalStage.getIcons().add(
-                        appIcon
-                );
+            modalStage.getIcons().add(
+                    appIcon
+            );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle(isEditMode ? "Edit Client Profile" : "Register New Client");
             modalStage.setScene(new Scene(root));

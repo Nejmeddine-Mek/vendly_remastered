@@ -207,10 +207,9 @@ public class SuppliersViewController implements Initializable {
             // 5. Build and present the window scene configuration
             Stage modalStage = new Stage();
             Image appIcon = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/images/vendly_remastered_icon.png")));
-            if(appIcon != null)
-                modalStage.getIcons().add(
-                        appIcon
-                );
+            modalStage.getIcons().add(
+                    appIcon
+            );
             modalStage.initModality(Modality.APPLICATION_MODAL);
             modalStage.setTitle("Edit Client debts");
             modalStage.setScene(new Scene(root));
