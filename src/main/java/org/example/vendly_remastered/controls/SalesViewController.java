@@ -162,6 +162,7 @@ public class SalesViewController implements Initializable {
         noBarCodeButton.setOnAction(_ -> {
             setShowUncodedProducts();
         });
+        Platform.runLater(() -> barcodeField.requestFocus() );
     }
 
     private void setConfirmButtonBehaviour(){
@@ -396,6 +397,7 @@ public class SalesViewController implements Initializable {
             }
 
             if (targetProduct == null) {
+                barcodeField.selectAll();
                 System.out.println("Product with barcode or Name " + targetBarcode + " was not found");
                 return;
             }

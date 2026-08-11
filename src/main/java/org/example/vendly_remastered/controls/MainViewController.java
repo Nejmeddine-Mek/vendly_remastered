@@ -114,8 +114,8 @@ public class MainViewController implements Initializable {
         // now we set default behaviour of each field and button
         try {
             Connection conn = DatabaseManager.getConnection();
-            ProductsCache.initialize(20, new ProductSQLiteImpl(conn), new StockSQLiteImpl(conn), new BarcodeSQLImpl(conn));
-            ClientsCache.initialize(10,new ClientsSQLiteImpl(conn));
+            ProductsCache.initialize(350, new ProductSQLiteImpl(conn), new StockSQLiteImpl(conn), new BarcodeSQLImpl(conn));
+            ClientsCache.initialize(30,new ClientsSQLiteImpl(conn));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -179,10 +179,14 @@ public class MainViewController implements Initializable {
         usersButton.setOnAction(_ -> togglePage(Constants.USERS_VIEW));
     }
 
-    private void handleLogOut(){
+    private void handleLogOut()  {
         ProductsCache cache = ProductsCache.getInstance();
         cache.flushAll();
-
+        try{
+            DatabaseManager.getConnection().close();
+        } catch(SQLException e){
+            ErrorLogsService.getInstance().log("Could not close Connection", e);
+        }
         // Close the current window
         Stage stage = (Stage) logoutButton.getScene().getWindow();
         stage.close();

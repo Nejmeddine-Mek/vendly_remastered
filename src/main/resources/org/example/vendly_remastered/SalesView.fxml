@@ -61,7 +61,10 @@
                   <VBox alignment="CENTER" prefHeight="105.0" prefWidth="351.0" styleClass="total-display-box">
                      <children>
                         <Label fx:id="totalAmountLabel" styleClass="total-display-label" text="%sales.totalAmount" />
-                        <Label fx:id="totalLabel" styleClass="total-display-value" text="0.00 DA" />
+                        <Label fx:id="totalLabel" styleClass="total-display-value" text="0.00 DA">
+                           <font>
+                              <Font size="36.0" />
+                           </font></Label>
                      </children>
                   </VBox>
 

@@ -22,7 +22,7 @@ public class ProductSQLiteImpl implements IProductRepository {
                 P.retail_price,
                 P.created_on,
                 P.updated_on,
-                P.category AS category_id,
+                P.category,
                 P.is_active,
                 C.category_name AS category_name, 
                 PB.barcode AS barcode,
@@ -65,7 +65,7 @@ public class ProductSQLiteImpl implements IProductRepository {
                     BigDecimal promoPrice = rs.getBigDecimal("promo_price");
                     if (promoPrice != null) product.setPromotionPrice(promoPrice);
 
-                    product.setCategoryId(rs.getShort("category_id"));
+                    product.setCategoryId(rs.getShort("category"));
                     product.setActive(rs.getBoolean("is_active"));
                     product.setCategoryName(rs.getString("category_name"));
 
@@ -275,13 +275,13 @@ public class ProductSQLiteImpl implements IProductRepository {
                 P.retail_price,
                 P.created_on,
                 P.updated_on,
-                P.category AS category_id,
+                P.category,
                 P.is_active,
                 C.category_name AS category_name, 
                 PM.*,
                 S.*
             FROM product P
-            JOIN category C ON C.category_id = P.category
+            JOIN category C ON C.category = P.category
             JOIN stock S ON S.product_id = P.product_id
             LEFT JOIN promotion PM ON P.product_id = PM.product_id
             WHERE P.is_active = 1  
@@ -312,7 +312,7 @@ public class ProductSQLiteImpl implements IProductRepository {
         product.setProductName(rs.getString("product_name"));
         product.setCostPrice(rs.getBigDecimal("cost_price"));
         product.setRetailPrice(rs.getBigDecimal("retail_price"));
-        product.setCategoryId(rs.getShort("category_id"));
+        product.setCategoryId(rs.getShort("category"));
         product.setCategoryName(rs.getString("category_name"));
         product.setActive(rs.getBoolean("is_active"));
 
