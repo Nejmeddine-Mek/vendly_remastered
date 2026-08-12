@@ -758,10 +758,10 @@ public class SalesViewController implements Initializable {
             Config config = Config.getInstance();
             // 1. Point to your wide layout FXML file
             FXMLLoader loader = new FXMLLoader(Objects.requireNonNull(getClass().getResource("/org/example/vendly_remastered/NoBarCodeSelection.fxml")));
-            //loader.setResources(config.getLanguageBundle());
+            loader.setResources(config.getLanguageBundle());
             Parent root = loader.load();
 
-            //config.applyOrientation(root);
+            config.applyOrientation(root);
 
             // 2. Get controller and inject dependencies
             NoBarCodeSelectionController controller = loader.getController();
