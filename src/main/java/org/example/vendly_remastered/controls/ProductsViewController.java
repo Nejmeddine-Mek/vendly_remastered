@@ -269,7 +269,7 @@ public class ProductsViewController implements Initializable {
                         appIcon
              );
             modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle(isEditMode ? "Edit Product Specifications" : "Register New Product Asset");
+            modalStage.setTitle(isEditMode ? Config.getInstance().getLanguageBundle().getString("common.editProductSpecifications"): Config.getInstance().getLanguageBundle().getString("common.registerNewProductAsset"));
             modalStage.setScene(new Scene(root));
 
             // Execution pauses right here until the user clicks Save or Cancel

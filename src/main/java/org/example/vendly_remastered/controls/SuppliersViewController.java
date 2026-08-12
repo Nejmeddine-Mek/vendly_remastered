@@ -211,7 +211,7 @@ public class SuppliersViewController implements Initializable {
                     appIcon
             );
             modalStage.initModality(Modality.APPLICATION_MODAL);
-            modalStage.setTitle("Edit Client debts");
+            modalStage.setTitle(Config.getInstance().getLanguageBundle().getString("common.supplierPanel"));
             modalStage.setScene(new Scene(root));
 
             // Execution pauses right here until the user clicks Save or Cancel
@@ -260,7 +260,7 @@ public class SuppliersViewController implements Initializable {
                 // 5. Build and present the window scene configuration
                 Stage modalStage = new Stage();
                 modalStage.initModality(Modality.APPLICATION_MODAL);
-                modalStage.setTitle("Edit Client debts");
+                modalStage.setTitle(Config.getInstance().getLanguageBundle().getString("common.editSupplierDebts"));
                 modalStage.setScene(new Scene(root));
 
                 // Execution pauses right here until the user clicks Save or Cancel
