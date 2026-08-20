@@ -41,7 +41,7 @@ public class CartItem {
     /**
      * Updates the quantity and automatically recalculates the subtotal defensively
      */
-    public void setQuantity(BigDecimal quantity) {
+    public void setQuantityForPromo(BigDecimal quantity){
         this.quantity.set(quantity);
         // now we need to the real value of the subtotal
 
@@ -61,6 +61,11 @@ public class CartItem {
             // 4. Combine for final subtotal
             this.subTotal.set(bundlesCost.add(remainderCost));
         }
+    }
+    public void setQuantity(BigDecimal quantity) {
+        this.quantity.set(quantity);
+        this.subTotal.set(this.getUnitPrice().multiply(quantity));
+
     }
 
     public void setPromotionQuantity(BigDecimal q){promotion.setQuantity(q);}

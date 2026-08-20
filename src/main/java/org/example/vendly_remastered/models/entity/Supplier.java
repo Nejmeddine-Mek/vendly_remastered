@@ -18,7 +18,7 @@ public class Supplier {
     private boolean isActive;
     // Default Constructor
     public Supplier() {
-
+        this.debts = new BigDecimal(0);
     }
 
     // Full Constructor

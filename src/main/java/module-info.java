@@ -12,6 +12,7 @@ module org.example.vendly_remastered {
     requires java.sql;
     requires jbcrypt;
     requires java.xml.crypto;
+    requires jdk.jconsole;
 
     opens org.example.vendly_remastered to javafx.fxml;
     opens org.example.vendly_remastered.controls to javafx.fxml;

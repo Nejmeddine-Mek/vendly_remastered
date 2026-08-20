@@ -20,6 +20,7 @@ public class Client {
     public Client(boolean isActive) {
         this.isActive = isActive;
         this.clientId = 0; // 0 indicates a new, unpersisted client profile
+        this.currentDebts = new BigDecimal(0);
         this.createdAt = LocalDateTime.now();
     }
 
@@ -39,7 +40,7 @@ public class Client {
     }
 
     public Client() {
-
+        this.currentDebts = new BigDecimal(0);
     }
 
     // Getters and Setters

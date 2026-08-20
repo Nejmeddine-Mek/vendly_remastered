@@ -1,5 +1,6 @@
 package org.example.vendly_remastered.controls;
 
+import com.sun.tools.jconsole.JConsoleContext;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -59,10 +60,13 @@ public class ProductModalController implements Initializable {
     public void setBarcodeRepository(IBarcodeRepository repository){ barcodeRepository = repository; }
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        promoFieldsContainer.managedProperty().bind(chkEnablePromotion.selectedProperty());
+        promoFieldsContainer.visibleProperty().bind(chkEnablePromotion.selectedProperty());
         txtPromoPrice.managedProperty().bind(chkEnablePromotion.selectedProperty());
         txtPromoPrice.visibleProperty().bind(chkEnablePromotion.selectedProperty());
         txtPromoQty.managedProperty().bind(chkEnablePromotion.selectedProperty());
         txtPromoQty.visibleProperty().bind(chkEnablePromotion.selectedProperty());
+
 
         if(!Config.getInstance().isTrackStock()){
             txtStockQty.setText("0.0");
@@ -268,6 +272,7 @@ public class ProductModalController implements Initializable {
         return selectedProduct.getPromotionQuantity().compareTo(newQty) != 0
                 || selectedProduct.getPromotionPrice().compareTo(newPrice) != 0;
     }
+
     private void closeModal() {
         Stage stage = (Stage) btnSave.getScene().getWindow();
         if (stage != null) {
@@ -365,14 +370,11 @@ public class ProductModalController implements Initializable {
             }
 
             if (product.hasPromotion()) {
-                promoFieldsContainer.setVisible(true);
-                promoFieldsContainer.setManaged(true);
                 chkEnablePromotion.setSelected(true);
                 txtPromoQty.setText(product.getPromotionQuantity().toString());
                 txtPromoPrice.setText(product.getPromotionPrice().toString());
             } else {
-                promoFieldsContainer.setVisible(false);
-                promoFieldsContainer.setManaged(false);
+                chkEnablePromotion.setSelected(false);
             }
         }
 

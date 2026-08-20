@@ -103,6 +103,7 @@ public class SalesViewController implements Initializable {
         paidAmountField.setText("0.0");
         setQuantityBehaviour();
         setPriceBehaviour(0.0);
+
         setDefaultClientFields();
         setClientCheckBoxBehaviour();
         setTextFormatting();
@@ -212,7 +213,7 @@ public class SalesViewController implements Initializable {
         }
 
         if (selectedItem != null) {
-            selectedItem.setQuantity(validatedQty);
+            selectedItem.setQuantityForPromo(validatedQty);
             // Explicitly refresh the table viewport to force recalculations if needed
             saleItemsTable.refresh();
             updateTransactionTotal(); // Recalculate full order totals
@@ -328,22 +329,22 @@ public class SalesViewController implements Initializable {
         barcodeField.setOnKeyPressed(key -> {
             if (barcodeField.isFocused() && key.getCode() == KeyCode.SPACE) {
                 saveSale();
-                key.consume();
+                Platform.runLater(key::consume);
             }
             if (barcodeField.isFocused() && (key.getCode() == KeyCode.PLUS || key.getCode() == KeyCode.ADD)) {
                 increment();
                 Platform.runLater(barcodeField::clear);
-                key.consume();
+                Platform.runLater(key::consume);
             }
             if (barcodeField.isFocused() && (key.getCode() == KeyCode.MINUS || key.getCode() == KeyCode.SUBTRACT)) {
                 decrement();
                 Platform.runLater(barcodeField::clear);
-                key.consume();
+                Platform.runLater(key::consume);
             }
             if (barcodeField.isFocused() && key.isAltDown()) {
                 quantityField.setEditable(true);
                 quantityField.requestFocus();
-                key.consume();
+                Platform.runLater(key::consume);
             }
         });
 
@@ -371,7 +372,7 @@ public class SalesViewController implements Initializable {
             String targetBarcode = inputBarcode.trim();
             Product targetProduct = null;
 
-            // CASE A: Searching by name via '@' prefix
+            // CASE A: Searching by name via '.' prefix
             if (targetBarcode.startsWith(searchPrefix)) {
                 String query = targetBarcode.substring(1).trim().toLowerCase();
                 System.out.println("Looking for product: " + query);
@@ -633,9 +634,11 @@ public class SalesViewController implements Initializable {
         clientNameField.clear();
         paidAmountField.setText("0.0");
         debtsLabel.setText("");
+        clientCheckBox.setSelected(false);
         totalLabel.setText("0.00 DA");
 
     }
+
     private void updateAndShowProductSuggestions(String textVal, ContextMenu suggestionPopup, ProductsCache cache) {
         if (textVal == null || !textVal.startsWith(searchPrefix)) {
             suggestionPopup.hide();
